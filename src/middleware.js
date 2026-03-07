@@ -10,6 +10,8 @@ export async function middleware(request) {
     'localhost:3000',
     mainDomain,
     `www.${mainDomain}`,
+    'wellwigen.com',
+    'www.wellwigen.com',
     'corporate-gift-frontend.vercel.app'
   ];
 
