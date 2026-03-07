@@ -45,7 +45,8 @@ export async function middleware(request) {
 
   // We need to verify if the subdomain actually exists in our backend
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const backendUrl = 'https://corporate-gift-backend.vercel.app';
     // Use standard fetch inside middleware
     const res = await fetch(`${backendUrl}/companies/portal/${subdomain}`, {
       method: 'GET',

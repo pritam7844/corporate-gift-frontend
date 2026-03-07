@@ -3,7 +3,8 @@ import { useAuthStore } from '../store/authStore';
 
 const api = axios.create({
   // Make sure this matches your backend port!
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
+  // baseURL: 'http://localhost:5000',
+  baseURL: 'https://corporate-gift-backend.vercel.app',
 });
 
 // Automatically attach the token and optionally log requests
