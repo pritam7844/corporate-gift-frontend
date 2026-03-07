@@ -58,17 +58,7 @@ export default function CompanyLandingPage() {
     }, [subdomain, isAuthenticated, isHydrated]);
 
     const handleAddToCart = (product, eventId) => {
-        addToCart(
-            {
-                _id: product._id,
-                name: product.name,
-                image: product.image,
-                price: product.price || 0, // Fallback if price doesn't exist
-            },
-            1,
-            company?._id,
-            eventId
-        );
+        addToCart(product, eventId);
         // Optional: Show toast notification
         alert(`Added ${product.name} to cart!`);
     };
