@@ -4,13 +4,13 @@ export async function middleware(request) {
   const url = request.nextUrl;
   const hostname = request.headers.get('host') || '';
 
-  // 1. Define your main bdfsfase domains
+  // 1. Define your main base domains
   const mainDomain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost:3000';
   const mainDomains = [
     'localhost:3000',
     mainDomain,
     `www.${mainDomain}`,
-    'corporate-team-gift.vercel.app'
+    'corporate-gift-frontend.vercel.app'
   ];
 
   let isMainDomain = mainDomains.includes(hostname);
