@@ -2,7 +2,7 @@ import '../globals.css';
 import AdminLayoutContent from '../../components/admin/AdminLayoutContent';
 
 export const metadata = {
-  title: 'Wellwigen Corporate Gift - Admin',
+  title: 'Corporate Gift Platform - Admin',
   description: 'Enterprise corporate gifting and event management',
 };
 
