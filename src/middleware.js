@@ -4,7 +4,7 @@ export async function middleware(request) {
   const url = request.nextUrl;
   const hostname = request.headers.get('host') || '';
 
-  // 1. Define your main base domains
+  // 1. Define your main bdfsfase domains
   const mainDomain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost:3000';
   const mainDomains = [
     'localhost:3000',
