@@ -1,71 +1,86 @@
+
 import { NextResponse } from 'next/server';
 
 export async function middleware(request) {
   const url = request.nextUrl;
   const hostname = request.headers.get('host') || '';
 
-  // 1. Define your main base domains
-  // const mainDomain = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.wellwigen.com/';
-  const mainDomain = process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000';
+  // 1. Clean the hostname (removes :3000 during local dev)
+  const currentHost = hostname.split(':')[0];
+
+  // 2. Define Main Domains
+  // We use PORTAL_DOMAIN because it's clean (no https://)
+  const portalDomain = process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'wellwigen.com';
+
   const mainDomains = [
-    process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000',
-    mainDomain,
-    `www.${mainDomain}`,
-    'wellwigen.com',
-    'www.wellwigen.com',
+    'localhost',
+    portalDomain,
+    `www.${portalDomain}`,
     'corporate-gift-frontend.vercel.app'
   ];
 
-  let isMainDomain = mainDomains.includes(hostname);
+  // Check if we are on the landing page or www
+  const isMainDomain = mainDomains.includes(currentHost);
 
-  if (!isMainDomain && hostname.endsWith('.vercel.app')) {
-    const parts = hostname.split('.');
-    if (parts.length === 3) {
-      isMainDomain = true;
+  // 3. Extract Subdomain
+  let subdomain = '';
+  if (!isMainDomain) {
+    const parts = currentHost.split('.');
+    // Logic for apple.wellwigen.com (3 parts) or apple.localhost (2 parts)
+    if (parts.length >= (currentHost.includes('localhost') ? 2 : 3)) {
+      subdomain = parts[0];
     }
   }
 
-  // 2. Extract the subdomain
-  let subdomain = '';
-  if (!isMainDomain) {
-    // If it's something.maindomain.com or something.localhost:3000
-    const parts = hostname.split('.');
-    if (parts.length > (hostname.includes('localhost') ? 1 : 2)) {
-      subdomain = parts[0];
-    }
+  // 4. Bypass logic: If no subdomain, or if it's 'www' or 'admin'
+  if (isMainDomain || !subdomain || subdomain === 'www') {
+    return NextResponse.next();
   }
 
   if (subdomain === 'admin') {
     return NextResponse.next();
   }
 
-  // 4. Main Domain Logic (Root landing page / Admin)
-
-  if (isMainDomain || !subdomain) {
-    return NextResponse.next();
-  }
-
-  // 5. Company Subdomain Logic (e.g., apple.localhost:3000)
-
-
+  // 5. Multi-tenant Tenant Fetching
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    // const backendUrl = 'https://corporate-gift-backend.vercel.app';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://corporate-gift-backend.vercel.app';
 
-    // Use standard fetch inside middleware
+    // Call your backend with the subdomain (e.g., apple)
     const res = await fetch(`${backendUrl}/companies/portal/${subdomain}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      // Don't cache this request at the edge
+      headers: { 'Content-Type': 'application/json' },
       cache: 'no-store'
     });
 
     if (!res.ok) {
-      // If the backend returns 404/error, the company doesn't exist.
-      // Returning HTML that closely mimics the Chrome "Site Not Found" browser error
-      const errorHtml = `<!DOCTYPE html>
+      // If company doesn't exist in your DB, show your custom 404
+      return new NextResponse(renderErrorHtml(hostname), {
+        status: 404,
+        headers: { 'Content-Type': 'text/html' }
+      });
+    }
+
+    // 6. Rewrite the URL
+    // Browser stays on apple.wellwigen.com/login
+    // Server fetches from /app/[subdomain]/login/page.tsx
+    const pathName = url.pathname;
+    const rewritePath = `/${subdomain}${pathName}`;
+
+    return NextResponse.rewrite(new URL(rewritePath, request.url));
+
+  } catch (error) {
+    console.error("Middleware fetch error:", error);
+    return new NextResponse("Service Unavailable", { status: 503 });
+  }
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
+
+// Helper for Error HTML
+function renderErrorHtml(hostname) {
+  return `<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -152,35 +167,4 @@ export async function middleware(request) {
   </div>
 </body>
 </html>`;
-      return new NextResponse(errorHtml, {
-        status: 404,
-        headers: { 'Content-Type': 'text/html' }
-      });
-    }
-
-    // Company exists, proceed with rewrite or redirect
-
-    const pathName = url.pathname;
-
-    // If the browser URL literally shows /tata/login (etc), REDIRECT to /login
-    if (pathName.startsWith(`/${subdomain}`)) {
-      // Remove the /subdomain part from the path
-      // e.g., /tata/login -> /login, /tata -> /
-      const cleanPath = pathName.slice(subdomain.length + 1) || '/';
-      return NextResponse.redirect(new URL(cleanPath, request.url));
-    }
-
-    // INTERNAL REWRITE: The browser shows /login, but Next.js serves /tata/login behind the scenes
-    const rewritePath = `/${subdomain}${pathName}`;
-    return NextResponse.rewrite(new URL(rewritePath, request.url));
-
-  } catch (error) {
-    console.error("Middleware fetch error:", error);
-    // Fail safe
-    return new NextResponse("Service Unavailable", { status: 503 });
-  }
 }
-
-export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-};
