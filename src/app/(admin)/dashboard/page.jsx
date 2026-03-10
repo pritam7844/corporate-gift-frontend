@@ -1,47 +1,48 @@
 'use client';
 
 import { useCompanies } from '../../../hooks/useCompanies';
-import { 
-  Building2, 
-  Package, 
-  Users, 
-  TrendingUp, 
-  ArrowUpRight, 
-  Clock 
+import { useDashboardStats } from '../../../hooks/useDashboardStats';
+import {
+  Building2,
+  Package,
+  Users,
+  TrendingUp,
+  ArrowUpRight,
+  Clock
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { companies } = useCompanies();
+  const { stats, loading: statsLoading } = useDashboardStats();
 
-  // Stats Data (We will connect these to real APIs later)
-  const stats = [
-    { 
-      label: 'Total Companies', 
-      value: companies.length || 0, 
-      icon: Building2, 
-      color: 'bg-blue-500', 
-      change: '+12%' 
+  const statsList = [
+    {
+      label: 'Total Companies',
+      value: stats.totalCompanies,
+      icon: Building2,
+      color: 'bg-blue-500',
+      // change: '+12%'
     },
-    { 
-      label: 'Total Products', 
-      value: '124', 
-      icon: Package, 
-      color: 'bg-purple-500', 
-      change: '+5' 
+    {
+      label: 'Total Products',
+      value: stats.totalProducts,
+      icon: Package,
+      color: 'bg-purple-500',
+      // change: '+5'
     },
-    { 
-      label: 'Total Employees', 
-      value: '1,250', 
-      icon: Users, 
-      color: 'bg-orange-500', 
-      change: '+18%' 
+    {
+      label: 'Total Employees',
+      value: stats.totalEmployees.toLocaleString(),
+      icon: Users,
+      color: 'bg-orange-500',
+      // change: '+18%'
     },
-    { 
-      label: 'Active Events', 
-      value: '8', 
-      icon: TrendingUp, 
-      color: 'bg-green-500', 
-      change: 'Active' 
+    {
+      label: 'Active Events',
+      value: stats.activeEvents,
+      icon: TrendingUp,
+      color: 'bg-green-500',
+      change: 'Active'
     },
   ];
 
@@ -55,7 +56,7 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
+        {statsList.map((stat) => (
           <div key={stat.label} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start">
               <div className={`p-3 rounded-lg ${stat.color} text-white`}>
@@ -89,7 +90,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-gray-800">{company.name}</p>
-                    <p className="text-xs text-gray-500">{company.subdomain}.localhost</p>
+                    <p className="text-xs text-gray-500">{company.subdomain}.{process.env.NEXT_PUBLIC_PORTAL_DOMAIN}</p>
                   </div>
                 </div>
                 <span className="text-xs text-gray-400">

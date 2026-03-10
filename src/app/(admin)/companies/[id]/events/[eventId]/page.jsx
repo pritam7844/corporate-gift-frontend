@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2
+    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon
 } from 'lucide-react';
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
-import { getProductsAPI, createProductAPI } from '../../../../../../services/product.service';
+import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
+import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 export default function EventManagement() {
     const { id: companyId, eventId } = useParams();
@@ -20,6 +21,31 @@ export default function EventManagement() {
     const [privateGiftForm, setPrivateGiftForm] = useState({
         name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: ''
     });
+
+    // Edit product state
+    const [showEditProductModal, setShowEditProductModal] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editProductForm, setEditProductForm] = useState({ name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
+    const [savingProduct, setSavingProduct] = useState(false);
+
+    // Confirmation Modal State
+    const [confirmState, setConfirmState] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'warning'
+    });
+
+    const openConfirm = (title, message, onConfirm, type = 'warning') => {
+        setConfirmState({
+            isOpen: true,
+            title,
+            message,
+            onConfirm,
+            type
+        });
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -75,6 +101,73 @@ export default function EventManagement() {
         }
     };
 
+    const handleRemoveProduct = async (productId) => {
+        const executeRemove = async () => {
+            try {
+                const remaining = event.products.filter(p => p._id !== productId).map(p => p._id);
+                await updateEventProductsAPI(eventId, remaining);
+                const refreshedEvent = await getEventByIdAPI(eventId);
+                setEvent(refreshedEvent);
+            } catch (err) {
+                openConfirm('Error', 'Failed to remove product from event.', () => { }, 'danger');
+            }
+        };
+
+        openConfirm(
+            'Remove Product?',
+            'Are you sure you want to remove this gift from the event? It will no longer be available for selection.',
+            executeRemove,
+            'warning'
+        );
+    };
+
+    const handleOpenEditProduct = (product) => {
+        setEditingProduct(product);
+        setEditProductForm({
+            name: product.name,
+            image: product.image || '',
+            category: product.category || 'electronics',
+            actualPrice: product.actualPrice || '',
+            discountedPrice: product.discountedPrice || '',
+        });
+        setShowEditProductModal(true);
+    };
+
+    const handleSaveEditProduct = async (e) => {
+        e.preventDefault();
+        setSavingProduct(true);
+        try {
+            await updateProductAPI(editingProduct._id, editProductForm);
+            const refreshedEvent = await getEventByIdAPI(eventId);
+            setEvent(refreshedEvent);
+            setShowEditProductModal(false);
+            setEditingProduct(null);
+        } catch (err) {
+            alert('Failed to update product');
+        } finally {
+            setSavingProduct(false);
+        }
+    };
+
+    const handleDeleteProduct = async (productId) => {
+        const executeDelete = async () => {
+            try {
+                await deleteProductAPI(productId);
+                const refreshedEvent = await getEventByIdAPI(eventId);
+                setEvent(refreshedEvent);
+            } catch (err) {
+                openConfirm('Error', 'Failed to delete exclusive product.', () => { }, 'danger');
+            }
+        };
+
+        openConfirm(
+            'Delete Product Permanently?',
+            'This exclusive gift will be deleted forever. This action cannot be undone.',
+            executeDelete,
+            'danger'
+        );
+    };
+
     if (loading) return (
         <div className="flex items-center justify-center min-h-[60vh]">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -96,7 +189,7 @@ export default function EventManagement() {
                     <Gift size={120} className="text-blue-600" />
                 </div>
 
-                <div className="relative z-10">
+                <div className="relative z-5">
                     <div className="flex items-center space-x-3 text-blue-600 font-bold mb-2">
                         <Calendar size={20} />
                         <span className="uppercase tracking-widest text-xs">Event Management</span>
@@ -147,9 +240,30 @@ export default function EventManagement() {
                                 <div className="h-40 bg-gray-50 relative">
                                     <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button className="p-1.5 bg-white text-red-500 rounded shadow-sm hover:bg-red-50">
-                                            <Trash2 size={14} />
+                                        <button
+                                            onClick={() => handleOpenEditProduct(product)}
+                                            className="p-1.5 bg-white text-blue-500 rounded shadow-sm hover:bg-blue-500 hover:text-white transition-colors"
+                                            title="Edit product"
+                                        >
+                                            <Edit size={13} />
                                         </button>
+                                        {product.isGlobal ? (
+                                            <button
+                                                onClick={() => handleRemoveProduct(product._id)}
+                                                className="p-1.5 bg-white text-orange-500 rounded shadow-sm hover:bg-orange-500 hover:text-white transition-colors"
+                                                title="Remove from event"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        ) : (
+                                            <button
+                                                onClick={() => handleDeleteProduct(product._id)}
+                                                className="p-1.5 bg-white text-red-500 rounded shadow-sm hover:bg-red-500 hover:text-white transition-colors"
+                                                title="Delete product permanently"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="p-4">
@@ -158,7 +272,11 @@ export default function EventManagement() {
                                         <span className="text-xs font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
                                             {product.category}
                                         </span>
+                                        <span className="text-sm font-bold text-gray-800 italic">₹
+                                            <span className="text-sm font-bold text-gray-800 italic line-through">{product.actualPrice}</span>
+                                        </span>
                                         <span className="text-sm font-bold text-gray-800 italic">₹{product.discountedPrice}</span>
+
                                     </div>
                                 </div>
                             </div>
@@ -259,6 +377,77 @@ export default function EventManagement() {
                     updating={updating}
                 />
             )}
+
+            {/* Edit Product Modal */}
+            {showEditProductModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                            <h2 className="text-xl font-bold text-gray-800">Edit Gift Details</h2>
+                            <button onClick={() => setShowEditProductModal(false)} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
+                        </div>
+                        <form onSubmit={handleSaveEditProduct} className="p-6 space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
+                                <input type="text" required placeholder="e.g. Apple MacBook Air"
+                                    className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={editProductForm.name}
+                                    onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price (₹)</label>
+                                    <input type="number" required className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={editProductForm.actualPrice}
+                                        onChange={(e) => setEditProductForm({ ...editProductForm, actualPrice: e.target.value })} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Price After Discount (₹)</label>
+                                    <input type="number" required className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                        value={editProductForm.discountedPrice}
+                                        onChange={(e) => setEditProductForm({ ...editProductForm, discountedPrice: e.target.value })} />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                                <select className="w-full border p-2.5 rounded-lg outline-none cursor-pointer"
+                                    value={editProductForm.category}
+                                    onChange={(e) => setEditProductForm({ ...editProductForm, category: e.target.value })}>
+                                    <option value="electronics">Electronics</option>
+                                    <option value="fashion">Fashion</option>
+                                    <option value="home">Home & Decor</option>
+                                    <option value="vouchers">Gift Vouchers</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
+                                <div className="relative">
+                                    <ImageIcon className="absolute left-3 top-3 text-gray-400" size={16} />
+                                    <input type="text" placeholder="https://image-link.com"
+                                        className="w-full border pl-9 p-2.5 rounded-lg outline-none"
+                                        value={editProductForm.image}
+                                        onChange={(e) => setEditProductForm({ ...editProductForm, image: e.target.value })} />
+                                </div>
+                            </div>
+                            <button type="submit" disabled={savingProduct}
+                                className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg disabled:bg-blue-300">
+                                {savingProduct ? 'Saving...' : 'Save Changes'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+                type={confirmState.type}
+                confirmText={confirmState.type === 'danger' ? 'Delete Permanently' : 'Yes, Proceed'}
+            />
         </div>
     );
 }
@@ -300,6 +489,9 @@ function SelectionModal({ products, initialSelected, onClose, onSave, updating }
                                 <p className="font-bold text-gray-800 mb-1 leading-none">{product.name}</p>
                                 <div className="flex items-center space-x-3">
                                     <span className="text-[10px] font-bold text-blue-600 uppercase">{product.category}</span>
+                                    <span className="text-xs font-bold text-gray-400">₹
+                                        <span className="text-xs font-bold text-gray-400 line-through">{product.actualPrice}</span>
+                                    </span>
                                     <span className="text-xs font-bold text-gray-400">₹{product.discountedPrice}</span>
                                 </div>
                             </div>

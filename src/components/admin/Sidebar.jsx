@@ -10,7 +10,8 @@ import {
   CalendarDays,
   Settings,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  History
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -18,11 +19,12 @@ const menuItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Companies', href: '/companies', icon: Building2 },
   { name: 'Products Catalog', href: '/products', icon: Package },
-  { name: 'Orders/Requests', href: '/requests', icon: Package },
-  { name: 'Support', href: '/support', icon: MessageSquare },
   { name: 'Event Catalog', href: '/events', icon: CalendarDays },
-  { name: 'Manage Users', href: '/users', icon: Users },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Orders/Requests', href: '/requests', icon: Package },
+  { name: 'Order History', href: '/history', icon: History },
+  { name: 'Support', href: '/support', icon: MessageSquare },
+  // { name: 'Manage Users', href: '/users', icon: Users },
+  // { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar() {

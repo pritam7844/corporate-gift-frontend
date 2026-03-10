@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../../lib/api';
 import { MessageSquare, RefreshCw, Mail, Building2 } from 'lucide-react';
-import AdminLayoutContent from '../../../components/admin/AdminLayoutContent';
 
 export default function AdminSupportPage() {
     const [tickets, setTickets] = useState([]);
@@ -45,7 +44,7 @@ export default function AdminSupportPage() {
     };
 
     return (
-        <AdminLayoutContent>
+        <>
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Support Queries</h1>
@@ -114,6 +113,6 @@ export default function AdminSupportPage() {
                     ))}
                 </div>
             )}
-        </AdminLayoutContent>
+        </>
     );
 }

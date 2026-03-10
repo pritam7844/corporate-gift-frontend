@@ -5,9 +5,10 @@ export async function middleware(request) {
   const hostname = request.headers.get('host') || '';
 
   // 1. Define your main base domains
-  const mainDomain = process.env.NEXT_PUBLIC_DOMAIN || 'localhost:3000';
+  // const mainDomain = process.env.NEXT_PUBLIC_DOMAIN || 'https://www.wellwigen.com/';
+  const mainDomain = process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000';
   const mainDomains = [
-    'localhost:3000',
+    process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000',
     mainDomain,
     `www.${mainDomain}`,
     'wellwigen.com',
@@ -39,16 +40,18 @@ export async function middleware(request) {
   }
 
   // 4. Main Domain Logic (Root landing page / Admin)
+
   if (isMainDomain || !subdomain) {
     return NextResponse.next();
   }
 
   // 5. Company Subdomain Logic (e.g., apple.localhost:3000)
 
-  // We need to verify if the subdomain actually exists in our backend
+
   try {
-    // const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-    const backendUrl = 'https://corporate-gift-backend.vercel.app';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // const backendUrl = 'https://corporate-gift-backend.vercel.app';
+
     // Use standard fetch inside middleware
     const res = await fetch(`${backendUrl}/companies/portal/${subdomain}`, {
       method: 'GET',
@@ -155,8 +158,21 @@ export async function middleware(request) {
       });
     }
 
-    // Company exists, proceed with rewrite
-    return NextResponse.rewrite(new URL(`/${subdomain}${url.pathname}`, request.url));
+    // Company exists, proceed with rewrite or redirect
+
+    const pathName = url.pathname;
+
+    // If the browser URL literally shows /tata/login (etc), REDIRECT to /login
+    if (pathName.startsWith(`/${subdomain}`)) {
+      // Remove the /subdomain part from the path
+      // e.g., /tata/login -> /login, /tata -> /
+      const cleanPath = pathName.slice(subdomain.length + 1) || '/';
+      return NextResponse.redirect(new URL(cleanPath, request.url));
+    }
+
+    // INTERNAL REWRITE: The browser shows /login, but Next.js serves /tata/login behind the scenes
+    const rewritePath = `/${subdomain}${pathName}`;
+    return NextResponse.rewrite(new URL(rewritePath, request.url));
 
   } catch (error) {
     console.error("Middleware fetch error:", error);

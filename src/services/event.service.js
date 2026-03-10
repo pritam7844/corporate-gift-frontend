@@ -38,3 +38,13 @@ export const getEmployeeEventsAPI = async () => {
     const response = await api.get('/events/my-events');
     return response.data.data;
 };
+
+export const deleteEventAPI = async (id) => {
+    const response = await api.delete(`/events/${id}`);
+    return response.data;
+};
+
+export const updateEventAPI = async (id, eventData) => {
+    const response = await api.put(`/events/${id}`, eventData);
+    return response.data.data;
+};

@@ -125,7 +125,7 @@ export default function EventProductsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {products.map((product) => {
                         const quantity = getProductCartQuantity(product._id);
-                        const hasDiscount = product.discountPrice && product.discountPrice < product.actualPrice;
+                        const hasDiscount = product.discountedPrice && product.discountedPrice < product.actualPrice;
 
                         return (
                             <div key={product._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col">
@@ -141,7 +141,7 @@ export default function EventProductsPage() {
                                     {/* Discount Badge */}
                                     {hasDiscount && (
                                         <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-lg shadow-sm">
-                                            {Math.round(((product.actualPrice - product.discountPrice) / product.actualPrice) * 100)}% OFF
+                                            {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% OFF
                                         </div>
                                     )}
                                 </div>
@@ -151,18 +151,18 @@ export default function EventProductsPage() {
                                     <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
                                     <p className="text-sm font-medium text-gray-400 capitalize mb-4">{product.category}</p>
 
-                                    <div className="mt-auto pt-4 flex items-end justify-between border-t border-gray-50 relative">
+                                    <div className="mt-auto pt-1 flex items-end justify-between border-t border-gray-50 relative">
                                         <div>
-                                            {hasDiscount ? (
-                                                <div className="flex flex-col">
-                                                    <span className="text-red-500 font-black text-xl">₹{product.discountPrice}</span>
-                                                    <span className="text-gray-400 text-sm font-bold line-through">₹{product.actualPrice}</span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col">
+                                            <div className="flex flex-col">
+                                                {hasDiscount ? (
+                                                    <><span className="text-gray-700 font-black text-xl">₹
+                                                        <span className="text-gray-700 font-black text-xl line-through">{product.actualPrice}</span>
+                                                    </span><span className="text-gray-900 font-black text-xl">₹{product.discountedPrice}</span></>
+                                                ) : (
                                                     <span className="text-gray-900 font-black text-xl">₹{product.actualPrice}</span>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
+
                                         </div>
 
                                         {/* Add to Cart Controls */}

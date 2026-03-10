@@ -53,8 +53,21 @@ export default function EmployeeEventsPage() {
         );
     }
 
-    const activeEvents = events.filter(e => e.status === 'active');
-    const closedEvents = events.filter(e => e.status === 'closed');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Derive active/closed from dates — not the `status` field
+    const activeEvents = events.filter(e => {
+        const start = new Date(e.startDate);
+        const end = new Date(e.endDate);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        return today >= start && today <= end;
+    });
+    const closedEvents = events.filter(e => {
+        const end = new Date(e.endDate);
+        end.setHours(23, 59, 59, 999);
+        return today > end;
+    });
 
     const EventCard = ({ event, isActive }) => (
         <div

@@ -11,6 +11,7 @@ import { useEvents } from '../../../../hooks/useEvents';
 import { useUsers } from '../../../../hooks/useUsers';
 import { useProducts } from '../../../../hooks/useProducts';
 import { assignEventToCompanyAPI } from '../../../../services/event.service';
+import ConfirmModal from '../../../../components/common/ConfirmModal';
 import {
   getCompanyByIdAPI,
   updateCompanyAPI,
@@ -32,12 +33,37 @@ export default function CompanyDetail() {
 
   // Data for Modals
   const { events: globalTemplates, loading: templatesLoading } = useEvents(true);
-  const { events: companyEvents, fetchEvents: refreshEvents, addEvent: createPrivateEvent } = useEvents(false, companyId);
+  const { events: companyEvents, fetchEvents: refreshEvents, addEvent: createPrivateEvent, removeEvent, updateEvent } = useEvents(false, companyId);
   const { users, addUser, removeUser } = useUsers(companyId);
+
+  // Edit Event state
+  const [showEditEventModal, setShowEditEventModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [editEventForm, setEditEventForm] = useState({ name: '', startDate: '', endDate: '' });
+  const [savingEvent, setSavingEvent] = useState(false);
 
   const [privateEventForm, setPrivateEventForm] = useState({
     name: '', startDate: '', endDate: ''
   });
+
+  // Confirmation Modal State
+  const [confirmState, setConfirmState] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => { },
+    type: 'warning'
+  });
+
+  const openConfirm = (title, message, onConfirm, type = 'warning') => {
+    setConfirmState({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+      type
+    });
+  };
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -62,7 +88,7 @@ export default function CompanyDetail() {
       setShowAssignModal(false);
       refreshEvents();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to assign template");
+      openConfirm('Error', err.response?.data?.message || "Failed to assign template", () => { }, 'danger');
     }
   };
 
@@ -78,19 +104,61 @@ export default function CompanyDetail() {
       setPrivateEventForm({ name: '', startDate: '', endDate: '' });
       refreshEvents();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to create event");
+      openConfirm('Error', err.response?.data?.message || "Failed to create event", () => { }, 'danger');
     }
   };
 
   const handleDeleteCompany = async () => {
-    if (window.confirm("FATAL: This will delete the company and ALL its data. Continue?")) {
+    const executeDelete = async () => {
       try {
         await deleteCompanyAPI(companyId);
         router.push('/companies');
       } catch (err) {
-        alert("Failed to delete company");
+        openConfirm('Error', 'Failed to delete company. Please try again.', () => { }, 'danger');
       }
-    }
+    };
+
+    openConfirm(
+      'Delete Company Permanently?',
+      'FATAL: This will delete the company and ALL its data (Events, Employees, Orders). This action is irreversible.',
+      executeDelete,
+      'danger'
+    );
+  };
+
+  const handleOpenEditEvent = (event) => {
+    setEditingEvent(event);
+    setEditEventForm({
+      name: event.name,
+      startDate: event.startDate?.substring(0, 10) || '',
+      endDate: event.endDate?.substring(0, 10) || '',
+    });
+    setShowEditEventModal(true);
+  };
+
+  const handleSaveEditEvent = async (e) => {
+    e.preventDefault();
+    setSavingEvent(true);
+    await updateEvent(editingEvent._id, editEventForm);
+    setSavingEvent(false);
+    setShowEditEventModal(false);
+    setEditingEvent(null);
+  };
+
+  // Private event (no clonedFrom) → permanent delete; cloned/assigned → remove from company
+  const handleDeleteOrRemoveEvent = async (event) => {
+    const isPrivate = !event.clonedFrom;
+    const title = isPrivate ? 'Delete Private Event?' : 'Remove Cloned Event?';
+    const msg = isPrivate
+      ? `Permanently delete "${event.name}" and all its exclusive products? This cannot be undone.`
+      : `Remove "${event.name}" from this company? Global data will remain intact.`;
+
+    openConfirm(
+      title,
+      msg,
+      () => removeEvent(event._id),
+      isPrivate ? 'danger' : 'warning'
+    );
   };
 
   const handleUpdateCompany = async (e) => {
@@ -103,7 +171,7 @@ export default function CompanyDetail() {
       setCompany(data);
       setShowEditModal(false);
     } catch (err) {
-      alert("Failed to update company");
+      openConfirm('Error', 'Failed to update company information.', () => { }, 'danger');
     }
   };
 
@@ -125,11 +193,11 @@ export default function CompanyDetail() {
             <h1 className="text-2xl font-bold text-gray-800">{company?.name}</h1>
             <p className="text-blue-600 font-medium flex items-center">
               <Globe size={14} className="mr-1" />
-              {company?.subdomain}.localhost:3000
+              {company?.subdomain}.{process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000'}
             </p>
           </div>
         </div>
-        <div className="flex space-x-3">
+        {/* <div className="flex space-x-3">
           <button
             onClick={() => setShowEditModal(true)}
             className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 text-gray-600 transition-all font-medium"
@@ -142,7 +210,7 @@ export default function CompanyDetail() {
           >
             <Trash2 size={18} /> <span>Delete</span>
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Tabs Nav */}
@@ -194,10 +262,34 @@ export default function CompanyDetail() {
                     <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
                       <Calendar size={20} />
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${event.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                      }`}>
-                      {event.status}
-                    </span>
+                    <div className="flex items-center gap-1">
+                      {(() => {
+                        const today = new Date();
+                        const start = new Date(event.startDate);
+                        const end = new Date(event.endDate);
+                        end.setHours(23, 59, 59, 999);
+                        const isActive = today >= start && today <= end;
+                        return (
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                            {isActive ? 'Active' : 'Closed'}
+                          </span>
+                        );
+                      })()}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleOpenEditEvent(event); }}
+                        className="p-1 text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                        title="Edit event"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteOrRemoveEvent(event); }}
+                        className="p-1 text-red-500 hover:bg-red-50 rounded transition-colors"
+                        title={!event.clonedFrom ? 'Delete permanently' : 'Remove from company'}
+                      >
+                        {!event.clonedFrom ? <Trash2 size={14} /> : <X size={14} />}
+                      </button>
+                    </div>
                   </div>
                   <h3 className="font-bold text-gray-800 mb-1">{event.name}</h3>
                   <p className="text-xs text-gray-400 mb-4">
@@ -211,7 +303,7 @@ export default function CompanyDetail() {
                     onClick={() => router.push(`/companies/${companyId}/events/${event._id}`)}
                     className="w-full py-2 bg-white border border-gray-200 rounded-lg text-sm font-bold text-gray-600 hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all font-sans"
                   >
-                    Manage Event
+                    Manage Event Products
                   </button>
                 </div>
               ))}
@@ -305,7 +397,7 @@ export default function CompanyDetail() {
               <div>
                 <h3 className="font-bold text-gray-800 mb-2">Update Information</h3>
                 <p className="text-sm text-gray-500 mb-4">Edit basic details and branding for {company.name}.</p>
-                <button className="px-6 py-2 bg-gray-100 text-gray-600 rounded-lg font-bold hover:bg-gray-200 transition-colors">
+                <button className="px-6 py-2 bg-gray-100 text-gray-600 rounded-lg font-bold hover:bg-gray-200 transition-colors" onClick={() => setShowEditModal(true)} >
                   Update Company Data
                 </button>
               </div>
@@ -492,6 +584,62 @@ export default function CompanyDetail() {
           </div>
         </div>
       )}
+
+      {/* Edit Event Modal */}
+      {showEditEventModal && editingEvent && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-800">Edit Event</h2>
+              <button onClick={() => setShowEditEventModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleSaveEditEvent} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Event Name</label>
+                <input type="text" required
+                  className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editEventForm.name}
+                  onChange={(e) => setEditEventForm({ ...editEventForm, name: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date</label>
+                  <input type="date" required
+                    className="w-full border p-2.5 rounded-lg outline-none"
+                    value={editEventForm.startDate}
+                    onChange={(e) => setEditEventForm({ ...editEventForm, startDate: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date</label>
+                  <input type="date" required
+                    className="w-full border p-2.5 rounded-lg outline-none"
+                    value={editEventForm.endDate}
+                    onChange={(e) => setEditEventForm({ ...editEventForm, endDate: e.target.value })}
+                  />
+                </div>
+              </div>
+              <button type="submit" disabled={savingEvent}
+                className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg disabled:bg-blue-300">
+                {savingEvent ? 'Saving...' : 'Save Changes'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmState.onConfirm}
+        title={confirmState.title}
+        message={confirmState.message}
+        type={confirmState.type}
+        confirmText={confirmState.type === 'danger' ? 'Confirm Delete' : 'Yes, Proceed'}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getEventsAPI, createEventAPI, assignEventToCompanyAPI, getEmployeeEventsAPI } from '../services/event.service';
+import { getEventsAPI, createEventAPI, assignEventToCompanyAPI, getEmployeeEventsAPI, deleteEventAPI, updateEventAPI } from '../services/event.service';
 
 export const useEvents = (isGlobal = true, companyId = null, fetchForEmployee = false) => {
     const [events, setEvents] = useState([]);
@@ -39,9 +39,31 @@ export const useEvents = (isGlobal = true, companyId = null, fetchForEmployee = 
         }
     };
 
+    const removeEvent = async (id) => {
+        try {
+            await deleteEventAPI(id);
+            setEvents((prev) => prev.filter(e => e._id !== id));
+            return true;
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete event.');
+            return false;
+        }
+    };
+
+    const updateEvent = async (id, eventData) => {
+        try {
+            const updated = await updateEventAPI(id, eventData);
+            setEvents((prev) => prev.map(e => e._id === id ? updated : e));
+            return true;
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update event.');
+            return false;
+        }
+    };
+
     useEffect(() => {
         fetchEvents();
     }, [fetchEvents]);
 
-    return { events, loading, error, addEvent, fetchEvents };
+    return { events, loading, error, addEvent, removeEvent, updateEvent, fetchEvents };
 };

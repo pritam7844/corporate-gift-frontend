@@ -4,8 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
-import CartDrawer from './CartDrawer';
-import { LogOut, User as UserIcon, Settings, ChevronDown, Calendar, ShoppingCart } from 'lucide-react';
+import { LogOut, User as UserIcon, Settings, ChevronDown, Calendar, ShoppingCart, Package } from 'lucide-react';
 
 export default function EmployeeNavbar() {
     const { subdomain } = useParams();
@@ -16,13 +15,13 @@ export default function EmployeeNavbar() {
     const cartCount = useCartStore((state) => state.getCartCount());
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false);
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [mounted, setMounted] = useState(false);
     const dropdownRef = useRef(null);
 
     // The middleware rewrites requests to /[subdomain]/...
-    const isHome = pathname === `/${subdomain}` || pathname === `/${subdomain}/`;
+    // The browser url is essentially `/` for the home page.
+    const isHome = pathname === '/' || pathname === `/${subdomain}` || pathname === `/${subdomain}/`;
 
     useEffect(() => {
         setMounted(true);
@@ -51,7 +50,7 @@ export default function EmployeeNavbar() {
 
     return (
         <>
-            <nav className="bg-white/80 backdrop-blur-md border-b sticky top-0 z-50">
+            <nav className="bg-white backdrop-blur-md border-b sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
                     {/* Logo Area */}
@@ -79,32 +78,28 @@ export default function EmployeeNavbar() {
                             onClick={() => router.push('/events')}
                             className="flex items-center space-x-2 text-gray-600 font-bold hover:text-blue-600 transition-colors"
                         >
-                            <Calendar size={18} />
+                            {/* <Calendar size={18} /> */}
                             <span>Events</span>
                         </button>
-                        {isHome && (
-                            <>
-                                <button
-                                    onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="text-gray-600 font-bold hover:text-blue-600 transition-colors"
-                                >
-                                    FAQ
-                                </button>
-                                <button
-                                    onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
-                                    className="text-gray-600 font-bold hover:text-blue-600 transition-colors"
-                                >
-                                    Contact
-                                </button>
-                            </>
-                        )}
+                        <button
+                            onClick={() => router.push('/faq')}
+                            className="text-gray-600 font-bold hover:text-blue-600 transition-colors"
+                        >
+                            FAQ
+                        </button>
+                        <button
+                            onClick={() => router.push('/contact')}
+                            className="text-gray-600 font-bold hover:text-blue-600 transition-colors"
+                        >
+                            Contact
+                        </button>
                     </div>
 
                     {/* Right Area: Cart & Profile */}
                     <div className="flex items-center space-x-6">
                         {/* Cart Button */}
                         <button
-                            onClick={() => setIsCartOpen(true)}
+                            onClick={() => router.push('/cart')}
                             className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors hover:bg-gray-50 rounded-xl"
                         >
                             <ShoppingCart size={24} />
@@ -148,9 +143,18 @@ export default function EmployeeNavbar() {
                                     </div>
 
                                     <div className="p-2 space-y-1">
-                                        <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center">
-                                            <Settings size={16} className="mr-3" /> Account Settings
+                                        <button
+                                            onClick={() => {
+                                                setIsProfileOpen(false);
+                                                router.push('/orders');
+                                            }}
+                                            className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center"
+                                        >
+                                            <Package size={16} className="mr-3" /> My Orders
                                         </button>
+                                        {/* <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center">
+                                            <Settings size={16} className="mr-3" /> Account Settings
+                                        </button> */}
 
                                         <div className="h-px bg-gray-50 my-1"></div>
 
@@ -194,9 +198,6 @@ export default function EmployeeNavbar() {
                     </div>
                 </div>
             </nav>
-
-            {/* Slide-out Cart */}
-            <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
         </>
     );
 }

@@ -54,7 +54,7 @@ export const useCartStore = create(
             getCartTotal: () => {
                 const state = get();
                 return state.items.reduce((total, item) => {
-                    const priceToUse = item.product.discountPrice || item.product.actualPrice || 0;
+                    const priceToUse = item.product.discountedPrice || item.product.actualPrice || 0;
                     return total + (priceToUse * item.quantity);
                 }, 0);
             },

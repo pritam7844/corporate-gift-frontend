@@ -63,7 +63,7 @@ export default function CompaniesPage() {
                     value={formData.subdomain}
                     onChange={(e) => setFormData({ ...formData, subdomain: e.target.value.toLowerCase().replace(/\s+/g, '') })}
                   />
-                  <span className="absolute right-3 top-2.5 text-gray-400 text-sm">.giftpro.com</span>
+                  <span className="absolute right-3 top-2.5 text-gray-400 text-sm">.{process.env.NEXT_PUBLIC_PORTAL_DOMAIN}</span>
                 </div>
                 <p className="text-xs text-gray-400 mt-1 italic">This will be the unique URL for the company portal.</p>
               </div>
@@ -115,19 +115,19 @@ export default function CompaniesPage() {
 
                 <h3 className="text-lg font-bold text-gray-800 mb-1">{company.name}</h3>
                 <a
-                  href={typeof window !== 'undefined' ? `${window.location.protocol}//${company.subdomain}.${window.location.host.replace(/^admin\./, '')}` : `http://${company.subdomain}.localhost:3000`}
+                  href={typeof window !== 'undefined' ? `${window.location.protocol}//${company.subdomain}.${window.location.host.replace(/^admin\./, '')}` : `http://${company.subdomain}.${process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000'}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 text-sm font-medium mb-4 flex items-center italic hover:underline hover:text-blue-700 w-fit"
                 >
                   <Globe size={14} className="mr-1" />
-                  {company.subdomain}.{typeof window !== 'undefined' ? window.location.host.replace(/^admin\./, '') : 'localhost:3000'}
+                  {company.subdomain}.{typeof window !== 'undefined' ? window.location.host.replace(/^admin\./, '') : (process.env.NEXT_PUBLIC_PORTAL_DOMAIN || 'localhost:3000')}
                 </a>
 
                 <div className="flex items-center space-x-4 text-gray-500 text-sm border-t pt-4">
                   <div className="flex items-center">
                     <Users size={16} className="mr-1" />
-                    <span>0 Employees</span>
+                    <span>{company.employeeCount || 0} Employees</span>
                   </div>
                 </div>
               </div>

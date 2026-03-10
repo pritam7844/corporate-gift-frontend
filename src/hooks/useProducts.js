@@ -45,9 +45,20 @@ export const useProducts = (isGlobal = true, companyId = null) => {
         }
     };
 
+    const updateProduct = async (id, productData) => {
+        try {
+            const updated = await updateProductAPI(id, productData);
+            setProducts((prev) => prev.map(p => p._id === id ? updated : p));
+            return true;
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to update product.');
+            return false;
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
-    return { products, loading, error, addProduct, removeProduct, fetchProducts };
+    return { products, loading, error, addProduct, updateProduct, removeProduct, fetchProducts };
 };

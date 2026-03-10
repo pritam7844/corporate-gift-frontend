@@ -61,7 +61,7 @@ export default function CartDrawer({ isOpen, onClose }) {
             // In a real app, you might create an order per event or a combined order
             // For now, we'll send the whole cart and the first eventId (assuming single event checkout)
             const eventId = items[0]?.eventId;
-            const companyId = items[0]?.companyId;
+            const companyId = items[0]?.product?.companyId || user?.companyId?._id || user?.companyId;
 
             const orderData = {
                 companyId,
@@ -70,7 +70,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                 selectedProducts: items.map(item => ({
                     productId: item.product._id,
                     quantity: item.quantity,
-                    price: item.product.price
+                    // price: item.product.price
+                    price: item.product.discountPrice || item.product.actualPrice || item.product.price || 0
                 }))
             };
 
