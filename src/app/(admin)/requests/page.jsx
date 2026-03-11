@@ -166,7 +166,7 @@ export default function AdminOrdersPage() {
                                 {orders.map((order) => (
                                     <tr key={order._id} className="hover:bg-gray-50/50 transition duration-150 cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">#{order._id.slice(-6).toUpperCase()}</div>
+                                            <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
                                             <div className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleDateString()}</div>
                                             {order.companyId && (
                                                 <div className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider mt-2 border border-blue-100 bg-blue-50 px-2 py-0.5 rounded inline-block">
@@ -203,7 +203,7 @@ export default function AdminOrdersPage() {
                                                     value={order.status}
                                                     onChange={(e) => updateStatus(order._id, e.target.value)}
                                                 >
-                                                    <option value="Pending">Pending</option>
+                                                    {order.status === 'Pending' && <option value="Pending">Pending</option>}
                                                     <option value="Approved">Approved</option>
                                                     <option value="Shipped">Shipped</option>
                                                     <option value="Delivered">Delivered</option>
@@ -227,7 +227,7 @@ export default function AdminOrdersPage() {
                             <div>
                                 <div className="flex items-center space-x-2 mb-1">
                                     <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Order Review</span>
-                                    <span className="text-gray-400 font-bold text-xs">#{selectedOrder._id.toUpperCase()}</span>
+                                    <span className="text-gray-400 font-bold text-xs">#{selectedOrder.orderId || selectedOrder._id.toString().slice(-6).toUpperCase()}</span>
                                 </div>
                                 <h2 className="text-xl font-black text-gray-900">Order Analysis</h2>
                             </div>
@@ -274,6 +274,56 @@ export default function AdminOrdersPage() {
                                 </div>
                             </div>
 
+                            {/* Personalization Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Branding Requirements</h3>
+                                {selectedOrder.customization?.isBrandingRequired ? (
+                                    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <p className="text-xs text-gray-600">Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
+                                                <p className="text-xs text-gray-600">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions}</span></p>
+                                                <p className="text-xs text-gray-600">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize}</span></p>
+                                            </div>
+                                            {selectedOrder.customization.brandingLogo && (
+                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100">
+                                                    <a href={selectedOrder.customization.brandingLogo} target="_blank" rel="noreferrer" className="block w-full">
+                                                        <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-20 max-w-full object-contain mx-auto mb-2" />
+                                                        <p className="text-[9px] font-black text-blue-600 text-center uppercase tracking-tighter">View Original Logo</p>
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                        <p className="text-xs font-bold text-gray-500 italic text-center uppercase tracking-widest opacity-50">Standard Order - No Branding</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Shipping Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Shipping & Timeline</h3>
+                                <div className="bg-green-50/50 border border-green-100 p-4 rounded-xl">
+                                    <div className="flex items-start gap-4 mb-3 pb-3 border-b border-green-100">
+                                        <Truck size={16} className="text-green-600 mt-0.5" />
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
+                                            <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
+                                                    ? selectedOrder.shippingDetails.multipleLocations
+                                                    : selectedOrder.employeeDetails?.address}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-green-700 font-bold">
+                                        <Calendar size={14} />
+                                        <p className="text-[10px] uppercase tracking-widest">Required Timeline: <span className="text-gray-900 ml-2">{selectedOrder.shippingDetails?.deliveryTimeline || 'N/A'}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Product Items Table */}
                             <div className="space-y-3">
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between items-center">
@@ -313,7 +363,7 @@ export default function AdminOrdersPage() {
                                         </tbody>
                                         <tfoot className="bg-blue-600 text-white">
                                             <tr>
-                                                <td colSpan="3" className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest">Grand Total</td>
+                                                <td colSpan="3" className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest">Grand Total (With GST*)</td>
                                                 <td className="px-4 py-3 text-right text-sm font-black italic">
                                                     ₹{selectedOrder.selectedProducts.reduce((sum, p) => sum + ((p.discountedPrice || p.price || 0) * p.quantity), 0).toLocaleString('en-IN')}
                                                 </td>

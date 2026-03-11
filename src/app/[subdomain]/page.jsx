@@ -5,14 +5,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
-import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight } from 'lucide-react';
+import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus } from 'lucide-react';
 
 export default function CompanyLandingPage() {
     const { subdomain } = useParams();
     const router = useRouter();
     const user = useAuthStore((state) => state.user);
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-    const addToCart = useCartStore((state) => state.addToCart);
+    const { items, addToCart, updateQuantity } = useCartStore();
 
     const [company, setCompany] = useState(null);
     const [events, setEvents] = useState([]);
@@ -59,7 +59,11 @@ export default function CompanyLandingPage() {
 
     const handleAddToCart = (product, eventId) => {
         addToCart(product, eventId);
-        alert(`Added ${product.name} to cart!`);
+    };
+
+    const getProductCartQuantity = (productId, eventId) => {
+        const item = items.find(i => i.product._id === productId && i.eventId === eventId);
+        return item ? item.quantity : 0;
     };
 
     if (!isHydrated || loading) {
@@ -206,15 +210,43 @@ export default function CompanyLandingPage() {
 
                                                 {/* Content Area */}
                                                 <div className="p-6 flex-1 flex flex-col justify-between bg-white">
-                                                    <h5 className="font-bold text-lg text-gray-900 leading-tight mb-6 line-clamp-2">{product.name}</h5>
+                                                    <div className="mb-4">
+                                                        <h5 className="font-bold text-lg text-gray-900 leading-tight mb-1 line-clamp-2">{product.name}</h5>
+                                                        {product.description && (
+                                                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                                                        )}
+                                                    </div>
 
-                                                    <button
-                                                        onClick={() => handleAddToCart(product, event._id)}
-                                                        className="w-full bg-gray-900 text-white hover:bg-blue-600 font-bold py-3.5 rounded-xl transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
-                                                    >
-                                                        <ShoppingCart size={18} className="transition-transform group-hover/btn:scale-110" />
-                                                        <span>Add to Cart</span>
-                                                    </button>
+                                                    {(() => {
+                                                        const quantity = getProductCartQuantity(product._id, event._id);
+                                                        return quantity === 0 ? (
+                                                            <button
+                                                                onClick={() => handleAddToCart(product, event._id)}
+                                                                className="w-full bg-gray-900 text-white hover:bg-blue-600 font-bold py-3.5 rounded-xl transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
+                                                            >
+                                                                <ShoppingCart size={18} className="transition-transform group-hover/btn:scale-110" />
+                                                                <span>Add to Cart</span>
+                                                            </button>
+                                                        ) : (
+                                                            <div className="flex items-center bg-blue-600 text-white rounded-xl overflow-hidden shadow-sm">
+                                                                <button
+                                                                    onClick={() => updateQuantity(product._id, event._id, quantity - 1)}
+                                                                    className="px-4 py-3 hover:bg-blue-700 transition-colors"
+                                                                >
+                                                                    <Minus size={16} />
+                                                                </button>
+                                                                <span className="font-bold text-sm flex-1 text-center">{quantity}</span>
+                                                                <button
+                                                                    onClick={() => handleAddToCart(product, event._id)}
+                                                                    disabled={quantity >= 3}
+                                                                    title={quantity >= 3 ? 'Maximum 3 per item' : ''}
+                                                                    className="px-4 py-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700"
+                                                                >
+                                                                    <Plus size={16} />
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
                                             </div>
                                         ))}

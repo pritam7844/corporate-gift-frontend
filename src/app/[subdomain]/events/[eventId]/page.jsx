@@ -149,7 +149,10 @@ export default function EventProductsPage() {
                                 {/* Content Box */}
                                 <div className="p-6 flex-grow flex flex-col">
                                     <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
-                                    <p className="text-sm font-medium text-gray-400 capitalize mb-4">{product.category}</p>
+                                    <p className="text-sm font-medium text-gray-400 capitalize mb-1">{product.category}</p>
+                                    {product.description && (
+                                        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">{product.description}</p>
+                                    )}
 
                                     <div className="mt-auto pt-1 flex items-end justify-between border-t border-gray-50 relative">
                                         <div>
@@ -185,7 +188,9 @@ export default function EventProductsPage() {
                                                     <span className="font-bold text-sm px-2 w-8 text-center">{quantity}</span>
                                                     <button
                                                         onClick={() => addToCart(product, eventId)}
-                                                        className="px-3 py-2 hover:bg-blue-700 transition-colors"
+                                                        disabled={quantity >= 3}
+                                                        title={quantity >= 3 ? 'Maximum 3 per item' : ''}
+                                                        className="px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700"
                                                     >
                                                         <Plus size={16} />
                                                     </button>

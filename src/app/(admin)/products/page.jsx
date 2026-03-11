@@ -13,7 +13,7 @@ export default function ProductCatalog() {
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const emptyForm = { name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '', isGlobal: true };
+  const emptyForm = { name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '', isGlobal: true };
   const [formData, setFormData] = useState(emptyForm);
 
   // Confirmation Modal State
@@ -47,6 +47,7 @@ export default function ProductCatalog() {
     setEditingId(product._id);
     setFormData({
       name: product.name,
+      description: product.description || '',
       image: product.image || '',
       category: product.category || 'electronics',
       actualPrice: product.actualPrice || '',
@@ -101,7 +102,7 @@ export default function ProductCatalog() {
       {/* Create / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
             <div className="p-6 border-b flex justify-between items-center bg-gray-50">
               <h2 className="text-xl font-bold text-gray-800">{isEditing ? 'Edit Product' : 'New Product'}</h2>
               <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
@@ -109,7 +110,7 @@ export default function ProductCatalog() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
                 <input
@@ -120,10 +121,20 @@ export default function ProductCatalog() {
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Description <span className="text-gray-400 font-normal">(optional)</span></label>
+                <textarea
+                  rows={3}
+                  placeholder="Describe the product, materials, features..."
+                  className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price(With GST*)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-gray-400">₹</span>
                     <input
@@ -135,7 +146,7 @@ export default function ProductCatalog() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Price After Discount</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Selling Price(With GST*)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-2.5 text-gray-400">₹</span>
                     <input

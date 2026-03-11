@@ -12,7 +12,9 @@ import {
     MapPin,
     User,
     History,
-    CheckCircle
+    CheckCircle,
+    Truck,
+    Clock
 } from 'lucide-react';
 
 export default function OrderHistoryPage() {
@@ -218,6 +220,56 @@ export default function OrderHistoryPage() {
                                 </div>
                             </div>
 
+                            {/* Personalization Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Branding Requirements</h3>
+                                {selectedOrder.customization?.isBrandingRequired ? (
+                                    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-2">
+                                                <p className="text-xs text-gray-600">Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
+                                                <p className="text-xs text-gray-600">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions}</span></p>
+                                                <p className="text-xs text-gray-600">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize}</span></p>
+                                            </div>
+                                            {selectedOrder.customization.brandingLogo && (
+                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100">
+                                                    <a href={selectedOrder.customization.brandingLogo} target="_blank" rel="noreferrer" className="block w-full">
+                                                        <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-20 max-w-full object-contain mx-auto mb-2" />
+                                                        <p className="text-[9px] font-black text-blue-600 text-center uppercase tracking-tighter">View Original Logo</p>
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                                        <p className="text-xs font-bold text-gray-500 italic text-center uppercase tracking-widest opacity-50">Standard Order - No Branding</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Shipping Section */}
+                            <div className="space-y-3">
+                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Shipping & Timeline</h3>
+                                <div className="bg-green-50/50 border border-green-100 p-4 rounded-xl">
+                                    <div className="flex items-start gap-4 mb-3 pb-3 border-b border-green-100">
+                                        <Truck size={16} className="text-green-600 mt-0.5" />
+                                        <div>
+                                            <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
+                                            <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
+                                                    ? selectedOrder.shippingDetails.multipleLocations
+                                                    : selectedOrder.employeeDetails?.address}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-4 text-green-700 font-bold">
+                                        <Calendar size={14} />
+                                        <p className="text-[10px] uppercase tracking-widest">Required Timeline: <span className="text-gray-900 ml-2">{selectedOrder.shippingDetails?.deliveryTimeline || 'N/A'}</span></p>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Product Items Table */}
                             <div className="space-y-3">
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between items-center">
@@ -257,7 +309,7 @@ export default function OrderHistoryPage() {
                                         </tbody>
                                         <tfoot className="bg-blue-600 text-white">
                                             <tr>
-                                                <td colSpan="3" className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest">Grand Total</td>
+                                                <td colSpan="3" className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest">Grand Total (With GST*)</td>
                                                 <td className="px-4 py-3 text-right text-sm font-black italic">
                                                     ₹{selectedOrder.selectedProducts.reduce((sum, p) => sum + ((p.discountedPrice || p.price || 0) * p.quantity), 0).toLocaleString('en-IN')}
                                                 </td>

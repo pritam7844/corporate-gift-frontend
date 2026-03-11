@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useCartStore } from '../../../store/cartStore';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/api';
-import { ShoppingBag, ArrowRight, ShieldCheck, Tag, Minus, Plus, X, Loader2, CheckCircle2, MapPin, CreditCard, ChevronLeft } from 'lucide-react';
+import { ShoppingBag, ArrowRight, ShieldCheck, Tag, Minus, Plus, X, Loader2, CheckCircle2, MapPin, CreditCard, ChevronLeft, Scissors, Truck, FileUp, Check, Info } from 'lucide-react';
 import Link from 'next/link';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 
@@ -17,17 +17,31 @@ export default function CartPage() {
     const user = useAuthStore((state) => state.user);
     const [mounted, setMounted] = useState(false);
 
-    // Steps: 1 = Cart, 2 = Shipping, 3 = Success
+    // Steps: 1 = Cart, 2 = Customization, 3 = Shipping, 4 = Success
     const [currentStep, setCurrentStep] = useState(1);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [logoUploading, setLogoUploading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
         phone: '',
         whatsapp: '',
         address: '',
-        employeeId: ''
+        employeeId: '',
+        // New Fields
+        customization: {
+            isBrandingRequired: false,
+            brandingType: '',
+            brandingPositions: 1,
+            brandingSize: '',
+            brandingLogo: ''
+        },
+        shippingDetails: {
+            deliveryType: 'Single Location',
+            multipleLocations: '',
+            deliveryTimeline: ''
+        }
     });
 
     // Confirmation Modal State
@@ -69,14 +83,60 @@ export default function CartPage() {
     const savings = subtotal > total ? subtotal - total : 0;
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCustomizationChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            customization: { ...prev.customization, [field]: value }
+        }));
+    };
+
+    const handleShippingChange = (field, value) => {
+        setFormData(prev => ({
+            ...prev,
+            shippingDetails: { ...prev.shippingDetails, [field]: value }
+        }));
+    };
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('logo', file);
+
+        setLogoUploading(true);
+        try {
+            const { data } = await api.post('/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            if (data.success) {
+                handleCustomizationChange('brandingLogo', data.url);
+            }
+        } catch (error) {
+            console.error('Upload Error:', error);
+            openConfirm('Upload Failed', 'Could not upload logo. Please try again.', () => { }, 'error');
+        } finally {
+            setLogoUploading(false);
+        }
     };
 
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.email || !formData.phone || !formData.address) {
+        if (!formData.name || !formData.email || !formData.phone || (formData.shippingDetails.deliveryType === 'Single Location' && !formData.address)) {
             openConfirm('Information Required', 'Please fill in all required delivery fields before placing your order.', () => { }, 'warning');
+            return;
+        }
+
+        if (formData.shippingDetails.deliveryType === 'Multiple Locations' && !formData.shippingDetails.multipleLocations) {
+            openConfirm('Information Required', 'Please provide multiple location details.', () => { }, 'warning');
             return;
         }
 
@@ -88,19 +148,28 @@ export default function CartPage() {
             const orderData = {
                 companyId,
                 eventId,
-                employeeDetails: formData,
+                employeeDetails: {
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    whatsapp: formData.whatsapp,
+                    address: formData.address,
+                    employeeId: formData.employeeId
+                },
                 selectedProducts: items.map(item => ({
                     productId: item.product._id,
                     quantity: item.quantity,
                     actualPrice: item.product.actualPrice,
                     discountedPrice: item.product.discountedPrice || item.product.actualPrice
-                }))
+                })),
+                customization: formData.customization,
+                shippingDetails: formData.shippingDetails
             };
 
             await api.post('/gift-requests', orderData);
 
             clearCart();
-            setCurrentStep(3); // Go to success screen
+            setCurrentStep(4); // Go to success screen (previously 3)
 
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -115,38 +184,48 @@ export default function CartPage() {
     // Trackbar Component
     const TrackBar = () => (
         <div className="w-full mb-10 pb-8 border-b border-gray-100">
-            <div className="flex items-center justify-between max-w-2xl mx-auto relative">
+            <div className="flex items-center justify-between max-w-2xl mx-auto relative px-4">
                 {/* Connecting Line */}
-                <div className="absolute left-0 top-1/2 w-full h-[2px] bg-gray-100 -z-10 -translate-y-1/2 rounded-full"></div>
+                <div className="absolute left-10 right-10 top-5 h-[2px] bg-gray-100 -z-10 rounded-full"></div>
                 <div
-                    className="absolute left-0 top-1/2 h-[2px] bg-blue-600 -z-10 -translate-y-1/2 rounded-full transition-all duration-500"
-                    style={{ width: currentStep === 1 ? '0%' : '100%' }}
+                    className="absolute left-10 top-5 h-[2px] bg-blue-600 -z-10 rounded-full transition-all duration-500"
+                    style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '40%' : '85%' }}
                 ></div>
 
                 {/* Step 1 */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center flex-1">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 1 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
                         {currentStep > 1 ? <CheckCircle2 size={20} className="text-white" /> : '1'}
                     </div>
-                    <span className={`text-xs font-bold mt-3 uppercase tracking-wider ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-400'}`}>
-                        Cart Items
+                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-400'}`}>
+                        Cart
                     </span>
                 </div>
 
                 {/* Step 2 */}
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center flex-1">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 2 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
-                        2
+                        {currentStep > 2 ? <CheckCircle2 size={20} className="text-white" /> : '2'}
                     </div>
-                    <span className={`text-xs font-bold mt-3 uppercase tracking-wider ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-400'}`}>
-                        Shipping Details
+                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-400'}`}>
+                        Customization
+                    </span>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex flex-col items-center flex-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 3 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
+                        3
+                    </div>
+                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-400'}`}>
+                        Shipping
                     </span>
                 </div>
             </div>
         </div>
     );
 
-    if (currentStep === 3) {
+    if (currentStep === 4) {
         return (
             <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-500">
                 <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20">
@@ -181,13 +260,16 @@ export default function CartPage() {
                 {/* Header / Back */}
                 <div className="mb-8">
                     <button
-                        onClick={() => currentStep === 2 ? setCurrentStep(1) : router.back()}
+                        onClick={() => {
+                            if (currentStep === 1) router.back();
+                            else setCurrentStep(currentStep - 1);
+                        }}
                         className="flex items-center text-gray-500 hover:text-gray-900 font-bold transition-colors group"
                     >
                         <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-3 group-hover:border-gray-400 group-hover:bg-gray-50 transition-all">
                             <ChevronLeft size={16} className="stroke-[2.5]" />
                         </div>
-                        {currentStep === 2 ? 'Back to Cart' : 'Continue Shopping'}
+                        {currentStep === 1 ? 'Continue Shopping' : currentStep === 2 ? 'Back to Cart' : 'Back to Customization'}
                     </button>
                 </div>
 
@@ -294,7 +376,9 @@ export default function CartPage() {
                                                                     <span className="text-base font-black w-10 text-center text-gray-900">{item.quantity}</span>
                                                                     <button
                                                                         onClick={() => updateQuantity(item.product._id, item.eventId, item.quantity + 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 rounded-lg transition-all"
+                                                                        disabled={item.quantity >= 3}
+                                                                        title={item.quantity >= 3 ? 'Maximum 3 per item' : ''}
+                                                                        className="w-8 h-8 flex items-center justify-center rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-100 hover:text-blue-600"
                                                                     >
                                                                         <Plus size={16} className="stroke-[2.5]" />
                                                                     </button>
@@ -309,42 +393,203 @@ export default function CartPage() {
                                 </div>
                             )}
 
-                            {/* Step 2: Shipping Form */}
+                            {/* Step 2: Customization / Branding */}
                             {currentStep === 2 && (
+                                <div className="animate-in fade-in slide-in-from-right-4 duration-500">
+                                    <div className="mb-8">
+                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Personalization</h2>
+                                        <p className="text-gray-500 font-medium mt-2">Do you need custom branding or logo placement on your gifts?</p>
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        {/* Branding Toggle */}
+                                        <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
+                                            <button
+                                                onClick={() => handleCustomizationChange('isBrandingRequired', false)}
+                                                className={`px-8 py-3 rounded-xl font-bold transition-all ${!formData.customization.isBrandingRequired ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                No Branding
+                                            </button>
+                                            <button
+                                                onClick={() => handleCustomizationChange('isBrandingRequired', true)}
+                                                className={`px-8 py-3 rounded-xl font-bold transition-all ${formData.customization.isBrandingRequired ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                            >
+                                                Yes, Personalize
+                                            </button>
+                                        </div>
+
+                                        {formData.customization.isBrandingRequired && (
+                                            <div className="grid grid-cols-1 gap-8 p-6 bg-blue-50/50 rounded-3xl border border-blue-100 animate-in zoom-in-95 duration-300">
+                                                {/* Branding Type */}
+                                                <div>
+                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">1. Personalization / Branding Type</label>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                                        {['Digital Print', 'Screen Print', 'Embroidery', 'Embossing', 'Engraving', 'Offset Print', 'UV Stickers'].map(type => (
+                                                            <button
+                                                                key={type}
+                                                                onClick={() => handleCustomizationChange('brandingType', type)}
+                                                                className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingType === type ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
+                                                            >
+                                                                {type}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Branding Positions */}
+                                                <div>
+                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">2. Number of Branding Positions</label>
+                                                    <div className="flex gap-4">
+                                                        {[1, 2, 3].map(pos => (
+                                                            <button
+                                                                key={pos}
+                                                                onClick={() => handleCustomizationChange('brandingPositions', pos)}
+                                                                className={`w-14 h-14 rounded-xl font-black border-2 transition-all ${formData.customization.brandingPositions === pos ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
+                                                            >
+                                                                {pos}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Branding Size */}
+                                                <div>
+                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">3. Branding Size</label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        {['1 inch to 3 inch', '3 inch to 5 inch', '5 inch to 10 inch'].map(size => (
+                                                            <button
+                                                                key={size}
+                                                                onClick={() => handleCustomizationChange('brandingSize', size)}
+                                                                className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingSize === size ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
+                                                            >
+                                                                {size}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                {/* Branding File Upload */}
+                                                <div>
+                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">4. Branding File Upload (Logo)</label>
+                                                    <div className="flex items-center gap-4">
+                                                        <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-blue-200 rounded-2xl p-6 bg-white hover:bg-blue-50/50 cursor-pointer transition-all group">
+                                                            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                                                {logoUploading ? <Loader2 size={20} className="animate-spin" /> : <FileUp size={20} />}
+                                                            </div>
+                                                            <span className="text-sm font-bold text-gray-700">{logoUploading ? 'Uploading...' : 'Click to upload logo'}</span>
+                                                            <span className="text-xs text-gray-400 mt-1">PNG, JPG or SVG (Max 5MB)</span>
+                                                            <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                                                        </label>
+                                                        {formData.customization.brandingLogo && (
+                                                            <div className="w-24 h-24 rounded-2xl border bg-white p-2 relative">
+                                                                <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                                                                    <img src={formData.customization.brandingLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                                                </div>
+                                                                <button
+                                                                    onClick={() => handleCustomizationChange('brandingLogo', '')}
+                                                                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
+                                                                >
+                                                                    <X size={12} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {!formData.customization.isBrandingRequired && (
+                                            <div className="p-8 bg-gray-50 rounded-3xl border border-dashed border-gray-200 text-center">
+                                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
+                                                    <Info size={24} className="text-gray-400" />
+                                                </div>
+                                                <p className="text-gray-500 font-medium">No personalization selected. Your gifts will be delivered as standard catalog products.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Step 3: Shipping Form */}
+                            {currentStep === 3 && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
                                     <div className="mb-8">
                                         <h2 className="text-3xl font-black text-gray-900 tracking-tight">Delivery Details</h2>
                                         <p className="text-gray-500 font-medium mt-2">Where should we deliver your premium gifts?</p>
                                     </div>
 
-                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-8">
+                                        {/* Contact Section */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
+                                                <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="John Doe" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address *</label>
+                                                <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="john@example.com" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
+                                                <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="+91 9876543210" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">WhatsApp Number</label>
+                                                <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Optional for order updates" />
+                                            </div>
+                                        </div>
+
+                                        {/* Delivery Type */}
+                                        <div className="space-y-4">
+                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 block">5. Delivery Location Type</label>
+                                            <div className="flex gap-4">
+                                                {['Single Location', 'Multiple Locations'].map(type => (
+                                                    <button
+                                                        key={type}
+                                                        type="button"
+                                                        onClick={() => handleShippingChange('deliveryType', type)}
+                                                        className={`flex-1 flex items-center justify-between px-6 py-4 rounded-2xl border-2 transition-all ${formData.shippingDetails.deliveryType === type ? 'bg-blue-50 border-blue-600 text-blue-900' : 'bg-white border-gray-100 text-gray-500 hover:border-blue-200'}`}
+                                                    >
+                                                        <span className="font-bold">{type}</span>
+                                                        {formData.shippingDetails.deliveryType === type && <CheckCircle2 size={20} className="text-blue-600" />}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Address / Locations */}
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
-                                            <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="John Doe" />
+                                            {formData.shippingDetails.deliveryType === 'Single Location' ? (
+                                                <>
+                                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Complete Delivery Address *</label>
+                                                    <textarea required name="address" value={formData.address} onChange={handleInputChange} rows="3" className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter flat, building, area and city details..."></textarea>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Enter Multiple Pincodes or Addresses *</label>
+                                                    <textarea required rows="4" value={formData.shippingDetails.multipleLocations} onChange={(e) => handleShippingChange('multipleLocations', e.target.value)} className="w-full px-5 py-4 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter list of pincodes or full addresses separated by comma or new line..."></textarea>
+                                                </>
+                                            )}
                                         </div>
+
+                                        {/* Delivery Timeline */}
                                         <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address *</label>
-                                            <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="john@example.com" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
-                                            <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="+91 9876543210" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">WhatsApp Number</label>
-                                            <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Optional for order updates" />
-                                        </div>
-                                        <div className="space-y-2 md:col-span-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Employee ID</label>
-                                            <input type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="e.g. EMP-12345" />
-                                        </div>
-                                        <div className="space-y-2 md:col-span-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Flat, House no., Building, Company, Apartment *</label>
-                                            <textarea required name="address" value={formData.address} onChange={handleInputChange} rows="3" className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter full delivery address..."></textarea>
+                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">6. Required Delivery Timeline / Expected Date</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Within 15 days or by 25th March"
+                                                    className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
+                                                    value={formData.shippingDetails.deliveryTimeline}
+                                                    onChange={(e) => handleShippingChange('deliveryTimeline', e.target.value)}
+                                                />
+                                                <Truck className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
                             )}
+
                         </div>
                     </div>
 
@@ -375,9 +620,12 @@ export default function CartPage() {
                                             <span className="text-green-600 font-bold uppercase tracking-wider text-xs flex items-center">Free</span>
                                         </div>
 
-                                        <div className="flex justify-between font-black text-2xl text-gray-900 pt-2">
-                                            <span>Total Amount</span>
-                                            <span>₹{total.toLocaleString('en-IN')}</span>
+                                        <div className="flex justify-between items-end pt-2">
+                                            <div className="flex flex-col">
+                                                <span className="font-black text-2xl text-gray-900">Total Amount</span>
+                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">(Incl. of GST & all taxes)</span>
+                                            </div>
+                                            <span className="font-black text-2xl text-gray-900">₹{total.toLocaleString('en-IN')}</span>
                                         </div>
                                     </>
                                 ) : (
@@ -412,7 +660,21 @@ export default function CartPage() {
                                     disabled={items.length === 0}
                                     className="w-full bg-blue-600 text-white font-black text-lg py-4 px-6 rounded-2xl flex items-center justify-center group hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                                 >
-                                    Proceed to Shipping Details
+                                    Review Personalization
+                                    <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                </button>
+                            ) : currentStep === 2 ? (
+                                <button
+                                    onClick={() => {
+                                        if (formData.customization.isBrandingRequired && (!formData.customization.brandingType || !formData.customization.brandingSize)) {
+                                            openConfirm('Missing Details', 'Please select branding type and size before proceeding.', () => { }, 'warning');
+                                            return;
+                                        }
+                                        setCurrentStep(3);
+                                    }}
+                                    className="w-full bg-blue-600 text-white font-black text-lg py-4 px-6 rounded-2xl flex items-center justify-center group hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98]"
+                                >
+                                    Continue to Shipping
                                     <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ) : (

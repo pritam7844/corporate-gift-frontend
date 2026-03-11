@@ -19,13 +19,13 @@ export default function EventManagement() {
     const [globalProducts, setGlobalProducts] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [privateGiftForm, setPrivateGiftForm] = useState({
-        name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: ''
+        name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: ''
     });
 
     // Edit product state
     const [showEditProductModal, setShowEditProductModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-    const [editProductForm, setEditProductForm] = useState({ name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
+    const [editProductForm, setEditProductForm] = useState({ name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
     const [savingProduct, setSavingProduct] = useState(false);
 
     // Confirmation Modal State
@@ -93,7 +93,7 @@ export default function EventManagement() {
             const refreshedEvent = await getEventByIdAPI(eventId);
             setEvent(refreshedEvent);
             setShowPrivateGiftModal(false);
-            setPrivateGiftForm({ name: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
+            setPrivateGiftForm({ name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
         } catch (err) {
             alert("Failed to create private gift");
         } finally {
@@ -125,6 +125,7 @@ export default function EventManagement() {
         setEditingProduct(product);
         setEditProductForm({
             name: product.name,
+            description: product.description || '',
             image: product.image || '',
             category: product.category || 'electronics',
             actualPrice: product.actualPrice || '',
@@ -294,15 +295,15 @@ export default function EventManagement() {
 
             {/* Private Gift Modal */}
             {showPrivateGiftModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 ">
+                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                             <h2 className="text-xl font-bold text-gray-800">New Exclusive Gift</h2>
                             <button onClick={() => setShowPrivateGiftModal(false)} className="text-gray-400 hover:text-gray-600">
                                 <X size={24} />
                             </button>
                         </div>
-                        <form onSubmit={handleCreatePrivateGift} className="p-6 space-y-4">
+                        <form onSubmit={handleCreatePrivateGift} className="p-6 space-y-4 overflow-y-auto flex-1">
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Product Name</label>
                                 <input
@@ -312,9 +313,19 @@ export default function EventManagement() {
                                     onChange={(e) => setPrivateGiftForm({ ...privateGiftForm, name: e.target.value })}
                                 />
                             </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">Description <span className="text-gray-400 font-normal">(optional)</span></label>
+                                <textarea
+                                    rows={3}
+                                    placeholder="Describe the product, materials, features..."
+                                    className="w-full border-2 p-3 rounded-xl focus:border-blue-500 outline-none resize-none text-sm"
+                                    value={privateGiftForm.description}
+                                    onChange={(e) => setPrivateGiftForm({ ...privateGiftForm, description: e.target.value })}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Price (Ref)</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Actual Price (With GST*)</label>
                                     <input
                                         type="number" required
                                         className="w-full border-2 p-3 rounded-xl outline-none"
@@ -323,7 +334,7 @@ export default function EventManagement() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-1">Offer Price</label>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">Selling Price (With GST*)</label>
                                     <input
                                         type="number" required
                                         className="w-full border-2 p-3 rounded-xl outline-none"
@@ -381,12 +392,12 @@ export default function EventManagement() {
             {/* Edit Product Modal */}
             {showEditProductModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b flex justify-between items-center bg-gray-50">
                             <h2 className="text-xl font-bold text-gray-800">Edit Gift Details</h2>
                             <button onClick={() => setShowEditProductModal(false)} className="text-gray-400 hover:text-gray-600"><X size={24} /></button>
                         </div>
-                        <form onSubmit={handleSaveEditProduct} className="p-6 space-y-4">
+                        <form onSubmit={handleSaveEditProduct} className="p-6 space-y-4 overflow-y-auto flex-1">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
                                 <input type="text" required placeholder="e.g. Apple MacBook Air"
@@ -394,15 +405,22 @@ export default function EventManagement() {
                                     value={editProductForm.name}
                                     onChange={(e) => setEditProductForm({ ...editProductForm, name: e.target.value })} />
                             </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Description <span className="text-gray-400 font-normal">(optional)</span></label>
+                                <textarea rows={3} placeholder="Describe the product..."
+                                    className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm"
+                                    value={editProductForm.description}
+                                    onChange={(e) => setEditProductForm({ ...editProductForm, description: e.target.value })} />
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price (₹)</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price (With GST*)</label>
                                     <input type="number" required className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={editProductForm.actualPrice}
                                         onChange={(e) => setEditProductForm({ ...editProductForm, actualPrice: e.target.value })} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Price After Discount (₹)</label>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Selling Price (With GST*)</label>
                                     <input type="number" required className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={editProductForm.discountedPrice}
                                         onChange={(e) => setEditProductForm({ ...editProductForm, discountedPrice: e.target.value })} />

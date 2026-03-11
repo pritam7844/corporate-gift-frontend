@@ -2,6 +2,7 @@
 
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import HydrationWrapper from './HydrationWrapper';
 import { usePathname } from 'next/navigation';
 
 export default function AdminLayoutContent({ children }) {
@@ -13,16 +14,18 @@ export default function AdminLayoutContent({ children }) {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            {/* Sidebar is fixed, so we need a spacer or padding */}
-            <Sidebar />
+        <HydrationWrapper>
+            <div className="flex min-h-screen bg-gray-50">
+                {/* Sidebar is fixed, so we need a spacer or padding */}
+                <Sidebar />
 
-            <div className="flex-1 ml-64 flex flex-col">
-                <Navbar />
-                <main className="p-8">
-                    {children}
-                </main>
+                <div className="flex-1 ml-64 flex flex-col">
+                    <Navbar />
+                    <main className="p-8">
+                        {children}
+                    </main>
+                </div>
             </div>
-        </div>
+        </HydrationWrapper>
     );
 }

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+const MAX_QUANTITY = 3; // Maximum units allowed per product
+
 export const useCartStore = create(
     persist(
         (set, get) => ({
@@ -12,6 +14,9 @@ export const useCartStore = create(
                 );
 
                 if (existingItem) {
+                    if (existingItem.quantity >= MAX_QUANTITY) {
+                        return state; // Already at max, no change
+                    }
                     return {
                         items: state.items.map(item =>
                             item.product._id === product._id && item.eventId === eventId
@@ -40,10 +45,11 @@ export const useCartStore = create(
                         )
                     };
                 }
+                const cappedQuantity = Math.min(quantity, MAX_QUANTITY);
                 return {
                     items: state.items.map(item =>
                         item.product._id === productId && item.eventId === eventId
-                            ? { ...item, quantity }
+                            ? { ...item, quantity: cappedQuantity }
                             : item
                     )
                 };

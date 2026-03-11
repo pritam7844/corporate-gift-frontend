@@ -240,7 +240,9 @@ export default function CartDrawer({ isOpen, onClose }) {
                                                         <span className="text-sm font-black w-8 text-center text-gray-900">{item.quantity}</span>
                                                         <button
                                                             onClick={() => updateQuantity(item.product._id, item.eventId, item.quantity + 1)}
-                                                            className="w-7 h-7 flex items-center justify-center text-gray-600 hover:bg-white hover:text-blue-600 rounded-lg hover:shadow-sm transition-all"
+                                                            disabled={item.quantity >= 3}
+                                                            title={item.quantity >= 3 ? 'Maximum 3 per item' : ''}
+                                                            className="w-7 h-7 flex items-center justify-center rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 hover:bg-white hover:text-blue-600 hover:shadow-sm"
                                                         >
                                                             <Plus size={14} className="stroke-[2.5]" />
                                                         </button>
@@ -271,9 +273,12 @@ export default function CartDrawer({ isOpen, onClose }) {
                                         <span>- ₹{savings.toLocaleString('en-IN')}</span>
                                     </div>
                                 )}
-                                <div className="flex justify-between font-black text-gray-900 pt-3 border-t border-gray-200 text-lg">
-                                    <span>Total Amount</span>
-                                    <span>₹{total.toLocaleString('en-IN')}</span>
+                                <div className="flex justify-between items-end pt-3 border-t border-gray-200">
+                                    <div className="flex flex-col">
+                                        <span className="font-black text-gray-900 text-lg">Total Amount</span>
+                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-0.5">(Incl. of GST & all taxes)</span>
+                                    </div>
+                                    <span className="font-black text-gray-900 text-lg">₹{total.toLocaleString('en-IN')}</span>
                                 </div>
                             </div>
                         </div>
