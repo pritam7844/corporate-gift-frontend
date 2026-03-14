@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon
+    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload
 } from 'lucide-react';
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
 import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
@@ -21,6 +21,8 @@ export default function EventManagement() {
     const [privateGiftForm, setPrivateGiftForm] = useState({
         name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: ''
     });
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     // Edit product state
     const [showEditProductModal, setShowEditProductModal] = useState(false);
@@ -36,6 +38,18 @@ export default function EventManagement() {
         onConfirm: () => { },
         type: 'warning'
     });
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setImageFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const openConfirm = (title, message, onConfirm, type = 'warning') => {
         setConfirmState({
@@ -82,11 +96,21 @@ export default function EventManagement() {
         e.preventDefault();
         setUpdating(true);
         try {
-            const product = await createProductAPI({
-                ...privateGiftForm,
-                companyId,
-                isGlobal: false
-            });
+            const submissionData = new FormData();
+            submissionData.append('name', privateGiftForm.name);
+            submissionData.append('description', privateGiftForm.description);
+            submissionData.append('category', privateGiftForm.category);
+            submissionData.append('actualPrice', privateGiftForm.actualPrice);
+            submissionData.append('discountedPrice', privateGiftForm.discountedPrice);
+            submissionData.append('companyId', companyId);
+            submissionData.append('isGlobal', 'false');
+            
+            if (imageFile) {
+                submissionData.append('image', imageFile);
+            }
+
+            const product = await createProductAPI(submissionData);
+            
             // Now add this new product to the event
             await updateEventProductsAPI(eventId, [...(event.products?.map(p => p._id) || []), product._id]);
 
@@ -94,6 +118,8 @@ export default function EventManagement() {
             setEvent(refreshedEvent);
             setShowPrivateGiftModal(false);
             setPrivateGiftForm({ name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
+            setImageFile(null);
+            setImagePreview(null);
         } catch (err) {
             alert("Failed to create private gift");
         } finally {
@@ -131,6 +157,8 @@ export default function EventManagement() {
             actualPrice: product.actualPrice || '',
             discountedPrice: product.discountedPrice || '',
         });
+        setImageFile(null);
+        setImagePreview(product.image || null);
         setShowEditProductModal(true);
     };
 
@@ -138,11 +166,24 @@ export default function EventManagement() {
         e.preventDefault();
         setSavingProduct(true);
         try {
-            await updateProductAPI(editingProduct._id, editProductForm);
+            const submissionData = new FormData();
+            submissionData.append('name', editProductForm.name);
+            submissionData.append('description', editProductForm.description);
+            submissionData.append('category', editProductForm.category);
+            submissionData.append('actualPrice', editProductForm.actualPrice);
+            submissionData.append('discountedPrice', editProductForm.discountedPrice);
+            
+            if (imageFile) {
+                submissionData.append('image', imageFile);
+            }
+
+            await updateProductAPI(editingProduct._id, submissionData);
             const refreshedEvent = await getEventByIdAPI(eventId);
             setEvent(refreshedEvent);
             setShowEditProductModal(false);
             setEditingProduct(null);
+            setImageFile(null);
+            setImagePreview(null);
         } catch (err) {
             alert('Failed to update product');
         } finally {
@@ -357,14 +398,29 @@ export default function EventManagement() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-1">Image URL</label>
-                                <input
-                                    type="text"
-                                    placeholder="https://..."
-                                    className="w-full border-2 p-3 rounded-xl outline-none"
-                                    value={privateGiftForm.image}
-                                    onChange={(e) => setPrivateGiftForm({ ...privateGiftForm, image: e.target.value })}
-                                />
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Product Image</label>
+                                <div className="flex items-center space-x-4 mb-2">
+                                    <div className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        {imagePreview ? (
+                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageIcon className="text-gray-300" size={28} />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="relative flex items-center justify-center px-4 py-2 border-2 border-blue-600 rounded-xl cursor-pointer hover:bg-blue-50 transition-colors group">
+                                            <Upload size={16} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
+                                            <span className="text-blue-600 font-bold text-sm">Choose Photo</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                            />
+                                        </label>
+                                        <p className="text-[10px] text-gray-400 mt-2">PNG, JPG or JPEG (Max. 5MB)</p>
+                                    </div>
+                                </div>
                             </div>
                             <button
                                 type="submit"
@@ -438,13 +494,28 @@ export default function EventManagement() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
-                                <div className="relative">
-                                    <ImageIcon className="absolute left-3 top-3 text-gray-400" size={16} />
-                                    <input type="text" placeholder="https://image-link.com"
-                                        className="w-full border pl-9 p-2.5 rounded-lg outline-none"
-                                        value={editProductForm.image}
-                                        onChange={(e) => setEditProductForm({ ...editProductForm, image: e.target.value })} />
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
+                                <div className="flex items-center space-x-4 mb-2">
+                                    <div className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                                        {imagePreview ? (
+                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageIcon className="text-gray-300" size={28} />
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <label className="relative flex items-center justify-center px-4 py-2 border-2 border-blue-600 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors group">
+                                            <Upload size={16} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
+                                            <span className="text-blue-600 font-bold text-sm">Change Photo</span>
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                            />
+                                        </label>
+                                        <p className="text-[10px] text-gray-400 mt-2">PNG, JPG or JPEG (Max. 5MB)</p>
+                                    </div>
                                 </div>
                             </div>
                             <button type="submit" disabled={savingProduct}

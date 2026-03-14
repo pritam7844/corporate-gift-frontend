@@ -14,6 +14,7 @@ export const getProductsAPI = async (isGlobal = true, companyId = null) => {
 };
 
 export const createProductAPI = async (productData) => {
+    // If it's FormData, axios handles headers automatically
     const response = await api.post('/products', productData);
     return response.data.data;
 };

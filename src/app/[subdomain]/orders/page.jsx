@@ -191,9 +191,15 @@ export default function MyOrdersPage() {
                                                     View Details
                                                     <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" />
                                                 </button>
-                                                <div className="mt-4 text-xs text-gray-500 leading-relaxed font-medium">
-                                                    <p><span className="text-gray-700 font-bold">Delivery Addr:</span> {order.employeeDetails?.address || 'N/A'}</p>
-                                                </div>
+                                                    <p><span className="text-gray-700 font-bold">Delivery Address:</span></p>
+                                                    <div className="mt-1 space-y-0.5">
+                                                        {order.shippingDetails?.deliveryType === 'Multiple Locations' 
+                                                            ? (Array.isArray(order.shippingDetails.multipleLocations) 
+                                                                ? order.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
+                                                                : <div>{order.shippingDetails.multipleLocations}</div>)
+                                                            : (<div>{order.employeeDetails?.address || 'N/A'}</div>)
+                                                        }
+                                                    </div>
                                             </div>
 
                                         </div>
@@ -274,11 +280,13 @@ export default function MyOrdersPage() {
                                         <MapPin size={14} className="mr-2.5 text-blue-500 mt-0.5 flex-shrink-0" />
                                         <div className="flex-1">
                                             <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
-                                            <p className="text-[11px] text-gray-500 mt-1 leading-snug">
+                                            <div className="text-[11px] text-gray-500 mt-1 leading-snug space-y-1">
                                                 {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
-                                                    ? selectedOrder.shippingDetails.multipleLocations
-                                                    : selectedOrder.employeeDetails?.address}
-                                            </p>
+                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
+                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
+                                                        : (<div>{selectedOrder.shippingDetails.multipleLocations || 'N/A'}</div>))
+                                                    : (<div>{selectedOrder.employeeDetails?.address || 'N/A'}</div>)}
+                                            </div>
                                         </div>
                                     </div>
                                     {selectedOrder.shippingDetails?.deliveryTimeline && (

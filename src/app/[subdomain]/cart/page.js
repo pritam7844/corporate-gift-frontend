@@ -39,10 +39,43 @@ export default function CartPage() {
         },
         shippingDetails: {
             deliveryType: 'Single Location',
-            multipleLocations: '',
+            multipleLocations: [''], // Changed to array for multiple locations
             deliveryTimeline: ''
         }
     });
+
+    const handleAddLocation = () => {
+        setFormData(prev => ({
+            ...prev,
+            shippingDetails: {
+                ...prev.shippingDetails,
+                multipleLocations: [...prev.shippingDetails.multipleLocations, '']
+            }
+        }));
+    };
+
+    const handleRemoveLocation = (index) => {
+        if (formData.shippingDetails.multipleLocations.length <= 1) return;
+        setFormData(prev => ({
+            ...prev,
+            shippingDetails: {
+                ...prev.shippingDetails,
+                multipleLocations: prev.shippingDetails.multipleLocations.filter((_, i) => i !== index)
+            }
+        }));
+    };
+
+    const handleLocationChange = (index, value) => {
+        const newLocations = [...formData.shippingDetails.multipleLocations];
+        newLocations[index] = value;
+        setFormData(prev => ({
+            ...prev,
+            shippingDetails: {
+                ...prev.shippingDetails,
+                multipleLocations: newLocations
+            }
+        }));
+    };
 
     // Confirmation Modal State
     const [confirmState, setConfirmState] = useState({
@@ -130,13 +163,13 @@ export default function CartPage() {
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.email || !formData.phone || (formData.shippingDetails.deliveryType === 'Single Location' && !formData.address)) {
-            openConfirm('Information Required', 'Please fill in all required delivery fields before placing your order.', () => { }, 'warning');
+        if (!formData.name || !formData.email || !formData.phone || !formData.employeeId || (formData.shippingDetails.deliveryType === 'Single Location' && !formData.address)) {
+            openConfirm('Information Required', 'Please fill in all required fields (including Employee ID) before placing your order.', () => { }, 'warning');
             return;
         }
 
-        if (formData.shippingDetails.deliveryType === 'Multiple Locations' && !formData.shippingDetails.multipleLocations) {
-            openConfirm('Information Required', 'Please provide multiple location details.', () => { }, 'warning');
+        if (formData.shippingDetails.deliveryType === 'Multiple Locations' && (!formData.shippingDetails.multipleLocations || formData.shippingDetails.multipleLocations.some(loc => !loc.trim()))) {
+            openConfirm('Information Required', 'Please provide all location details.', () => { }, 'warning');
             return;
         }
 
@@ -243,7 +276,7 @@ export default function CartPage() {
                         Back to Home
                     </button>
                     <button
-                        onClick={() => router.push(`/${subdomain}/orders`)}
+                        onClick={() => router.push(`/orders`)}
                         className="px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-all active:scale-95 shadow-xl shadow-gray-900/20"
                     >
                         Track Order
@@ -537,6 +570,10 @@ export default function CartPage() {
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">WhatsApp Number</label>
                                                 <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Optional for order updates" />
                                             </div>
+                                            <div className="space-y-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Employee ID *</label>
+                                                <input required type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-5 py-4 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Enter your official employee ID" />
+                                            </div>
                                         </div>
 
                                         {/* Delivery Type */}
@@ -558,19 +595,52 @@ export default function CartPage() {
                                         </div>
 
                                         {/* Address / Locations */}
-                                        <div className="space-y-2">
-                                            {formData.shippingDetails.deliveryType === 'Single Location' ? (
-                                                <>
-                                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Complete Delivery Address *</label>
-                                                    <textarea required name="address" value={formData.address} onChange={handleInputChange} rows="3" className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter flat, building, area and city details..."></textarea>
-                                                </>
-                                            ) : (
-                                                <>
+                                        {formData.shippingDetails.deliveryType === 'Single Location' ? (
+                                            <>
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Complete Delivery Address *</label>
+                                                <textarea required name="address" value={formData.address} onChange={handleInputChange} rows="3" className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter flat, building, area and city details..."></textarea>
+                                            </>
+                                        ) : (
+                                            <div className="space-y-4">
+                                                <div className="flex items-center justify-between mb-2">
                                                     <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Enter Multiple Pincodes or Addresses *</label>
-                                                    <textarea required rows="4" value={formData.shippingDetails.multipleLocations} onChange={(e) => handleShippingChange('multipleLocations', e.target.value)} className="w-full px-5 py-4 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter list of pincodes or full addresses separated by comma or new line..."></textarea>
-                                                </>
-                                            )}
-                                        </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleAddLocation}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        <Plus size={14} /> Add Address
+                                                    </button>
+                                                </div>
+
+                                                {formData.shippingDetails.multipleLocations.map((location, index) => (
+                                                    <div key={index} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
+                                                        <div className="flex-grow relative">
+                                                            <input
+                                                                required
+                                                                type="text"
+                                                                value={location}
+                                                                onChange={(e) => handleLocationChange(index, e.target.value)}
+                                                                className="w-full px-5 py-3.5 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
+                                                                placeholder={`Address #${index + 1}`}
+                                                            />
+                                                            <div className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-sm">
+                                                                {index + 1}
+                                                            </div>
+                                                        </div>
+                                                        {formData.shippingDetails.multipleLocations.length > 1 && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveLocation(index)}
+                                                                className="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                                                            >
+                                                                <X size={20} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
 
                                         {/* Delivery Timeline */}
                                         <div className="space-y-2">

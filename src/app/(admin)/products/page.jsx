@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit } from 'lucide-react';
+import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload } from 'lucide-react';
 import { useProducts } from '../../../hooks/useProducts';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 
@@ -12,6 +12,8 @@ export default function ProductCatalog() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const emptyForm = { name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '', isGlobal: true };
   const [formData, setFormData] = useState(emptyForm);
@@ -39,6 +41,8 @@ export default function ProductCatalog() {
     setIsEditing(false);
     setEditingId(null);
     setFormData(emptyForm);
+    setImageFile(null);
+    setImagePreview(null);
     setShowModal(true);
   };
 
@@ -52,8 +56,11 @@ export default function ProductCatalog() {
       category: product.category || 'electronics',
       actualPrice: product.actualPrice || '',
       discountedPrice: product.discountedPrice || '',
-      isGlobal: true,
+      isGlobal: product.isGlobal !== undefined ? product.isGlobal : true,
+      companyId: product.companyId || '',
     });
+    setImageFile(null);
+    setImagePreview(product.image || null);
     setShowModal(true);
   };
 
@@ -62,14 +69,45 @@ export default function ProductCatalog() {
     setIsEditing(false);
     setEditingId(null);
     setFormData(emptyForm);
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+
+    const submissionData = new FormData();
+    submissionData.append('name', formData.name);
+    submissionData.append('description', formData.description);
+    submissionData.append('category', formData.category);
+    submissionData.append('actualPrice', formData.actualPrice);
+    submissionData.append('discountedPrice', formData.discountedPrice);
+    submissionData.append('isGlobal', formData.isGlobal);
+    if (formData.companyId) {
+        submissionData.append('companyId', formData.companyId);
+    }
+    
+    if (imageFile) {
+        submissionData.append('image', imageFile);
+    }
+
     const success = isEditing
-      ? await updateProduct(editingId, formData)
-      : await addProduct(formData);
+      ? await updateProduct(editingId, submissionData)
+      : await addProduct(submissionData);
+    
     setSubmitting(false);
     if (success) closeModal();
   };
@@ -160,30 +198,28 @@ export default function ProductCatalog() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                <select
-                  className="w-full border p-2.5 rounded-lg outline-none cursor-pointer"
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                >
-                  <option value="electronics">Electronics</option>
-                  <option value="fashion">Fashion</option>
-                  <option value="home">Home & Decor</option>
-                  <option value="vouchers">Gift Vouchers</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Image URL</label>
-                <div className="relative">
-                  <ImageIcon className="absolute left-3 top-3 text-gray-400" size={18} />
-                  <input
-                    type="text"
-                    placeholder="https://image-link.com"
-                    className="w-full border pl-10 p-2.5 rounded-lg outline-none"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
+                <div className="flex items-center space-x-4">
+                  <div className="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {imagePreview ? (
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="text-gray-300" size={32} />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <label className="relative flex items-center justify-center px-4 py-2.5 border border-blue-600 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors group">
+                      <Upload size={18} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
+                      <span className="text-blue-600 font-bold text-sm">Choose Photo</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                    <p className="text-[10px] text-gray-400 mt-2 text-center">PNG, JPG or JPEG (Max. 5MB)</p>
+                  </div>
                 </div>
               </div>
 

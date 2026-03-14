@@ -62,7 +62,7 @@ api.interceptors.response.use((response) => {
     unauthorizedCount += 1;
 
     // If we get 3 consecutive 401 errors, aggressively logout
-    if (unauthorizedCount >= 3) {
+    if (unauthorizedCount >= 2) {
       console.warn('Multiple 401 Unauthorized errors detected. Forcing logout.');
       unauthorizedCount = 0; // Reset before redirect
 

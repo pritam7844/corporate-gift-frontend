@@ -214,7 +214,13 @@ export default function OrderHistoryPage() {
                                     <div>
                                         <div className="flex items-start text-xs font-semibold text-gray-700">
                                             <MapPin size={14} className="mr-2.5 text-blue-500 mt-0.5 flex-shrink-0" />
-                                            <span className="leading-snug">{selectedOrder.employeeDetails?.address}</span>
+                                            <div className="leading-snug space-y-1">
+                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations' 
+                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
+                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
+                                                        : <div>{selectedOrder.shippingDetails.multipleLocations}</div>)
+                                                    : (<div>{selectedOrder.employeeDetails?.address || 'N/A'}</div>)}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -256,11 +262,13 @@ export default function OrderHistoryPage() {
                                         <Truck size={16} className="text-green-600 mt-0.5" />
                                         <div>
                                             <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
-                                            <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                                            <div className="text-[11px] text-gray-600 mt-1 leading-relaxed space-y-1">
                                                 {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
-                                                    ? selectedOrder.shippingDetails.multipleLocations
-                                                    : selectedOrder.employeeDetails?.address}
-                                            </p>
+                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
+                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
+                                                        : <div>{selectedOrder.shippingDetails.multipleLocations}</div>)
+                                                    : (<div>{selectedOrder.employeeDetails?.address || 'N/A'}</div>)}
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-4 text-green-700 font-bold">
