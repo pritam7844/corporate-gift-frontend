@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
-    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload
+    Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload, Maximize2
 } from 'lucide-react';
+import ImageSliderModal from '../../../../../../components/common/ImageSliderModal';
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
 import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
@@ -19,15 +20,22 @@ export default function EventManagement() {
     const [globalProducts, setGlobalProducts] = useState([]);
     const [updating, setUpdating] = useState(false);
     const [privateGiftForm, setPrivateGiftForm] = useState({
-        name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: ''
+        name: '', description: '', image: '', /* category: 'electronics', */ actualPrice: '', discountedPrice: ''
     });
-    const [imageFile, setImageFile] = useState(null);
-    const [imagePreview, setImagePreview] = useState(null);
+    const [imageFiles, setImageFiles] = useState([]);
+    const [imagePreviews, setImagePreviews] = useState([]);
+
+    // Image Slider State
+    const [sliderModal, setSliderModal] = useState({
+        isOpen: false,
+        images: [],
+        index: 0
+    });
 
     // Edit product state
     const [showEditProductModal, setShowEditProductModal] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
-    const [editProductForm, setEditProductForm] = useState({ name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
+    const [editProductForm, setEditProductForm] = useState({ name: '', description: '', image: '', /* category: 'electronics', */ actualPrice: '', discountedPrice: '' });
     const [savingProduct, setSavingProduct] = useState(false);
 
     // Confirmation Modal State
@@ -40,15 +48,24 @@ export default function EventManagement() {
     });
 
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setImageFile(file);
+        const files = Array.from(e.target.files);
+        const remainingSlots = 5 - imageFiles.length;
+        const filesToProcess = files.slice(0, remainingSlots);
+
+        setImageFiles(prev => [...prev, ...filesToProcess]);
+
+        filesToProcess.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result);
+                setImagePreviews(prev => [...prev, reader.result]);
             };
             reader.readAsDataURL(file);
-        }
+        });
+    };
+
+    const removeImagePreview = (index) => {
+        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        setImageFiles(prev => prev.filter((_, i) => i !== index));
     };
 
     const openConfirm = (title, message, onConfirm, type = 'warning') => {
@@ -99,7 +116,7 @@ export default function EventManagement() {
             const submissionData = new FormData();
             submissionData.append('name', privateGiftForm.name);
             submissionData.append('description', privateGiftForm.description);
-            submissionData.append('category', privateGiftForm.category);
+            // submissionData.append('category', privateGiftForm.category);
             submissionData.append('actualPrice', privateGiftForm.actualPrice);
             submissionData.append('discountedPrice', privateGiftForm.discountedPrice);
             submissionData.append('companyId', companyId);
@@ -117,9 +134,9 @@ export default function EventManagement() {
             const refreshedEvent = await getEventByIdAPI(eventId);
             setEvent(refreshedEvent);
             setShowPrivateGiftModal(false);
-            setPrivateGiftForm({ name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '' });
-            setImageFile(null);
-            setImagePreview(null);
+            setPrivateGiftForm({ name: '', description: '', image: '', /* category: 'electronics', */ actualPrice: '', discountedPrice: '' });
+            setImageFiles([]);
+            setImagePreviews([]);
         } catch (err) {
             alert("Failed to create private gift");
         } finally {
@@ -152,13 +169,12 @@ export default function EventManagement() {
         setEditProductForm({
             name: product.name,
             description: product.description || '',
-            image: product.image || '',
             category: product.category || 'electronics',
             actualPrice: product.actualPrice || '',
             discountedPrice: product.discountedPrice || '',
         });
-        setImageFile(null);
-        setImagePreview(product.image || null);
+        setImageFiles([]);
+        setImagePreviews(product.images || []);
         setShowEditProductModal(true);
     };
 
@@ -169,12 +185,21 @@ export default function EventManagement() {
             const submissionData = new FormData();
             submissionData.append('name', editProductForm.name);
             submissionData.append('description', editProductForm.description);
-            submissionData.append('category', editProductForm.category);
+            // submissionData.append('category', editProductForm.category);
             submissionData.append('actualPrice', editProductForm.actualPrice);
             submissionData.append('discountedPrice', editProductForm.discountedPrice);
             
-            if (imageFile) {
-                submissionData.append('image', imageFile);
+            // Handle existing images
+            const existingImages = imagePreviews.filter(p => p.startsWith('http'));
+            existingImages.forEach(img => {
+                submissionData.append('images', img);
+            });
+
+            // Handle new file uploads
+            if (imageFiles.length > 0) {
+                imageFiles.forEach(file => {
+                    submissionData.append('images', file);
+                });
             }
 
             await updateProductAPI(editingProduct._id, submissionData);
@@ -182,8 +207,8 @@ export default function EventManagement() {
             setEvent(refreshedEvent);
             setShowEditProductModal(false);
             setEditingProduct(null);
-            setImageFile(null);
-            setImagePreview(null);
+            setImageFiles([]);
+            setImagePreviews([]);
         } catch (err) {
             alert('Failed to update product');
         } finally {
@@ -280,7 +305,24 @@ export default function EventManagement() {
                         {event?.products?.map((product) => (
                             <div key={product._id} className="border border-gray-100 rounded-xl overflow-hidden group hover:shadow-md transition-all">
                                 <div className="h-40 bg-gray-50 relative">
-                                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                                    {product.images && product.images.length > 0 ? (
+                                        <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
+                                            {product.images.map((img, idx) => (
+                                                <div key={idx} className="flex-shrink-0 w-full h-full relative">
+                                                    <img 
+                                                        src={img} 
+                                                        alt={`${product.name} ${idx}`} 
+                                                        className="w-full h-full object-cover snap-center" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Maximize2 className="text-white scale-110" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <img src={product.images?.[0] || product.image} alt={product.name} className="w-full h-full object-cover" />
+                                    )}
                                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => handleOpenEditProduct(product)}
@@ -311,9 +353,9 @@ export default function EventManagement() {
                                 <div className="p-4">
                                     <h3 className="font-bold text-gray-800 text-sm mb-1 truncate">{product.name}</h3>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-xs font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
+                                        {/* <span className="text-xs font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
                                             {product.category}
-                                        </span>
+                                        </span> */}
                                         <span className="text-sm font-bold text-gray-800 italic">₹
                                             <span className="text-sm font-bold text-gray-800 italic line-through">{product.actualPrice}</span>
                                         </span>
@@ -384,7 +426,7 @@ export default function EventManagement() {
                                     />
                                 </div>
                             </div>
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
                                 <select
                                     className="w-full border-2 p-3 rounded-xl outline-none"
@@ -396,30 +438,34 @@ export default function EventManagement() {
                                     <option value="home">Home & Decor</option>
                                     <option value="vouchers">Gift Vouchers</option>
                                 </select>
-                            </div>
+                            </div> */}
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Product Image</label>
-                                <div className="flex items-center space-x-4 mb-2">
-                                    <div className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                                        {imagePreview ? (
-                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ImageIcon className="text-gray-300" size={28} />
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="relative flex items-center justify-center px-4 py-2 border-2 border-blue-600 rounded-xl cursor-pointer hover:bg-blue-50 transition-colors group">
-                                            <Upload size={16} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
-                                            <span className="text-blue-600 font-bold text-sm">Choose Photo</span>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Product Images (Max 5)</label>
+                                <div className="grid grid-cols-5 gap-2 mb-4">
+                                    {imagePreviews.map((preview, idx) => (
+                                        <div key={idx} className="relative aspect-square bg-gray-50 border rounded-lg overflow-hidden group">
+                                            <img src={preview} className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImagePreview(idx)}
+                                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X size={10} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {imagePreviews.length < 5 && (
+                                        <label className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                                            <Plus size={20} className="text-gray-400" />
                                             <input
                                                 type="file"
                                                 className="hidden"
                                                 accept="image/*"
+                                                multiple
                                                 onChange={handleImageChange}
                                             />
                                         </label>
-                                        <p className="text-[10px] text-gray-400 mt-2">PNG, JPG or JPEG (Max. 5MB)</p>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                             <button
@@ -482,7 +528,7 @@ export default function EventManagement() {
                                         onChange={(e) => setEditProductForm({ ...editProductForm, discountedPrice: e.target.value })} />
                                 </div>
                             </div>
-                            <div>
+                            {/* <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
                                 <select className="w-full border p-2.5 rounded-lg outline-none cursor-pointer"
                                     value={editProductForm.category}
@@ -492,30 +538,34 @@ export default function EventManagement() {
                                     <option value="home">Home & Decor</option>
                                     <option value="vouchers">Gift Vouchers</option>
                                 </select>
-                            </div>
+                            </div> */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
-                                <div className="flex items-center space-x-4 mb-2">
-                                    <div className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                                        {imagePreview ? (
-                                            <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <ImageIcon className="text-gray-300" size={28} />
-                                        )}
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="relative flex items-center justify-center px-4 py-2 border-2 border-blue-600 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors group">
-                                            <Upload size={16} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
-                                            <span className="text-blue-600 font-bold text-sm">Change Photo</span>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Images (Max 5)</label>
+                                <div className="grid grid-cols-5 gap-2 mb-4">
+                                    {imagePreviews.map((preview, idx) => (
+                                        <div key={idx} className="relative aspect-square bg-gray-50 border rounded-lg overflow-hidden group">
+                                            <img src={preview} className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeImagePreview(idx)}
+                                                className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                            >
+                                                <X size={10} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    {imagePreviews.length < 5 && (
+                                        <label className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                                            <Plus size={20} className="text-gray-400" />
                                             <input
                                                 type="file"
                                                 className="hidden"
                                                 accept="image/*"
+                                                multiple
                                                 onChange={handleImageChange}
                                             />
                                         </label>
-                                        <p className="text-[10px] text-gray-400 mt-2">PNG, JPG or JPEG (Max. 5MB)</p>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                             <button type="submit" disabled={savingProduct}
@@ -526,6 +576,15 @@ export default function EventManagement() {
                     </div>
                 </div>
             )}
+
+
+            {/* Image Slider Modal */}
+            <ImageSliderModal 
+                isOpen={sliderModal.isOpen}
+                onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+                images={sliderModal.images}
+                initialIndex={sliderModal.index}
+            />
 
             {/* Confirmation Modal */}
             <ConfirmModal
@@ -573,7 +632,7 @@ function SelectionModal({ products, initialSelected, onClose, onSave, updating }
                                 : 'border-gray-50 hover:border-gray-200'
                                 }`}
                         >
-                            <img src={product.image} className="w-12 h-12 rounded-lg object-cover bg-gray-100 mr-4" />
+                            <img src={product.images?.[0] || product.image} className="w-12 h-12 rounded-lg object-cover bg-gray-100 mr-4" />
                             <div className="flex-1">
                                 <p className="font-bold text-gray-800 mb-1 leading-none">{product.name}</p>
                                 <div className="flex items-center space-x-3">

@@ -160,8 +160,8 @@ export default function MyOrdersPage() {
                                                 {displayedProducts.map((item, index) => (
                                                     <div key={index} className="flex items-center gap-4">
                                                         <div className="w-16 h-16 bg-gray-50 rounded-xl border border-gray-200 p-1 flex-shrink-0">
-                                                            {item.productId?.image ? (
-                                                                <img src={item.productId.image} alt={item.productId.name} className="w-full h-full object-cover rounded-lg" />
+                                                            {item.productId?.images?.[0] || item.productId?.image ? (
+                                                                <img src={item.productId.images?.[0] || item.productId.image} alt={item.productId.name} className="w-full h-full object-cover rounded-lg" />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                                     <Package className="w-6 h-6" />
@@ -319,7 +319,7 @@ export default function MyOrdersPage() {
                                                     <td className="px-4 py-3 whitespace-nowrap">
                                                         <div className="flex items-center">
                                                             <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3">
-                                                                {p.productId?.image ? <img src={p.productId.image} className="w-full h-full object-cover" /> : <Package size={16} className="m-2 text-gray-300" />}
+                                                                {p.productId?.images?.[0] || p.productId?.image ? <img src={p.productId.images?.[0] || p.productId.image} className="w-full h-full object-cover" /> : <Package size={16} className="m-2 text-gray-300" />}
                                                             </div>
                                                             <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Item'}</div>
                                                         </div>

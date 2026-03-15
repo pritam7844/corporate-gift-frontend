@@ -200,8 +200,8 @@ export default function CartDrawer({ isOpen, onClose }) {
                                             {/* Premium Thumbnail Container */}
                                             <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 relative border border-gray-50 bg-gray-50 p-1">
                                                 <div className="w-full h-full rounded-xl overflow-hidden bg-white">
-                                                    {item.product.image ? (
-                                                        <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                                                    {item.product.images?.[0] || item.product.image ? (
+                                                        <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                             <Tag size={28} className="stroke-1" />

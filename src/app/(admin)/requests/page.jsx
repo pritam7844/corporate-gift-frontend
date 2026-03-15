@@ -357,8 +357,16 @@ export default function AdminOrdersPage() {
                                                 <tr key={idx}>
                                                     <td className="px-4 py-3 whitespace-nowrap">
                                                         <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3">
-                                                                {p.productId?.image ? <img src={p.productId.image} className="w-full h-full object-cover" /> : <Package size={16} className="m-2 text-gray-300" />}
+                                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex flex-shrink-0">
+                                                                {p.productId?.images && p.productId.images.length > 0 ? (
+                                                                    <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
+                                                                        {p.productId.images.map((img, idx) => (
+                                                                            <img key={idx} src={img} className="flex-shrink-0 w-full h-full object-cover snap-center" />
+                                                                        ))}
+                                                                    </div>
+                                                                ) : p.productId?.image ? (
+                                                                    <img src={p.productId.image} className="w-full h-full object-cover" />
+                                                                ) : <Package size={20} className="m-auto text-gray-300" />}
                                                             </div>
                                                             <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Deleted Product'}</div>
                                                         </div>

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload } from 'lucide-react';
+import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload, Maximize2 } from 'lucide-react';
 import { useProducts } from '../../../hooks/useProducts';
 import ConfirmModal from '../../../components/common/ConfirmModal';
+import ImageSliderModal from '../../../components/common/ImageSliderModal';
 
 export default function ProductCatalog() {
   const { products, loading, error, addProduct, updateProduct, removeProduct } = useProducts(true);
@@ -12,10 +13,10 @@ export default function ProductCatalog() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
 
-  const emptyForm = { name: '', description: '', image: '', category: 'electronics', actualPrice: '', discountedPrice: '', isGlobal: true };
+  const emptyForm = { name: '', description: '', images: [], /* category: 'electronics', */ actualPrice: '', discountedPrice: '', isGlobal: true };
   const [formData, setFormData] = useState(emptyForm);
 
   // Confirmation Modal State
@@ -25,6 +26,13 @@ export default function ProductCatalog() {
     message: '',
     onConfirm: () => { },
     type: 'warning'
+  });
+
+  // Slider State
+  const [sliderModal, setSliderModal] = useState({
+    isOpen: false,
+    images: [],
+    index: 0
   });
 
   const openConfirm = (title, message, onConfirm, type = 'warning') => {
@@ -41,8 +49,8 @@ export default function ProductCatalog() {
     setIsEditing(false);
     setEditingId(null);
     setFormData(emptyForm);
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
     setShowModal(true);
   };
 
@@ -52,15 +60,15 @@ export default function ProductCatalog() {
     setFormData({
       name: product.name,
       description: product.description || '',
-      image: product.image || '',
       category: product.category || 'electronics',
       actualPrice: product.actualPrice || '',
       discountedPrice: product.discountedPrice || '',
       isGlobal: product.isGlobal !== undefined ? product.isGlobal : true,
       companyId: product.companyId || '',
+      images: product.images || [],
     });
-    setImageFile(null);
-    setImagePreview(product.image || null);
+    setImageFiles([]);
+    setImagePreviews(product.images || []);
     setShowModal(true);
   };
 
@@ -69,19 +77,47 @@ export default function ProductCatalog() {
     setIsEditing(false);
     setEditingId(null);
     setFormData(emptyForm);
-    setImageFile(null);
-    setImagePreview(null);
+    setImageFiles([]);
+    setImagePreviews([]);
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      // Limit to 5 images
+      const selectedFiles = files.slice(0, 5);
+      setImageFiles(selectedFiles);
+
+      const newPreviews = [];
+      selectedFiles.forEach(file => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push(reader.result);
+          if (newPreviews.length === selectedFiles.length) {
+            setImagePreviews(newPreviews);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const removeImagePreview = (index) => {
+    const updatedFiles = [...imageFiles];
+    const updatedPreviews = [...imagePreviews];
+    
+    // If it's a new file being uploaded
+    if (imageFiles.length > 0) {
+        updatedFiles.splice(index, 1);
+        setImageFiles(updatedFiles);
+    }
+    
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(updatedPreviews);
+    
+    // Also update formData.images if we are editing and removing existing images
+    if (isEditing) {
+        setFormData({ ...formData, images: updatedPreviews.filter(p => typeof p === 'string' && p.startsWith('http')) });
     }
   };
 
@@ -92,7 +128,7 @@ export default function ProductCatalog() {
     const submissionData = new FormData();
     submissionData.append('name', formData.name);
     submissionData.append('description', formData.description);
-    submissionData.append('category', formData.category);
+    // submissionData.append('category', formData.category);
     submissionData.append('actualPrice', formData.actualPrice);
     submissionData.append('discountedPrice', formData.discountedPrice);
     submissionData.append('isGlobal', formData.isGlobal);
@@ -100,8 +136,13 @@ export default function ProductCatalog() {
         submissionData.append('companyId', formData.companyId);
     }
     
-    if (imageFile) {
-        submissionData.append('image', imageFile);
+    if (imageFiles.length > 0) {
+        imageFiles.forEach(file => {
+            submissionData.append('images', file);
+        });
+    } else if (isEditing && formData.images) {
+        // If no new files, send existing image URLs as a JSON string
+        submissionData.append('images', JSON.stringify(formData.images));
     }
 
     const success = isEditing
@@ -197,29 +238,51 @@ export default function ProductCatalog() {
                 </div>
               </div>
 
+{/* <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                <select
+                  className="w-full border p-2.5 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500"
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                >
+                  <option value="electronics">Electronics</option>
+                  <option value="fashion">Fashion</option>
+                  <option value="home">Home & Decor</option>
+                  <option value="vouchers">Gift Vouchers</option>
+                </select>
+              </div> */}
+
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Image</label>
-                <div className="flex items-center space-x-4">
-                  <div className="w-24 h-24 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    ) : (
-                      <ImageIcon className="text-gray-300" size={32} />
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Images (Max 5)</label>
+                <div className="space-y-4">
+                  <div className="flex flex-wrap gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative w-20 h-20 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden group">
+                        <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                        <button 
+                          type="button"
+                          onClick={() => removeImagePreview(index)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                    {imagePreviews.length < 5 && (
+                      <label className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
+                        <Upload size={20} className="text-gray-400" />
+                        <span className="text-[10px] text-gray-400 mt-1 uppercase font-bold text-center">Add</span>
+                        <input
+                          type="file"
+                          multiple
+                          className="hidden"
+                          accept="image/*"
+                          onChange={handleImageChange}
+                        />
+                      </label>
                     )}
                   </div>
-                  <div className="flex-1">
-                    <label className="relative flex items-center justify-center px-4 py-2.5 border border-blue-600 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors group">
-                      <Upload size={18} className="text-blue-600 mr-2 group-hover:scale-110 transition-transform" />
-                      <span className="text-blue-600 font-bold text-sm">Choose Photo</span>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                    </label>
-                    <p className="text-[10px] text-gray-400 mt-2 text-center">PNG, JPG or JPEG (Max. 5MB)</p>
-                  </div>
+                  <p className="text-[10px] text-gray-400 text-center">PNG, JPG or JPEG (Max. 5MB per file)</p>
                 </div>
               </div>
 
@@ -245,8 +308,21 @@ export default function ProductCatalog() {
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all">
               <div className="h-48 bg-gray-100 relative overflow-hidden">
-                {product.image ? (
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                {product.images && product.images.length > 0 ? (
+                  <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
+                    {product.images.map((img, idx) => (
+                      <div key={idx} className="flex-shrink-0 w-full h-full relative">
+                        <img 
+                          src={img} 
+                          alt={`${product.name} ${idx}`} 
+                          className="w-full h-full object-cover snap-center group-hover:scale-110 transition-transform duration-500" 
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
+                          <Maximize2 className="text-white scale-125" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-300">
                     <Package size={48} />
@@ -267,11 +343,11 @@ export default function ProductCatalog() {
                     <Trash2 size={16} />
                   </button>
                 </div>
-                <div className="absolute bottom-3 left-3">
+                {/* <div className="absolute bottom-3 left-3">
                   <span className="px-2 py-1 bg-blue-600 text-white text-[10px] font-bold rounded uppercase tracking-wider">
                     {product.category}
                   </span>
-                </div>
+                </div> */}
               </div>
               <div className="p-5">
                 <h3 className="font-bold text-gray-800 mb-2 truncate">{product.name}</h3>
@@ -300,6 +376,14 @@ export default function ProductCatalog() {
           )}
         </div>
       )}
+
+      {/* Image Slider Modal */}
+      <ImageSliderModal 
+        isOpen={sliderModal.isOpen}
+        onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+        images={sliderModal.images}
+        initialIndex={sliderModal.index}
+      />
 
       {/* Confirmation Modal */}
       <ConfirmModal

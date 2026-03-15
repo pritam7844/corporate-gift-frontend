@@ -132,7 +132,7 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
                     }`}
                 >
                   <div className="w-12 h-12 bg-gray-200 rounded-lg mr-3 flex-shrink-0">
-                    <img src={product.image} alt="" className="w-full h-full object-cover rounded-lg" />
+                    <img src={product.images?.[0] || product.image} alt="" className="w-full h-full object-cover rounded-lg" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-bold text-gray-800">{product.name}</p>

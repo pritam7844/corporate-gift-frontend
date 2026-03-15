@@ -270,7 +270,7 @@ export default function CartPage() {
                 </p>
                 <div className="flex gap-4">
                     <button
-                        onClick={() => router.push(`/${subdomain}`)}
+                        onClick={() => router.push(`/`)}
                         className="px-8 py-4 border-2 border-gray-200 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-all active:scale-95"
                     >
                         Back to Home
@@ -364,8 +364,8 @@ export default function CartPage() {
 
                                                         <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-gray-100 shadow-sm p-2">
                                                             <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50">
-                                                                {item.product.image ? (
-                                                                    <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                                                                {item.product.images?.[0] || item.product.image ? (
+                                                                    <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                                 ) : (
                                                                     <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                                         <Tag size={32} className="stroke-1" />
@@ -705,8 +705,8 @@ export default function CartPage() {
                                         {items.map(item => (
                                             <div key={`${item.product._id}-${item.eventId}`} className="flex items-center gap-3">
                                                 <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                    {item.product.image ? (
-                                                        <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                                                    {item.product.images?.[0] || item.product.image ? (
+                                                        <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                             <Tag size={16} />

@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
-import { ChevronLeft, ShoppingCart, Plus, Minus, Tag, Clock } from 'lucide-react';
+import { ChevronLeft, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift } from 'lucide-react';
+import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 
 export default function EventProductsPage() {
     const { subdomain, eventId } = useParams();
@@ -16,6 +17,13 @@ export default function EventProductsPage() {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // Image Popup State
+    const [sliderModal, setSliderModal] = useState({
+        isOpen: false,
+        images: [],
+        index: 0
+    });
 
     useEffect(() => {
         const fetchEventDetails = async () => {
@@ -131,11 +139,31 @@ export default function EventProductsPage() {
                             <div key={product._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col">
                                 {/* Image Box */}
                                 <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden flex items-center justify-center">
-                                    {/* Mock Image Placeholder since real images might not exist */}
-                                    {product.image ? (
-                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    {product.images && product.images.length > 0 ? (
+                                        <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
+                                            {product.images.map((img, idx) => (
+                                                <div key={idx} className="flex-shrink-0 w-full h-full relative">
+                                                    <img 
+                                                        src={img} 
+                                                        alt={`${product.name} ${idx}`} 
+                                                        className="w-full h-full object-cover snap-center group-hover:scale-105 transition-transform duration-500" 
+                                                    />
+                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <Maximize2 className="text-white scale-125" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : product.image ? (
+                                        <img 
+                                            src={product.image} 
+                                            alt={product.name} 
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                                        />
                                     ) : (
-                                        <Tag size={64} className="text-gray-200" />
+                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                            <Gift size={48} />
+                                        </div>
                                     )}
 
                                     {/* Discount Badge */}
@@ -204,6 +232,14 @@ export default function EventProductsPage() {
                     })}
                 </div>
             )}
+
+            {/* Image Slider Modal */}
+            <ImageSliderModal 
+                isOpen={sliderModal.isOpen}
+                onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+                images={sliderModal.images}
+                initialIndex={sliderModal.index}
+            />
         </main>
     );
 }

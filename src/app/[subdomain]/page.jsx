@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
-import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus } from 'lucide-react';
+import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus, Maximize2 } from 'lucide-react';
+import ImageSliderModal from '../../components/common/ImageSliderModal';
 
 export default function CompanyLandingPage() {
     const { subdomain } = useParams();
@@ -18,6 +19,13 @@ export default function CompanyLandingPage() {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isHydrated, setIsHydrated] = useState(false);
+    
+    // Image Popup State
+    const [sliderModal, setSliderModal] = useState({
+        isOpen: false,
+        images: [],
+        index: 0
+    });
 
     useEffect(() => {
         if (useAuthStore.persist.hasHydrated()) {
@@ -196,8 +204,27 @@ export default function CompanyLandingPage() {
                                             <div key={product._id} className="group bg-white border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5 rounded-2xl flex flex-col overflow-hidden transition-all duration-300">
                                                 {/* Image Area */}
                                                 <div className="aspect-square bg-[#F8F9FA] overflow-hidden relative border-b border-gray-50">
-                                                    {product.image ? (
-                                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                                                    {product.images && product.images.length > 0 ? (
+                                                        <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
+                                                            {product.images.map((img, idx) => (
+                                                                <div key={idx} className="flex-shrink-0 w-full h-full relative">
+                                                                    <img 
+                                                                        src={img} 
+                                                                        alt={`${product.name} ${idx}`} 
+                                                                        className="w-full h-full object-cover snap-center group-hover:scale-105 transition-transform duration-700 ease-out" 
+                                                                    />
+                                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
+                                                                        <Maximize2 className="text-white scale-150" />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : product.image ? (
+                                                        <img 
+                                                            src={product.image} 
+                                                            alt={product.name} 
+                                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" 
+                                                        />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-gray-300">
                                                             <Gift size={48} />
@@ -257,6 +284,14 @@ export default function CompanyLandingPage() {
                     )}
                 </section>
             </main>
+
+            {/* Image Slider Modal */}
+            <ImageSliderModal 
+                isOpen={sliderModal.isOpen}
+                onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+                images={sliderModal.images}
+                initialIndex={sliderModal.index}
+            />
 
             {/* Subtle Footer */}
             <footer className="py-8 text-center text-sm font-medium text-gray-400">
