@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const MAX_QUANTITY = 3; // Maximum units allowed per product
+const MAX_QUANTITY = 1; // Maximum units allowed per product for sample orders
+const MAX_PRODUCTS = 3; // Maximum unique products allowed for sample orders
 
 export const useCartStore = create(
     persist(
@@ -24,6 +25,11 @@ export const useCartStore = create(
                                 : item
                         )
                     };
+                }
+
+                // Check for max products limit
+                if (state.items.length >= MAX_PRODUCTS) {
+                    return state;
                 }
 
                 return {

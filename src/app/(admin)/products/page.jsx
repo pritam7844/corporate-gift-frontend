@@ -5,6 +5,7 @@ import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload, Maximi
 import { useProducts } from '../../../hooks/useProducts';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
+import ProductImageSlider from '../../../components/common/ProductImageSlider';
 
 export default function ProductCatalog() {
   const { products, loading, error, addProduct, updateProduct, removeProduct } = useProducts(true);
@@ -83,41 +84,47 @@ export default function ProductCatalog() {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 0) {
-      // Limit to 5 images
-      const selectedFiles = files.slice(0, 5);
-      setImageFiles(selectedFiles);
+    if (files.length === 0) return;
 
-      const newPreviews = [];
-      selectedFiles.forEach(file => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push(reader.result);
-          if (newPreviews.length === selectedFiles.length) {
-            setImagePreviews(newPreviews);
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+    const currentTotal = imagePreviews.length;
+    const remainingSlots = 5 - currentTotal;
+    
+    if (remainingSlots <= 0) {
+      return;
     }
+
+    const filesToUpload = files.slice(0, remainingSlots);
+    
+    // Support appending one-by-one or in batch
+    filesToUpload.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result]);
+        setImageFiles(prev => [...prev, file]);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const removeImagePreview = (index) => {
-    const updatedFiles = [...imageFiles];
-    const updatedPreviews = [...imagePreviews];
+    const previewToRemove = imagePreviews[index];
+    const isNewFile = typeof previewToRemove === 'string' && previewToRemove.startsWith('data:image');
+
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
     
-    // If it's a new file being uploaded
-    if (imageFiles.length > 0) {
-        updatedFiles.splice(index, 1);
-        setImageFiles(updatedFiles);
-    }
-    
-    updatedPreviews.splice(index, 1);
-    setImagePreviews(updatedPreviews);
-    
-    // Also update formData.images if we are editing and removing existing images
-    if (isEditing) {
-        setFormData({ ...formData, images: updatedPreviews.filter(p => typeof p === 'string' && p.startsWith('http')) });
+    if (isNewFile) {
+        // Correctly identify which new file to remove
+        const newFileIndex = imagePreviews
+            .slice(0, index)
+            .filter(p => typeof p === 'string' && p.startsWith('data:image'))
+            .length;
+        
+        setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
+    } else if (isEditing) {
+        // Keep track of remaining remote URLs
+        const updatedExistingImages = imagePreviews
+            .filter((p, i) => i !== index && typeof p === 'string' && p.startsWith('http'));
+        setFormData(prev => ({ ...prev, images: updatedExistingImages }));
     }
   };
 
@@ -133,22 +140,24 @@ export default function ProductCatalog() {
     submissionData.append('discountedPrice', formData.discountedPrice);
     submissionData.append('isGlobal', formData.isGlobal);
     if (formData.companyId) {
-        submissionData.append('companyId', formData.companyId);
+      submissionData.append('companyId', formData.companyId);
+    }
+
+    if (imageFiles.length > 0) {
+      imageFiles.forEach(file => {
+        submissionData.append('images', file);
+      });
     }
     
-    if (imageFiles.length > 0) {
-        imageFiles.forEach(file => {
-            submissionData.append('images', file);
-        });
-    } else if (isEditing && formData.images) {
-        // If no new files, send existing image URLs as a JSON string
-        submissionData.append('images', JSON.stringify(formData.images));
+    // Always include existing image URLs when editing
+    if (isEditing && formData.images) {
+      submissionData.append('images', JSON.stringify(formData.images));
     }
 
     const success = isEditing
       ? await updateProduct(editingId, submissionData)
       : await addProduct(submissionData);
-    
+
     setSubmitting(false);
     if (success) closeModal();
   };
@@ -238,7 +247,7 @@ export default function ProductCatalog() {
                 </div>
               </div>
 
-{/* <div>
+              {/* <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
                 <select
                   className="w-full border p-2.5 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500"
@@ -259,7 +268,7 @@ export default function ProductCatalog() {
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative w-20 h-20 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden group">
                         <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
-                        <button 
+                        <button
                           type="button"
                           onClick={() => removeImagePreview(index)}
                           className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
@@ -308,26 +317,10 @@ export default function ProductCatalog() {
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all">
               <div className="h-48 bg-gray-100 relative overflow-hidden">
-                {product.images && product.images.length > 0 ? (
-                  <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
-                    {product.images.map((img, idx) => (
-                      <div key={idx} className="flex-shrink-0 w-full h-full relative">
-                        <img 
-                          src={img} 
-                          alt={`${product.name} ${idx}`} 
-                          className="w-full h-full object-cover snap-center group-hover:scale-110 transition-transform duration-500" 
-                        />
-                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
-                          <Maximize2 className="text-white scale-125" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <Package size={48} />
-                  </div>
-                )}
+                <ProductImageSlider
+                  images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                  onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
+                />
                 {/* Action buttons – visible on hover */}
                 <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
@@ -378,7 +371,7 @@ export default function ProductCatalog() {
       )}
 
       {/* Image Slider Modal */}
-      <ImageSliderModal 
+      <ImageSliderModal
         isOpen={sliderModal.isOpen}
         onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
         images={sliderModal.images}

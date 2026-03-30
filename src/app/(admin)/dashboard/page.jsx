@@ -105,7 +105,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* System Activity Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
             <Clock size={20} className="mr-2 text-blue-500" /> System Activity
           </h2>
@@ -121,7 +121,7 @@ export default function AdminDashboard() {
               <p className="text-xs text-gray-500">"Tesla" was successfully added to the platform.</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

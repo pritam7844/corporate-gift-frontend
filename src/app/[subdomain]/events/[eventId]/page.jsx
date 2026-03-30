@@ -5,8 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
-import { ChevronLeft, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator } from 'lucide-react';
 import ImageSliderModal from '../../../../components/common/ImageSliderModal';
+import ProductImageSlider from '../../../../components/common/ProductImageSlider';
+import ConfirmModal from '../../../../components/common/ConfirmModal';
+import BulkEstimationModal from '../../../../components/common/BulkEstimationModal';
 
 export default function EventProductsPage() {
     const { subdomain, eventId } = useParams();
@@ -15,6 +18,7 @@ export default function EventProductsPage() {
     const { items, addToCart, removeFromCart, updateQuantity } = useCartStore();
 
     const [event, setEvent] = useState(null);
+    const [isOrdered, setIsOrdered] = useState(false); // New state to track participation
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -25,11 +29,43 @@ export default function EventProductsPage() {
         index: 0
     });
 
+    // Confirmation Modal State
+    const [confirmState, setConfirmState] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => { },
+        type: 'warning'
+    });
+
+    const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+
+    const openConfirm = (title, message, onConfirm = () => { }, type = 'warning') => {
+        setConfirmState({
+            isOpen: true,
+            title,
+            message,
+            onConfirm,
+            type
+        });
+    };
+
     useEffect(() => {
         const fetchEventDetails = async () => {
             try {
+                // Fetch Event Details
                 const data = await getEventByIdAPI(eventId);
                 setEvent(data);
+
+                // Check if user has already ordered for this event in the current cycle
+                const requestsRes = await import('../../../../lib/api').then(m => m.default.get('/gift-requests/my-requests'));
+                const userRequests = requestsRes.data.data || [];
+                const alreadyOrdered = userRequests.some(req => 
+                    req.eventId._id === eventId && 
+                    new Date(req.createdAt) >= new Date(data.startDate)
+                );
+                setIsOrdered(alreadyOrdered);
+
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to load event details.');
             } finally {
@@ -117,6 +153,28 @@ export default function EventProductsPage() {
                             Ends {new Date(event.endDate).toLocaleDateString()}
                         </span>
                     )}
+                    {isOrdered && (
+                        <div className="flex items-center gap-3">
+                            <span className="flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                                <ShoppingCart size={16} className="mr-1.5" />
+                                Order Already Placed
+                            </span>
+                            <button
+                                onClick={() => router.push('/orders')}
+                                className="text-blue-600 hover:text-blue-800 text-sm font-black underline flex items-center"
+                            >
+                                View Order History <ChevronRight size={14} className="ml-0.5" />
+                            </button>
+                        </div>
+                    )}
+
+                    <button
+                        onClick={() => setIsBulkModalOpen(true)}
+                        className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-blue-600 transition-all shadow-lg shadow-gray-200"
+                    >
+                        <Calculator size={16} />
+                        Bulk order estimation
+                    </button>
                 </div>
             </div>
 
@@ -139,32 +197,10 @@ export default function EventProductsPage() {
                             <div key={product._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col">
                                 {/* Image Box */}
                                 <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden flex items-center justify-center">
-                                    {product.images && product.images.length > 0 ? (
-                                        <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
-                                            {product.images.map((img, idx) => (
-                                                <div key={idx} className="flex-shrink-0 w-full h-full relative">
-                                                    <img 
-                                                        src={img} 
-                                                        alt={`${product.name} ${idx}`} 
-                                                        className="w-full h-full object-cover snap-center group-hover:scale-105 transition-transform duration-500" 
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <Maximize2 className="text-white scale-125" />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : product.image ? (
-                                        <img 
-                                            src={product.image} 
-                                            alt={product.name} 
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                            <Gift size={48} />
-                                        </div>
-                                    )}
+                                    <ProductImageSlider 
+                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
+                                        onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
+                                    />
 
                                     {/* Discount Badge */}
                                     {hasDiscount && (
@@ -198,9 +234,22 @@ export default function EventProductsPage() {
 
                                         {/* Add to Cart Controls */}
                                         <div className="relative">
-                                            {quantity === 0 ? (
+                                            {isOrdered ? (
                                                 <button
-                                                    onClick={() => addToCart(product, eventId)}
+                                                    disabled
+                                                    className="bg-gray-100 text-gray-400 font-bold px-4 py-2 rounded-xl text-sm cursor-not-allowed flex items-center"
+                                                >
+                                                    <ShoppingCart size={16} className="mr-1.5" /> PLACED
+                                                </button>
+                                            ) : quantity === 0 ? (
+                                                <button
+                                                    onClick={() => {
+                                                        if (items.length >= 3) {
+                                                            openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
+                                                            return;
+                                                        }
+                                                        addToCart(product, eventId);
+                                                    }}
                                                     className="bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors flex items-center"
                                                 >
                                                     <ShoppingCart size={16} className="mr-1.5" /> ADD
@@ -215,10 +264,18 @@ export default function EventProductsPage() {
                                                     </button>
                                                     <span className="font-bold text-sm px-2 w-8 text-center">{quantity}</span>
                                                     <button
-                                                        onClick={() => addToCart(product, eventId)}
-                                                        disabled={quantity >= 3}
-                                                        title={quantity >= 3 ? 'Maximum 3 per item' : ''}
-                                                        className="px-3 py-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-blue-700"
+                                                        onClick={() => {
+                                                            if (quantity >= 1) {
+                                                                openConfirm('Limit Reached', 'Maximum 1 unit per product is allowed for sample orders.', () => { }, 'warning');
+                                                                return;
+                                                            }
+                                                            if (items.length >= 3) {
+                                                                openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
+                                                                return;
+                                                            }
+                                                            addToCart(product, eventId);
+                                                        }}
+                                                        className={`px-3 py-2 transition-colors hover:bg-blue-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
                                                     >
                                                         <Plus size={16} />
                                                     </button>
@@ -234,11 +291,28 @@ export default function EventProductsPage() {
             )}
 
             {/* Image Slider Modal */}
-            <ImageSliderModal 
+            <ImageSliderModal
                 isOpen={sliderModal.isOpen}
                 onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
                 images={sliderModal.images}
                 initialIndex={sliderModal.index}
+            />
+
+            {/* Confirmation Modal */}
+            <ConfirmModal
+                isOpen={confirmState.isOpen}
+                onClose={() => setConfirmState({ ...confirmState, isOpen: false })}
+                onConfirm={confirmState.onConfirm}
+                title={confirmState.title}
+                message={confirmState.message}
+                confirmText="Understood"
+                type={confirmState.type}
+            />
+
+            <BulkEstimationModal 
+                isOpen={isBulkModalOpen}
+                onClose={() => setIsBulkModalOpen(false)}
+                products={products}
             />
         </main>
     );

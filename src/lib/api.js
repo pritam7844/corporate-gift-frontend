@@ -9,18 +9,18 @@ const api = axios.create({
 
 // Automatically attach the token and optionally log requests
 api.interceptors.request.use((config) => {
-  let token = useAuthStore.getState().token;
+  let token = useAuthStore.getState().accessToken;
 
-  // Fallback if Zustand hasn't hydrated yet (common in Next.js first render effects)
+  // Fallback if Zustand hasn't hydrated yet
   if (!token && typeof window !== 'undefined') {
     try {
       const stored = localStorage.getItem('corporate-gift-auth');
       if (stored) {
         const parsed = JSON.parse(stored);
-        token = parsed?.state?.token;
+        token = parsed?.state?.accessToken;
       }
     } catch (err) {
-      console.error('Failed to parse auth token from localStorage');
+      console.error('Failed to parse auth token');
     }
   }
 
@@ -38,46 +38,79 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// Response interceptor for logging
-// Keep track of consecutive 401 errors
-let unauthorizedCount = 0;
+// Variables to handle token refresh logic
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
 
 api.interceptors.response.use((response) => {
-  // Reset count on successful request
-  unauthorizedCount = 0;
-
   if (process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true') {
     console.log(`[<<< FRONTEND RESPONSE] ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`);
-    console.log('Data:', JSON.stringify(response.data, null, 2));
   }
   return response;
-}, (error) => {
+}, async (error) => {
+  const originalRequest = error.config;
+
   if (process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true') {
     console.log(`[!!! FRONTEND ERROR] ${error.config?.method?.toUpperCase()} ${error.config?.url} - Status: ${error.response?.status}`);
-    console.log('Error Data:', JSON.stringify(error.response?.data || error.message, null, 2));
   }
 
-  // Handle 401 Unauthorized errors
-  if (error.response?.status === 401) {
-    unauthorizedCount += 1;
+  // Handle 401 Unauthorized errors and attempt refresh
+  if (error.response?.status === 401 && !originalRequest._retry) {
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    }
 
-    // If we get 3 consecutive 401 errors, aggressively logout
-    if (unauthorizedCount >= 2) {
-      console.warn('Multiple 401 Unauthorized errors detected. Forcing logout.');
-      unauthorizedCount = 0; // Reset before redirect
+    originalRequest._retry = true;
+    isRefreshing = true;
 
-      const authStore = useAuthStore.getState();
-      authStore.logout();
+    const { refreshToken, logout, setAccessToken } = useAuthStore.getState();
 
-      // Redirect to admin login if we're in the admin section, otherwise regular login
+    if (!refreshToken) {
+      logout();
+      if (typeof window !== 'undefined') window.location.href = '/admin-login';
+      return Promise.reject(error);
+    }
+
+    try {
+      const response = await axios.post(`${api.defaults.baseURL}/auth/refresh`, { refreshToken });
+      const { accessToken } = response.data.data;
+
+      setAccessToken(accessToken);
+      api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+      processQueue(null, accessToken);
+      return api(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      logout();
       if (typeof window !== 'undefined') {
-        if (window.location.pathname.startsWith('/admin')) {
-          window.location.href = '/admin-login';
-        } else {
-          // Can be modified if there's a specific employee login page
-          window.location.href = '/login';
-        }
+        const isAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.includes('/dashboard');
+        window.location.href = isAdmin ? '/admin-login' : '/';
       }
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
     }
   }
 

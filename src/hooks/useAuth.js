@@ -16,7 +16,7 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const data = await loginAdminAPI(email, password);
-      setAuth(data.token, data.user);
+      setAuth(data.accessToken, data.refreshToken, data.user);
       router.push('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Admin login failed.');
@@ -30,7 +30,7 @@ export const useAuth = () => {
     setLoading(true);
     try {
       const data = await loginEmployeeAPI(email, password, subdomain);
-      setAuth(data.token, data.user);
+      setAuth(data.accessToken, data.refreshToken, data.user);
       router.push('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Employee login failed.');

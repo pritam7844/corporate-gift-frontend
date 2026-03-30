@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/api';
-import { Package, Clock, CheckCircle, Truck, AlertCircle, RefreshCw, X, Building2, Calendar, Mail, MapPin, User, Gift } from 'lucide-react';
+import { Package, Clock, CheckCircle, Truck, AlertCircle, RefreshCw, X, Building2, Calendar, Mail, MapPin, User, Gift, Maximize2 } from 'lucide-react';
 import ConfirmModal from '../../../components/common/ConfirmModal';
+import ProductImageSlider from '../../../components/common/ProductImageSlider';
+import ImageSliderModal from '../../../components/common/ImageSliderModal';
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState([]);
@@ -13,6 +15,13 @@ export default function AdminOrdersPage() {
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+
+    // Image Slider State
+    const [sliderModal, setSliderModal] = useState({
+        isOpen: false,
+        images: [],
+        index: 0
+    });
 
     // Confirmation Modal State
     const [confirmState, setConfirmState] = useState({
@@ -178,9 +187,7 @@ export default function AdminOrdersPage() {
                                             <div className="text-sm font-medium text-gray-900">{order.employeeDetails?.name}</div>
                                             <div className="text-sm text-gray-500">{order.employeeDetails?.email}</div>
                                             <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]">
-                                                {order.shippingDetails?.deliveryType === 'Multiple Locations' 
-                                                    ? (Array.isArray(order.shippingDetails.multipleLocations) ? order.shippingDetails.multipleLocations.join(' | ') : order.shippingDetails.multipleLocations)
-                                                    : order.employeeDetails?.address}
+                                                {order.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
@@ -273,11 +280,7 @@ export default function AdminOrdersPage() {
                                         <div className="flex items-start text-xs font-semibold text-gray-700">
                                             <MapPin size={14} className="mr-2.5 text-blue-500 mt-0.5 flex-shrink-0" />
                                             <div className="leading-snug space-y-1">
-                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations' 
-                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
-                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
-                                                        : <div>{selectedOrder.shippingDetails.multipleLocations}</div>)
-                                                    : <div>{selectedOrder.employeeDetails?.address}</div>}
+                                                {selectedOrder.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </div>
                                     </div>
@@ -292,8 +295,8 @@ export default function AdminOrdersPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <p className="text-xs text-gray-600">Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
-                                                <p className="text-xs text-gray-600">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions}</span></p>
-                                                <p className="text-xs text-gray-600">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize}</span></p>
+                                                <p className="text-xs text-gray-600">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions === 'Custom' ? selectedOrder.customization.customBrandingPositions : selectedOrder.customization.brandingPositions}</span></p>
+                                                <p className="text-xs text-gray-600">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize === 'Custom' ? selectedOrder.customization.customBrandingSize : selectedOrder.customization.brandingSize}</span></p>
                                             </div>
                                             {selectedOrder.customization.brandingLogo && (
                                                 <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100">
@@ -318,23 +321,27 @@ export default function AdminOrdersPage() {
                                 <div className="bg-green-50/50 border border-green-100 p-4 rounded-xl">
                                     <div className="flex items-start gap-4 mb-3 pb-3 border-b border-green-100">
                                         <Truck size={16} className="text-green-600 mt-0.5" />
-                                        <div>
-                                            <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
-                                            <div className="text-[11px] text-gray-600 mt-1 leading-relaxed space-y-1">
-                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
-                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
-                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
-                                                        : <div>{selectedOrder.shippingDetails.multipleLocations}</div>)
-                                                    : (<div>{selectedOrder.employeeDetails?.address || 'N/A'}</div>)}
+                                        <div className="flex-1">
+                                            <p className="text-xs font-bold text-gray-900 leading-tight">Delivery Address</p>
+                                            <div className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                                                {selectedOrder.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-4 text-green-700 font-bold">
-                                        <Calendar size={14} />
-                                        <p className="text-[10px] uppercase tracking-widest">Required Timeline: <span className="text-gray-900 ml-2">{selectedOrder.shippingDetails?.deliveryTimeline || 'N/A'}</span></p>
-                                    </div>
                                 </div>
                             </div>
+
+                            {/* Additional Requirements Section */}
+                            {selectedOrder.employeeDetails?.additionalRequirements && (
+                                <div className="space-y-3">
+                                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-blue-600">Additional Requirements / Notes</h3>
+                                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm">
+                                        <div className="text-[11px] text-gray-700 font-bold leading-relaxed whitespace-pre-wrap">
+                                            {selectedOrder.employeeDetails.additionalRequirements}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Product Items Table */}
                             <div className="space-y-3">
@@ -357,13 +364,11 @@ export default function AdminOrdersPage() {
                                                 <tr key={idx}>
                                                     <td className="px-4 py-3 whitespace-nowrap">
                                                         <div className="flex items-center">
-                                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex flex-shrink-0">
+                                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex flex-shrink-0 cursor-pointer"
+                                                                 onClick={() => setSliderModal({ isOpen: true, images: p.productId?.images && p.productId.images.length > 0 ? p.productId.images : (p.productId?.image ? [p.productId.image] : []), index: 0 })}
+                                                            >
                                                                 {p.productId?.images && p.productId.images.length > 0 ? (
-                                                                    <div className="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
-                                                                        {p.productId.images.map((img, idx) => (
-                                                                            <img key={idx} src={img} className="flex-shrink-0 w-full h-full object-cover snap-center" />
-                                                                        ))}
-                                                                    </div>
+                                                                    <img src={p.productId.images[0]} className="w-full h-full object-cover" />
                                                                 ) : p.productId?.image ? (
                                                                     <img src={p.productId.image} className="w-full h-full object-cover" />
                                                                 ) : <Package size={20} className="m-auto text-gray-300" />}
@@ -412,6 +417,13 @@ export default function AdminOrdersPage() {
                 message={confirmState.message}
                 type={confirmState.type}
                 confirmText={confirmState.type === 'danger' ? 'Okay' : 'Yes, Proceed'}
+            />
+            {/* Image Slider Modal */}
+            <ImageSliderModal
+                isOpen={sliderModal.isOpen}
+                onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+                images={sliderModal.images}
+                initialIndex={sliderModal.index}
             />
         </>
     );

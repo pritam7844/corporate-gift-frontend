@@ -34,13 +34,19 @@ export default function CompanyDetail() {
   // Data for Modals
   const { events: globalTemplates, loading: templatesLoading } = useEvents(true);
   const { events: companyEvents, fetchEvents: refreshEvents, addEvent: createPrivateEvent, removeEvent, updateEvent } = useEvents(false, companyId);
-  const { users, addUser, removeUser } = useUsers(companyId);
+  const { users, addUser, updateUser, removeUser } = useUsers(companyId);
 
   // Edit Event state
   const [showEditEventModal, setShowEditEventModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [editEventForm, setEditEventForm] = useState({ name: '', startDate: '', endDate: '' });
   const [savingEvent, setSavingEvent] = useState(false);
+
+  // Employee Edit State
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUserForm, setEditUserForm] = useState({ name: '', email: '', password: '' });
+  const [isSavingUser, setIsSavingUser] = useState(false);
 
   const [privateEventForm, setPrivateEventForm] = useState({
     name: '', startDate: '', endDate: ''
@@ -172,6 +178,29 @@ export default function CompanyDetail() {
       setShowEditModal(false);
     } catch (err) {
       openConfirm('Error', 'Failed to update company information.', () => { }, 'danger');
+    }
+  };
+
+  const handleOpenEditUser = (user) => {
+    setEditingUser(user);
+    setEditUserForm({
+      name: user.name,
+      email: user.email,
+      password: '' // Keep empty for security, only update if provided
+    });
+    setShowEditUserModal(true);
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    setIsSavingUser(true);
+    const result = await updateUser(editingUser._id, editUserForm);
+    setIsSavingUser(false);
+    if (result.success) {
+      setShowEditUserModal(false);
+      setEditingUser(null);
+    } else {
+      alert(`Error: ${result.error || "Unknown error"}`);
     }
   };
 
@@ -364,12 +393,22 @@ export default function CompanyDetail() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button
-                          onClick={() => removeUser(user._id)}
-                          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        <div className="flex justify-end space-x-1">
+                          <button
+                            onClick={() => handleOpenEditUser(user)}
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                            title="Edit employee"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            onClick={() => removeUser(user._id)}
+                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            title="Delete employee"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -506,7 +545,55 @@ export default function CompanyDetail() {
         </div>
       )}
 
-      {/* Private Event Modal */}
+      {/* Edit User Modal */}
+      {showEditUserModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+              <h2 className="text-xl font-bold text-gray-800">Edit Employee</h2>
+              <button onClick={() => setShowEditUserModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                <input 
+                  type="text" required 
+                  className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editUserForm.name}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Work Email <span className="text-gray-400 font-normal">(not editable)</span></label>
+                <input 
+                  type="email" readOnly 
+                  className="w-full border p-2.5 rounded-lg outline-none bg-gray-50 text-gray-500 cursor-not-allowed"
+                  value={editUserForm.email}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Update Password <span className="text-gray-400 font-normal">(leave blank to keep current)</span></label>
+                <input 
+                  type="password" 
+                  className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editUserForm.password}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, password: e.target.value })}
+                  placeholder="Enter new password..."
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={isSavingUser}
+                className={`w-full text-white py-3 rounded-xl font-bold transition-all shadow-lg ${isSavingUser ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
+              >
+                {isSavingUser ? 'Saving Changes...' : 'Save Changes'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
       {showPrivateEventModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">

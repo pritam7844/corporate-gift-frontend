@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getUsersAPI, createCompanyUserAPI, deleteUserAPI } from '../services/user.service';
+import { getUsersAPI, createCompanyUserAPI, updateUserAPI, deleteUserAPI } from '../services/user.service';
 
 export const useUsers = (companyId = null) => {
     const [users, setUsers] = useState([]);
@@ -30,6 +30,18 @@ export const useUsers = (companyId = null) => {
         }
     };
 
+    const updateUser = async (id, userData) => {
+        try {
+            const updatedUser = await updateUserAPI(id, userData);
+            setUsers((prev) => prev.map(u => u._id === id ? updatedUser : u));
+            return { success: true };
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || 'Failed to update user.';
+            setError(msg);
+            return { success: false, error: msg };
+        }
+    };
+
     const removeUser = async (id) => {
         try {
             await deleteUserAPI(id);
@@ -45,5 +57,5 @@ export const useUsers = (companyId = null) => {
         fetchUsers();
     }, [fetchUsers]);
 
-    return { users, loading, error, addUser, removeUser, fetchUsers };
+    return { users, loading, error, addUser, updateUser, removeUser, fetchUsers };
 };

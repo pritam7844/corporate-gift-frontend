@@ -6,6 +6,7 @@ import {
     Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload, Maximize2
 } from 'lucide-react';
 import ImageSliderModal from '../../../../../../components/common/ImageSliderModal';
+import ProductImageSlider from '../../../../../../components/common/ProductImageSlider';
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
 import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
@@ -304,25 +305,11 @@ export default function EventManagement() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {event?.products?.map((product) => (
                             <div key={product._id} className="border border-gray-100 rounded-xl overflow-hidden group hover:shadow-md transition-all">
-                                <div className="h-40 bg-gray-50 relative">
-                                    {product.images && product.images.length > 0 ? (
-                                        <div className="flex w-full h-full overflow-x-auto overflow-y-hidden items-center snap-x snap-mandatory no-scrollbar cursor-pointer group/images" onClick={() => setSliderModal({ isOpen: true, images: product.images, index: 0 })}>
-                                            {product.images.map((img, idx) => (
-                                                <div key={idx} className="flex-shrink-0 w-full h-full relative">
-                                                    <img 
-                                                        src={img} 
-                                                        alt={`${product.name} ${idx}`} 
-                                                        className="w-full h-full object-cover snap-center" 
-                                                    />
-                                                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/images:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <Maximize2 className="text-white scale-110" />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <img src={product.images?.[0] || product.image} alt={product.name} className="w-full h-full object-cover" />
-                                    )}
+                                <div className="h-40 bg-gray-50 relative overflow-hidden">
+                                    <ProductImageSlider 
+                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
+                                        onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
+                                    />
                                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => handleOpenEditProduct(product)}

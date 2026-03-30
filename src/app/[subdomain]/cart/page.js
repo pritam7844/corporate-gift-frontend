@@ -5,9 +5,10 @@ import { useRouter, useParams } from 'next/navigation';
 import { useCartStore } from '../../../store/cartStore';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/api';
-import { ShoppingBag, ArrowRight, ShieldCheck, Tag, Minus, Plus, X, Loader2, CheckCircle2, MapPin, CreditCard, ChevronLeft, Scissors, Truck, FileUp, Check, Info } from 'lucide-react';
+import { ShoppingBag, ArrowRight, ShieldCheck, Tag, Minus, Plus, X, Loader2, CheckCircle2, MapPin, CreditCard, ChevronLeft, Scissors, Truck, FileUp, Check, Info, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
 import ConfirmModal from '../../../components/common/ConfirmModal';
+import ImageSliderModal from '../../../components/common/ImageSliderModal';
 
 export default function CartPage() {
     const router = useRouter();
@@ -22,6 +23,8 @@ export default function CartPage() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [logoUploading, setLogoUploading] = useState(false);
+    const [isAlreadyOrdered, setIsAlreadyOrdered] = useState(false); // New state
+    const [participatingEvent, setParticipatingEvent] = useState(null); // Store event info for warning
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -29,53 +32,22 @@ export default function CartPage() {
         whatsapp: '',
         address: '',
         employeeId: '',
+        additionalRequirements: '',
         // New Fields
         customization: {
             isBrandingRequired: false,
             brandingType: '',
             brandingPositions: 1,
+            customBrandingPositions: '',
             brandingSize: '',
+            customBrandingSize: '',
             brandingLogo: ''
         },
         shippingDetails: {
-            deliveryType: 'Single Location',
-            multipleLocations: [''], // Changed to array for multiple locations
-            deliveryTimeline: ''
+            deliveryType: 'Single Location'
         }
     });
 
-    const handleAddLocation = () => {
-        setFormData(prev => ({
-            ...prev,
-            shippingDetails: {
-                ...prev.shippingDetails,
-                multipleLocations: [...prev.shippingDetails.multipleLocations, '']
-            }
-        }));
-    };
-
-    const handleRemoveLocation = (index) => {
-        if (formData.shippingDetails.multipleLocations.length <= 1) return;
-        setFormData(prev => ({
-            ...prev,
-            shippingDetails: {
-                ...prev.shippingDetails,
-                multipleLocations: prev.shippingDetails.multipleLocations.filter((_, i) => i !== index)
-            }
-        }));
-    };
-
-    const handleLocationChange = (index, value) => {
-        const newLocations = [...formData.shippingDetails.multipleLocations];
-        newLocations[index] = value;
-        setFormData(prev => ({
-            ...prev,
-            shippingDetails: {
-                ...prev.shippingDetails,
-                multipleLocations: newLocations
-            }
-        }));
-    };
 
     // Confirmation Modal State
     const [confirmState, setConfirmState] = useState({
@@ -84,6 +56,13 @@ export default function CartPage() {
         message: '',
         onConfirm: () => { },
         type: 'warning'
+    });
+
+    // Image Slider State
+    const [sliderModal, setSliderModal] = useState({
+        isOpen: false,
+        images: [],
+        index: 0
     });
 
     const openConfirm = (title, message, onConfirm, type = 'warning') => {
@@ -105,8 +84,34 @@ export default function CartPage() {
                 email: user.email || '',
                 employeeId: user.employeeId || ''
             }));
+
+            // Check for participation constraint
+            const checkParticipation = async () => {
+                const eventId = items[0]?.eventId;
+                if (!eventId) return;
+
+                try {
+                    // Fetch Event to get startDate
+                    const eventRes = await api.get(`/events/${eventId}`);
+                    const event = eventRes.data.data;
+                    setParticipatingEvent(event);
+
+                    // Fetch User Requests
+                    const requestsRes = await api.get('/gift-requests/my-requests');
+                    const userRequests = requestsRes.data.data || [];
+
+                    const alreadyOrdered = userRequests.some(req =>
+                        req.eventId._id === eventId &&
+                        new Date(req.createdAt) >= new Date(event.startDate)
+                    );
+                    setIsAlreadyOrdered(alreadyOrdered);
+                } catch (err) {
+                    console.error("Failed to check participation", err);
+                }
+            };
+            checkParticipation();
         }
-    }, [user]);
+    }, [user, items]);
 
     if (!mounted) return null;
 
@@ -168,10 +173,6 @@ export default function CartPage() {
             return;
         }
 
-        if (formData.shippingDetails.deliveryType === 'Multiple Locations' && (!formData.shippingDetails.multipleLocations || formData.shippingDetails.multipleLocations.some(loc => !loc.trim()))) {
-            openConfirm('Information Required', 'Please provide all location details.', () => { }, 'warning');
-            return;
-        }
 
         setIsSubmitting(true);
         try {
@@ -187,7 +188,8 @@ export default function CartPage() {
                     phone: formData.phone,
                     whatsapp: formData.whatsapp,
                     address: formData.address,
-                    employeeId: formData.employeeId
+                    employeeId: formData.employeeId,
+                    additionalRequirements: formData.additionalRequirements
                 },
                 selectedProducts: items.map(item => ({
                     productId: item.product._id,
@@ -331,7 +333,7 @@ export default function CartPage() {
                                             <h3 className="text-xl font-black text-gray-900 mb-2">Your cart is empty</h3>
                                             <p className="text-gray-500 mb-8">Looks like you haven't added any premium gifts yet.</p>
                                             <button
-                                                onClick={() => router.push(`/${subdomain}`)}
+                                                onClick={() => router.push(`/`)}
                                                 className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg"
                                             >
                                                 Start Browsing
@@ -362,15 +364,18 @@ export default function CartPage() {
                                                             <X size={18} className="stroke-2" />
                                                         </button>
 
-                                                        <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-gray-100 shadow-sm p-2">
-                                                            <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50">
+                                                        <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-gray-100 shadow-sm p-1 cursor-pointer"
+                                                            onClick={() => setSliderModal({ isOpen: true, images: item.product.images && item.product.images.length > 0 ? item.product.images : (item.product.image ? [item.product.image] : []), index: 0 })}
+                                                        >
+                                                            <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center relative group/img">
                                                                 {item.product.images?.[0] || item.product.image ? (
                                                                     <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                                 ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                                        <Tag size={32} className="stroke-1" />
-                                                                    </div>
+                                                                    <Tag size={32} className="text-gray-300 stroke-1" />
                                                                 )}
+                                                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                                    <Maximize2 size={24} className="text-white scale-90" />
+                                                                </div>
                                                             </div>
                                                         </div>
 
@@ -408,10 +413,14 @@ export default function CartPage() {
                                                                     </button>
                                                                     <span className="text-base font-black w-10 text-center text-gray-900">{item.quantity}</span>
                                                                     <button
-                                                                        onClick={() => updateQuantity(item.product._id, item.eventId, item.quantity + 1)}
-                                                                        disabled={item.quantity >= 3}
-                                                                        title={item.quantity >= 3 ? 'Maximum 3 per item' : ''}
-                                                                        className="w-8 h-8 flex items-center justify-center rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed text-gray-600 hover:bg-gray-100 hover:text-blue-600"
+                                                                        onClick={() => {
+                                                                            if (item.quantity >= 1) {
+                                                                                openConfirm('Limit Reached', 'Maximum 1 unit per product is allowed for sample orders.', () => { }, 'warning');
+                                                                                return;
+                                                                            }
+                                                                            updateQuantity(item.product._id, item.eventId, item.quantity + 1);
+                                                                        }}
+                                                                        className={`w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm transition-all text-gray-500 ${item.quantity >= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
                                                                     >
                                                                         <Plus size={16} className="stroke-[2.5]" />
                                                                     </button>
@@ -469,36 +478,80 @@ export default function CartPage() {
                                                     </div>
                                                 </div>
 
-                                                {/* Branding Positions */}
                                                 <div>
                                                     <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">2. Number of Branding Positions</label>
-                                                    <div className="flex gap-4">
+                                                    <div className="flex flex-wrap gap-3">
                                                         {[1, 2, 3].map(pos => (
                                                             <button
                                                                 key={pos}
-                                                                onClick={() => handleCustomizationChange('brandingPositions', pos)}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    handleCustomizationChange('brandingPositions', pos);
+                                                                    handleCustomizationChange('customBrandingPositions', '');
+                                                                }}
                                                                 className={`w-14 h-14 rounded-xl font-black border-2 transition-all ${formData.customization.brandingPositions === pos ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
                                                             >
                                                                 {pos}
                                                             </button>
                                                         ))}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCustomizationChange('brandingPositions', 'Custom')}
+                                                            className={`px-6 h-14 rounded-xl font-black border-2 transition-all ${formData.customization.brandingPositions === 'Custom' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
+                                                        >
+                                                            Custom
+                                                        </button>
                                                     </div>
+
+                                                    {formData.customization.brandingPositions === 'Custom' && (
+                                                        <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Tell us about the branding positions..."
+                                                                value={formData.customization.customBrandingPositions}
+                                                                onChange={(e) => handleCustomizationChange('customBrandingPositions', e.target.value)}
+                                                                className="w-full px-5 py-4 bg-white border border-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
 
-                                                {/* Branding Size */}
                                                 <div>
                                                     <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">3. Branding Size</label>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                                         {['1 inch to 3 inch', '3 inch to 5 inch', '5 inch to 10 inch'].map(size => (
                                                             <button
                                                                 key={size}
-                                                                onClick={() => handleCustomizationChange('brandingSize', size)}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    handleCustomizationChange('brandingSize', size);
+                                                                    handleCustomizationChange('customBrandingSize', '');
+                                                                }}
                                                                 className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingSize === size ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
                                                             >
                                                                 {size}
                                                             </button>
                                                         ))}
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCustomizationChange('brandingSize', 'Custom')}
+                                                            className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingSize === 'Custom' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
+                                                        >
+                                                            Custom
+                                                        </button>
                                                     </div>
+
+                                                    {formData.customization.brandingSize === 'Custom' && (
+                                                        <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter custom branding size (e.g. 2x4 inches)..."
+                                                                value={formData.customization.customBrandingSize}
+                                                                onChange={(e) => handleCustomizationChange('customBrandingSize', e.target.value)}
+                                                                className="w-full px-5 py-4 bg-white border border-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
+                                                            />
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 {/* Branding File Upload */}
@@ -556,11 +609,11 @@ export default function CartPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
-                                                <input required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="John Doe" />
+                                                <input readOnly required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-100 border border-gray-200 focus:border-blue-500 rounded-2xl outline-none font-semibold text-gray-500 cursor-not-allowed" placeholder="Full Name" />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address *</label>
-                                                <input required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="john@example.com" />
+                                                <input readOnly required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-100 border border-gray-200 focus:border-blue-500 rounded-2xl outline-none font-semibold text-gray-500 cursor-not-allowed" placeholder="Email Address" />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
@@ -576,86 +629,37 @@ export default function CartPage() {
                                             </div>
                                         </div>
 
-                                        {/* Delivery Type */}
+                                        {/* Address Area */}
                                         <div className="space-y-4">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 block">5. Delivery Location Type</label>
-                                            <div className="flex gap-4">
-                                                {['Single Location', 'Multiple Locations'].map(type => (
-                                                    <button
-                                                        key={type}
-                                                        type="button"
-                                                        onClick={() => handleShippingChange('deliveryType', type)}
-                                                        className={`flex-1 flex items-center justify-between px-6 py-4 rounded-2xl border-2 transition-all ${formData.shippingDetails.deliveryType === type ? 'bg-blue-50 border-blue-600 text-blue-900' : 'bg-white border-gray-100 text-gray-500 hover:border-blue-200'}`}
-                                                    >
-                                                        <span className="font-bold">{type}</span>
-                                                        {formData.shippingDetails.deliveryType === type && <CheckCircle2 size={20} className="text-blue-600" />}
-                                                    </button>
-                                                ))}
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Delivery Address *</label>
                                             </div>
+                                            <textarea
+                                                required
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                rows="4"
+                                                className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none"
+                                                placeholder="Enter flat, building, area and city details for delivery..."
+                                            ></textarea>
                                         </div>
 
-                                        {/* Address / Locations */}
-                                        {formData.shippingDetails.deliveryType === 'Single Location' ? (
-                                            <>
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Complete Delivery Address *</label>
-                                                <textarea required name="address" value={formData.address} onChange={handleInputChange} rows="3" className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none" placeholder="Enter flat, building, area and city details..."></textarea>
-                                            </>
-                                        ) : (
-                                            <div className="space-y-4">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Enter Multiple Pincodes or Addresses *</label>
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleAddLocation}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors"
-                                                    >
-                                                        <Plus size={14} /> Add Address
-                                                    </button>
-                                                </div>
-
-                                                {formData.shippingDetails.multipleLocations.map((location, index) => (
-                                                    <div key={index} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-300">
-                                                        <div className="flex-grow relative">
-                                                            <input
-                                                                required
-                                                                type="text"
-                                                                value={location}
-                                                                onChange={(e) => handleLocationChange(index, e.target.value)}
-                                                                className="w-full px-5 py-3.5 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
-                                                                placeholder={`Address #${index + 1}`}
-                                                            />
-                                                            <div className="absolute left-[-10px] top-1/2 -translate-y-1/2 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold shadow-sm">
-                                                                {index + 1}
-                                                            </div>
-                                                        </div>
-                                                        {formData.shippingDetails.multipleLocations.length > 1 && (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleRemoveLocation(index)}
-                                                                className="w-12 h-12 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
-                                                            >
-                                                                <X size={20} />
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                ))}
+                                        {/* Additional Requirements Area */}
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Additional Requirements / Notes (Optional)</label>
                                             </div>
-                                        )}
-
-                                        {/* Delivery Timeline */}
-                                        <div className="space-y-2">
-                                            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">6. Required Delivery Timeline / Expected Date</label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    placeholder="e.g. Within 15 days or by 25th March"
-                                                    className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
-                                                    value={formData.shippingDetails.deliveryTimeline}
-                                                    onChange={(e) => handleShippingChange('deliveryTimeline', e.target.value)}
-                                                />
-                                                <Truck className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-                                            </div>
+                                            <textarea
+                                                name="additionalRequirements"
+                                                value={formData.additionalRequirements}
+                                                onChange={handleInputChange}
+                                                rows="3"
+                                                className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none"
+                                                placeholder="Like Expected quantity, Budget, Expected Delivery time for actual products etc..."
+                                            ></textarea>
                                         </div>
+
                                     </form>
                                 </div>
                             )}
@@ -697,6 +701,7 @@ export default function CartPage() {
                                             </div>
                                             <span className="font-black text-2xl text-gray-900">₹{total.toLocaleString('en-IN')}</span>
                                         </div>
+
                                     </>
                                 ) : (
                                     // Step 2: Show small item thumbnails instead of price breakdown
@@ -721,10 +726,30 @@ export default function CartPage() {
                                         ))}
                                     </div>
                                 )}
+
+                                <div className="flex items-center justify-between text-xs font-bold text-blue-600 bg-blue-50/50 px-4 py-3 rounded-xl border border-blue-100/50 mt-4">
+                                    <div className="flex items-center gap-2">
+                                        <Truck size={14} className="text-blue-500" />
+                                        <span className="uppercase tracking-wider">Expected Delivery</span>
+                                    </div>
+                                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px]">4-5 DAYS</span>
+                                </div>
                             </div>
 
                             {/* Actions based on step */}
-                            {currentStep === 1 ? (
+                            {isAlreadyOrdered ? (
+                                <div className="bg-red-50 border border-red-100 rounded-2xl p-4 text-center">
+                                    <Info className="text-red-500 mx-auto mb-2" size={24} />
+                                    <p className="text-red-700 font-bold text-sm">Participation Limit Reached</p>
+                                    <p className="text-red-600 text-[10px] mt-1">You have already placed an order for the "{participatingEvent?.name}" event in the current cycle.</p>
+                                    <button
+                                        onClick={() => router.push('/')}
+                                        className="mt-4 text-red-700 font-black text-xs uppercase tracking-widest hover:underline"
+                                    >
+                                        Back to Home
+                                    </button>
+                                </div>
+                            ) : currentStep === 1 ? (
                                 <button
                                     onClick={() => setCurrentStep(2)}
                                     disabled={items.length === 0}
@@ -736,9 +761,19 @@ export default function CartPage() {
                             ) : currentStep === 2 ? (
                                 <button
                                     onClick={() => {
-                                        if (formData.customization.isBrandingRequired && (!formData.customization.brandingType || !formData.customization.brandingSize)) {
-                                            openConfirm('Missing Details', 'Please select branding type and size before proceeding.', () => { }, 'warning');
-                                            return;
+                                        if (formData.customization.isBrandingRequired) {
+                                            if (!formData.customization.brandingType) {
+                                                openConfirm('Missing Details', 'Please select a branding type.', () => { }, 'warning');
+                                                return;
+                                            }
+                                            if (!formData.customization.brandingPositions || (formData.customization.brandingPositions === 'Custom' && !formData.customization.customBrandingPositions)) {
+                                                openConfirm('Missing Details', 'Please specify the number or details of branding positions.', () => { }, 'warning');
+                                                return;
+                                            }
+                                            if (!formData.customization.brandingSize || (formData.customization.brandingSize === 'Custom' && !formData.customization.customBrandingSize)) {
+                                                openConfirm('Missing Details', 'Please specify the branding size.', () => { }, 'warning');
+                                                return;
+                                            }
                                         }
                                         setCurrentStep(3);
                                     }}
@@ -791,7 +826,14 @@ export default function CartPage() {
                 title={confirmState.title}
                 message={confirmState.message}
                 type={confirmState.type}
-                confirmText={confirmState.type === 'danger' || confirmState.type === 'warning' ? 'Okay' : 'Confirm'}
+                confirmText={confirmState.type === 'danger' ? 'Okay' : 'Yes, Proceed'}
+            />
+            {/* Image Slider Modal */}
+            <ImageSliderModal
+                isOpen={sliderModal.isOpen}
+                onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
+                images={sliderModal.images}
+                initialIndex={sliderModal.index}
             />
         </div>
     );

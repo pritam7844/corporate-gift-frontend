@@ -193,12 +193,7 @@ export default function MyOrdersPage() {
                                                 </button>
                                                     <p><span className="text-gray-700 font-bold">Delivery Address:</span></p>
                                                     <div className="mt-1 space-y-0.5">
-                                                        {order.shippingDetails?.deliveryType === 'Multiple Locations' 
-                                                            ? (Array.isArray(order.shippingDetails.multipleLocations) 
-                                                                ? order.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
-                                                                : <div>{order.shippingDetails.multipleLocations}</div>)
-                                                            : (<div>{order.employeeDetails?.address || 'N/A'}</div>)
-                                                        }
+                                                        {order.employeeDetails?.address || 'N/A'}
                                                     </div>
                                             </div>
 
@@ -254,8 +249,8 @@ export default function MyOrdersPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="space-y-2">
                                                 <p className="text-xs text-gray-500">Branding Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
-                                                <p className="text-xs text-gray-500">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions}</span></p>
-                                                <p className="text-xs text-gray-500">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize}</span></p>
+                                                <p className="text-xs text-gray-500">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions === 'Custom' ? selectedOrder.customization.customBrandingPositions : selectedOrder.customization.brandingPositions}</span></p>
+                                                <p className="text-xs text-gray-500">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize === 'Custom' ? selectedOrder.customization.customBrandingSize : selectedOrder.customization.brandingSize}</span></p>
                                             </div>
                                             {selectedOrder.customization.brandingLogo && (
                                                 <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-blue-50">
@@ -279,22 +274,12 @@ export default function MyOrdersPage() {
                                     <div className="flex items-start">
                                         <MapPin size={14} className="mr-2.5 text-blue-500 mt-0.5 flex-shrink-0" />
                                         <div className="flex-1">
-                                            <p className="text-xs font-bold text-gray-900">{selectedOrder.shippingDetails?.deliveryType || 'Single Location'}</p>
-                                            <div className="text-[11px] text-gray-500 mt-1 leading-snug space-y-1">
-                                                {selectedOrder.shippingDetails?.deliveryType === 'Multiple Locations'
-                                                    ? (Array.isArray(selectedOrder.shippingDetails.multipleLocations) 
-                                                        ? selectedOrder.shippingDetails.multipleLocations.map((loc, i) => <div key={i}>{i+1}. {loc}</div>)
-                                                        : (<div>{selectedOrder.shippingDetails.multipleLocations || 'N/A'}</div>))
-                                                    : (<div>{selectedOrder.employeeDetails?.address || 'N/A'}</div>)}
+                                            <p className="text-xs font-bold text-gray-900 leading-tight">Delivery Address</p>
+                                            <div className="text-[11px] text-gray-500 mt-1 leading-snug">
+                                                {selectedOrder.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </div>
                                     </div>
-                                    {selectedOrder.shippingDetails?.deliveryTimeline && (
-                                        <div className="flex items-center pt-2 border-t border-gray-50">
-                                            <Clock size={14} className="mr-2.5 text-blue-500" />
-                                            <p className="text-xs font-bold text-gray-900">Timeline: <span className="text-gray-500 font-medium">{selectedOrder.shippingDetails.deliveryTimeline}</span></p>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 

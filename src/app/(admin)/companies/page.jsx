@@ -136,7 +136,7 @@ export default function CompaniesPage() {
                 href={`/companies/${company._id}`}
                 className="block w-full text-center py-3 bg-gray-50 hover:bg-blue-600 hover:text-white transition-all text-sm font-bold text-gray-600 border-t border-gray-100"
               >
-                Manage Profile
+                Manage Company Profile
               </Link>
             </div>
           ))}
