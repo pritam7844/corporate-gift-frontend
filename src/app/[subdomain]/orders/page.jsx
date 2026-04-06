@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/api';
 import { Package, ChevronRight, Clock, CheckCircle2, Truck, XCircle, ArrowLeft, Loader2, Calendar, X, Mail, MapPin, User, Gift, Info } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import Link from 'next/link';
 
 export default function MyOrdersPage() {
@@ -122,7 +123,7 @@ export default function MyOrdersPage() {
                                             <div>
                                                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Order Placed</p>
                                                 <p className="text-sm font-semibold text-gray-900">
-                                                    {new Date(order.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    <FormattedDate date={order.createdAt} />
                                                 </p>
                                             </div>
                                             <div>
@@ -231,7 +232,7 @@ export default function MyOrdersPage() {
                                     <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">
                                         <Calendar size={12} className="mr-2" /> Placed On
                                     </div>
-                                    <p className="font-bold text-sm text-gray-900">{new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+                                    <p className="font-bold text-sm text-gray-900"><FormattedDate date={selectedOrder.createdAt} /></p>
                                 </div>
                                 <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
                                     <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">

@@ -6,6 +6,7 @@ import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
 import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus, Maximize2 } from 'lucide-react';
+import FormattedDate from '../../components/common/FormattedDate';
 import ImageSliderModal from '../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../components/common/ProductImageSlider';
 import ConfirmModal from '../../components/common/ConfirmModal';
@@ -250,7 +251,7 @@ export default function CompanyLandingPage() {
                                             <h3 className="text-3xl sm:text-4xl font-black text-gray-900 mb-4 tracking-tighter">{event.name}</h3>
                                             <p className="text-sm text-gray-400 font-bold flex items-center justify-center md:justify-start uppercase tracking-widest">
                                                 <Calendar size={16} className="mr-2 opacity-50" />
-                                                Closes on {new Date(event.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                Closes on <FormattedDate date={event.endDate} />
                                             </p>
                                         </div>
                                         <button

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Calendar, Plus, Tag, X, Trash2, Edit } from 'lucide-react';
+import { Calendar, Plus, Tag, X, Trash2, Edit, LayoutGrid, List } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import { useEvents } from '../../../hooks/useEvents';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 
@@ -12,6 +13,7 @@ export default function EventCatalog() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [viewMode, setViewMode] = useState('table');
 
   const emptyForm = { name: '', startDate: '', endDate: '', isGlobal: true };
   const [formData, setFormData] = useState(emptyForm);
@@ -87,13 +89,31 @@ export default function EventCatalog() {
           <h1 className="text-2xl font-bold text-gray-800">Global Event Catalog</h1>
           <p className="text-gray-500">Master templates that can be assigned to any company.</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
-        >
-          <Plus size={20} />
-          <span>Create Event Template</span>
-        </button>
+        <div className="flex items-center space-x-3">
+          <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+            <button
+              onClick={() => setViewMode('card')}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+              title="Grid View"
+            >
+              <LayoutGrid size={20} />
+            </button>
+            <button
+              onClick={() => setViewMode('table')}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+              title="Table View"
+            >
+              <List size={20} />
+            </button>
+          </div>
+          <button
+            onClick={openCreateModal}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
+          >
+            <Plus size={20} />
+            <span>Create Event Template</span>
+          </button>
+        </div>
       </div>
 
       {/* Create / Edit Modal */}
@@ -176,7 +196,15 @@ export default function EventCatalog() {
         <div className="text-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         </div>
-      ) : (
+      ) : events.length === 0 ? (
+        <div className="col-span-full py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center">
+          <Calendar size={48} className="mx-auto text-gray-300 mb-4" />
+          <p className="text-gray-500 font-medium">No event templates found.</p>
+          <button onClick={openCreateModal} className="mt-2 text-blue-600 font-bold hover:underline">
+            Create your first master template
+          </button>
+        </div>
+      ) : viewMode === 'card' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => (
             <div key={event._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 group hover:shadow-md transition-all">
@@ -208,7 +236,7 @@ export default function EventCatalog() {
               <div className="space-y-2">
                 <p className="text-sm text-gray-500 flex items-center">
                   <Calendar size={14} className="mr-2" />
-                  {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                  <FormattedDate date={event.startDate} /> - <FormattedDate date={event.endDate} />
                 </p>
                 <p className="text-sm text-gray-500 flex items-center">
                   <Tag size={14} className="mr-2" />
@@ -217,15 +245,66 @@ export default function EventCatalog() {
               </div>
             </div>
           ))}
-          {events.length === 0 && (
-            <div className="col-span-full py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 text-center">
-              <Calendar size={48} className="mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500 font-medium">No event templates found.</p>
-              <button onClick={openCreateModal} className="mt-2 text-blue-600 font-bold hover:underline">
-                Create your first master template
-              </button>
-            </div>
-          )}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Event Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Start Date</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">End Date</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Products</th>
+                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {events.map((event) => (
+                  <tr key={event._id} className="hover:bg-gray-50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Calendar size={20} />
+                        </div>
+                        <p className="font-bold text-gray-800">{event.name}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-700"><FormattedDate date={event.startDate} /></p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-gray-700"><FormattedDate date={event.endDate} /></p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Tag size={12} className="mr-1.5 text-gray-400" />
+                        <span className="font-medium">{event.products?.length || 0} Products</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          onClick={() => openEditModal(event)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit"
+                        >
+                          <Edit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(event._id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

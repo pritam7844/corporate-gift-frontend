@@ -6,6 +6,7 @@ import {
   Building2, Users, Calendar, Plus, Trash2, Edit, Mail, UserPlus,
   CheckCircle2, X, Tag, Globe, Settings, ArrowRight
 } from 'lucide-react';
+import FormattedDate from '../../../../components/common/FormattedDate';
 import api from '../../../../lib/api';
 import { useEvents } from '../../../../hooks/useEvents';
 import { useUsers } from '../../../../hooks/useUsers';
@@ -322,7 +323,7 @@ export default function CompanyDetail() {
                   </div>
                   <h3 className="font-bold text-gray-800 mb-1">{event.name}</h3>
                   <p className="text-xs text-gray-400 mb-4">
-                    {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+                    <FormattedDate date={event.startDate} /> - <FormattedDate date={event.endDate} />
                   </p>
                   <div className="flex items-center text-sm text-gray-500 mb-4 bg-gray-50 p-2 rounded-lg">
                     <Tag size={14} className="mr-2 text-blue-500" />

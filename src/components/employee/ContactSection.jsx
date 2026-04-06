@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
+import FormattedDate from '../common/FormattedDate';
 import api from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 
@@ -132,7 +133,7 @@ export default function ContactSection({ companyId }) {
                                     <div key={ticket._id} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden group hover:border-gray-200 transition-all">
                                         <div className="flex justify-between items-start mb-3">
                                             <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                                                {new Date(ticket.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                <FormattedDate date={ticket.createdAt} />
                                             </span>
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${ticket.status === 'Resolved' ? 'bg-green-50 text-green-700' : ticket.status === 'In Progress' ? 'bg-blue-50 text-blue-700' : 'bg-yellow-50 text-yellow-700'
                                                 }`}>

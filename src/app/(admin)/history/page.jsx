@@ -17,6 +17,7 @@ import {
     Clock,
     Maximize2
 } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
 
@@ -133,7 +134,9 @@ export default function OrderHistoryPage() {
                                         <tr key={order._id} className="hover:bg-blue-50/30 transition duration-150 cursor-pointer group" onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">#{order._id.slice(-6).toUpperCase()}</div>
-                                                <div className="text-[10px] text-gray-400 font-bold mt-1 uppercase">{new Date(order.createdAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                                                <div className="text-[10px] text-gray-400 font-bold mt-1 uppercase">
+                                                    <FormattedDate date={order.createdAt} />
+                                                </div>
                                                 {order.companyId && (
                                                     <div className="mt-2 flex">
                                                         <span className="text-[9px] font-black text-blue-600 border border-blue-100 bg-blue-50 px-2 py-0.5 rounded-full uppercase tracking-tighter">
@@ -205,7 +208,7 @@ export default function OrderHistoryPage() {
                                     <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">
                                         <Calendar size={12} className="mr-2" /> Delivered On
                                     </div>
-                                    <p className="font-bold text-sm text-gray-900">{new Date(selectedOrder.updatedAt || selectedOrder.createdAt).toLocaleDateString()}</p>
+                                    <p className="font-bold text-sm text-gray-900"><FormattedDate date={selectedOrder.updatedAt || selectedOrder.createdAt} /></p>
                                 </div>
                             </div>
 

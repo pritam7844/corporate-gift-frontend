@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Sparkles, Package, Gift, ArrowRight, Maximize2, Calendar, ChevronRight } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import { useNewArrivals } from '../../../hooks/useNewArrivals';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
@@ -77,7 +78,7 @@ export default function EmployeeNewArrivals() {
                                         {arrival.comingSoonDate && (
                                             <div className="bg-white/90 backdrop-blur-sm border border-gray-100 px-3 py-1.5 rounded-lg text-[9px] font-bold text-gray-600 shadow-sm flex items-center gap-2">
                                                 <Calendar size={10} />
-                                                {new Date(arrival.comingSoonDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                                <FormattedDate date={arrival.comingSoonDate} />
                                             </div>
                                         )}
                                     </div>

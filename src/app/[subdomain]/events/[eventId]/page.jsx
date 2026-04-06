@@ -6,6 +6,7 @@ import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
 import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator } from 'lucide-react';
+import FormattedDate from '../../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../../components/common/ProductImageSlider';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
@@ -150,7 +151,7 @@ export default function EventProductsPage() {
                     {event.endDate && (
                         <span className="flex items-center text-orange-500 bg-orange-50 px-3 py-1 rounded-lg">
                             <Clock size={16} className="mr-1" />
-                            Ends {new Date(event.endDate).toLocaleDateString()}
+                            Ends <FormattedDate date={event.endDate} />
                         </span>
                     )}
                     {isOrdered && (

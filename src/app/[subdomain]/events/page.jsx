@@ -3,6 +3,7 @@
 import { useEvents } from '../../../hooks/useEvents';
 import { useAuthStore } from '../../../store/authStore';
 import { Calendar, ChevronRight, Gift, Clock } from 'lucide-react';
+import FormattedDate from '../../components/common/FormattedDate';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -95,7 +96,7 @@ export default function EmployeeEventsPage() {
                 {event.endDate && (
                     <div className="flex items-center text-gray-500 text-sm font-medium">
                         <Clock size={16} className="mr-2 text-orange-500" />
-                        <span>Ends {new Date(event.endDate).toLocaleDateString()}</span>
+                        <span>Ends <FormattedDate date={event.endDate} /></span>
                     </div>
                 )}
             </div>

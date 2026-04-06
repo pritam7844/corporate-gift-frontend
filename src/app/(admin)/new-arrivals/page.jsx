@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Package, Plus, Sparkles, Image as ImageIcon, X, Trash2, Edit, Upload, Maximize2, Search, Filter, Calendar, LayoutGrid, List, CheckCircle2, ArrowRight } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import { useNewArrivals } from '../../../hooks/useNewArrivals';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
@@ -20,7 +21,7 @@ export default function NewArrivalsAdmin() {
     // UI State
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // all, coming-soon, live
-    const [viewMode, setViewMode] = useState('grid'); // grid, list
+    const [viewMode, setViewMode] = useState('table'); // card, table
 
     const emptyForm = { productName: '', description: '', images: [], isComingSoon: true, comingSoonDate: '' };
     const [formData, setFormData] = useState(emptyForm);
@@ -185,6 +186,22 @@ export default function NewArrivalsAdmin() {
                         <span className="capitalize">{filterStatus.replace('-', ' ')}</span>
                     </button>
                     <div className="h-10 w-px bg-gray-200 mx-2 hidden lg:block"></div>
+                    <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
+                        <button
+                            onClick={() => setViewMode('card')}
+                            className={`p-1.5 rounded-lg transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            title="Grid View"
+                        >
+                            <LayoutGrid size={20} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode('table')}
+                            className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
+                            title="Table View"
+                        >
+                            <List size={20} />
+                        </button>
+                    </div>
                     <button
                         onClick={openCreateModal}
                         className="bg-gray-900 hover:bg-black text-white px-8 py-3.5 rounded-2xl flex items-center space-x-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all active:scale-95 text-sm font-black"
@@ -195,24 +212,17 @@ export default function NewArrivalsAdmin() {
                 </div>
             </div>
 
-            {/* Utility Bar */}
-            {/* <div className="flex flex-col md:flex-row gap-4">
-
-                <div className="bg-white p-1 rounded-2xl shadow-sm flex items-center border border-gray-100 right-10">
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`p-3 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
-                    >
-                        <LayoutGrid size={20} />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('list')}
-                        className={`p-3 rounded-xl transition-all ${viewMode === 'list' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-400 hover:text-gray-600'}`}
-                    >
-                        <List size={20} />
-                    </button>
-                </div>
-            </div> */}
+            {/* Search Bar */}
+            <div className="relative max-w-xl group">
+                <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                <input
+                    type="text"
+                    placeholder="Search showcase collection..."
+                    className="w-full bg-white border border-gray-100 pl-16 pr-8 py-4 rounded-[2rem] shadow-sm focus:ring-4 focus:ring-blue-600/5 outline-none font-medium placeholder:text-gray-300 transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
 
             {/* Content Stage */}
             {loading && arrivals.length === 0 ? (
@@ -231,16 +241,16 @@ export default function NewArrivalsAdmin() {
                         <button onClick={() => setSearchTerm('')} className="text-blue-600 font-black text-sm p-4 hover:bg-blue-50 rounded-2xl transition-all">Clear All Search</button>
                     )}
                 </div>
-            ) : viewMode === 'grid' ? (
+            ) : viewMode === 'card' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {filteredArrivals.map((arrival) => (
                         <div key={arrival._id} className="group bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col">
                             <div className="h-64 bg-[#FBFBFC] relative overflow-hidden m-3 rounded-[2rem] border border-gray-50">
-                                <ProductImageSlider 
-                                    images={arrival.images} 
+                                <ProductImageSlider
+                                    images={arrival.images}
                                     onOpenModal={(idx) => setSliderModal({ isOpen: true, images: arrival.images, index: idx })}
                                 />
-                                
+
                                 {/* Overlay Controls */}
                                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
                                     <button
@@ -272,7 +282,7 @@ export default function NewArrivalsAdmin() {
                                     )}
                                     {arrival.comingSoonDate && (
                                         <div className="bg-gray-900 text-white px-2 py-1 rounded-lg text-[8px] font-black tracking-widest">
-                                            {new Date(arrival.comingSoonDate).toLocaleDateString()}
+                                            <FormattedDate date={arrival.comingSoonDate} />
                                         </div>
                                     )}
                                 </div>
@@ -329,7 +339,7 @@ export default function NewArrivalsAdmin() {
                                         )}
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="text-xs font-bold text-gray-600">{arrival.comingSoonDate ? new Date(arrival.comingSoonDate).toLocaleDateString() : 'N/A'}</span>
+                                        <span className="text-xs font-bold text-gray-600">{arrival.comingSoonDate ? <FormattedDate date={arrival.comingSoonDate} /> : 'N/A'}</span>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all">

@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import {
     Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload, Maximize2
 } from 'lucide-react';
+import FormattedDate from '../../../../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../../../../components/common/ProductImageSlider';
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
@@ -266,7 +267,7 @@ export default function EventManagement() {
                     <div className="flex space-x-6 text-gray-500 text-sm font-medium">
                         <span className="flex items-center">
                             <Calendar size={16} className="mr-2" />
-                            {new Date(event?.startDate).toLocaleDateString()} - {new Date(event?.endDate).toLocaleDateString()}
+                            <FormattedDate date={event?.startDate} /> - <FormattedDate date={event?.endDate} />
                         </span>
                         <span className="flex items-center font-bold text-gray-800">
                             <Building2 size={16} className="mr-2" />

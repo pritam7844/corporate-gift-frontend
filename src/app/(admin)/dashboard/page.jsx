@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   Clock
 } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 
 export default function AdminDashboard() {
   const { companies } = useCompanies();
@@ -94,7 +95,7 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <span className="text-xs text-gray-400">
-                  {new Date(company.createdAt).toLocaleDateString()}
+                  <FormattedDate date={company.createdAt} className="text-gray-400 font-medium" />
                 </span>
               </div>
             ))}

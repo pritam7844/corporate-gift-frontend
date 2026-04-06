@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../../store/authStore';
 import api from '../../../lib/api';
 import { Package, Clock, CheckCircle, Truck, AlertCircle, RefreshCw, X, Building2, Calendar, Mail, MapPin, User, Gift, Maximize2 } from 'lucide-react';
+import FormattedDate from '../../../components/common/FormattedDate';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
@@ -176,7 +177,7 @@ export default function AdminOrdersPage() {
                                     <tr key={order._id} className="hover:bg-gray-50/50 transition duration-150 cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
-                                            <div className="text-xs text-gray-500 mt-1">{new Date(order.createdAt).toLocaleDateString()}</div>
+                                            <div className="text-xs text-gray-500 mt-1"><FormattedDate date={order.createdAt} /></div>
                                             {order.companyId && (
                                                 <div className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider mt-2 border border-blue-100 bg-blue-50 px-2 py-0.5 rounded inline-block">
                                                     {order.companyId.name}
@@ -260,7 +261,7 @@ export default function AdminOrdersPage() {
                                     <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">
                                         <Calendar size={12} className="mr-2" /> Order Date
                                     </div>
-                                    <p className="font-bold text-sm text-gray-900">{new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+                                    <p className="font-bold text-sm text-gray-900"><FormattedDate date={selectedOrder.createdAt} /></p>
                                 </div>
                             </div>
 
