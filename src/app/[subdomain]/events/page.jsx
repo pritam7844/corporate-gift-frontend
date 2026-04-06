@@ -3,7 +3,7 @@
 import { useEvents } from '../../../hooks/useEvents';
 import { useAuthStore } from '../../../store/authStore';
 import { Calendar, ChevronRight, Gift, Clock } from 'lucide-react';
-import FormattedDate from '../../components/common/FormattedDate';
+import FormattedDate from '../../../components/common/FormattedDate';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
