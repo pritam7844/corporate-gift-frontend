@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Building2, Users, Calendar, Plus, Trash2, Edit, Mail, UserPlus,
-  CheckCircle2, X, Tag, Globe, Settings, ArrowRight
+  CheckCircle2, X, Tag, Globe, Settings, ArrowRight, Image as ImageIcon
 } from 'lucide-react';
+
 import FormattedDate from '../../../../components/common/FormattedDate';
 import api from '../../../../lib/api';
 import { useEvents } from '../../../../hooks/useEvents';
@@ -16,7 +17,8 @@ import ConfirmModal from '../../../../components/common/ConfirmModal';
 import {
   getCompanyByIdAPI,
   updateCompanyAPI,
-  deleteCompanyAPI
+  deleteCompanyAPI,
+  uploadLogoAPI
 } from '../../../../services/company.service';
 
 export default function CompanyDetail() {
@@ -25,6 +27,8 @@ export default function CompanyDetail() {
   const [activeTab, setActiveTab] = useState('events');
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState('');
 
   // Modals
   const [showAssignModal, setShowAssignModal] = useState(false);
@@ -77,6 +81,7 @@ export default function CompanyDetail() {
       try {
         const data = await getCompanyByIdAPI(companyId);
         setCompany(data);
+        if (data.logo) setLogoPreview(data.logo);
       } catch (err) {
         console.error("Error fetching company details:", err);
       } finally {
@@ -171,14 +176,38 @@ export default function CompanyDetail() {
   const handleUpdateCompany = async (e) => {
     e.preventDefault();
     try {
+      let logoUrl = company.logo;
+      if (logoFile) {
+        const uploadRes = await uploadLogoAPI(logoFile);
+        if (uploadRes.success) {
+          logoUrl = uploadRes.url;
+        }
+      }
+
       const data = await updateCompanyAPI(companyId, {
         name: e.target.name.value,
-        subdomain: e.target.subdomain.value
+        subdomain: e.target.subdomain.value,
+        logo: logoUrl
       });
       setCompany(data);
+      setLogoPreview(logoUrl);
+      setLogoFile(null);
       setShowEditModal(false);
     } catch (err) {
+      console.error('Update failed:', err);
       openConfirm('Error', 'Failed to update company information.', () => { }, 'danger');
+    }
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -216,8 +245,12 @@ export default function CompanyDetail() {
       {/* Header */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 bg-blue-600 text-white rounded-xl flex items-center justify-center text-2xl font-bold uppercase shadow-lg shadow-blue-200">
-            {company?.name?.charAt(0)}
+          <div className="w-16 h-16 bg-blue-600 text-white rounded-xl flex items-center justify-center overflow-hidden border-2 border-white shadow-lg shadow-blue-200">
+            {company?.logo ? (
+              <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-2xl font-bold uppercase">{company?.name?.charAt(0)}</span>
+            )}
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">{company?.name}</h1>
@@ -662,8 +695,39 @@ export default function CompanyDetail() {
                 <input name="name" type="text" defaultValue={company.name} required className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Subdomain</label>
                 <input name="subdomain" type="text" defaultValue={company.subdomain} required className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Company Logo</label>
+                <div className="flex items-center space-x-4">
+                  <div className="relative group w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden transition-all hover:border-blue-400">
+                    {logoPreview ? (
+                      <>
+                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => { setLogoFile(null); setLogoPreview(company.logo || ''); }}
+                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                        >
+                          <Edit size={18} />
+                        </button>
+                      </>
+                    ) : (
+                      <ImageIcon className="text-gray-300" size={24} />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500">Pick a square logo for best results (PNG/JPG).</p>
+                    <p className="text-[10px] text-blue-600 mt-1 uppercase font-black">Click to change</p>
+                  </div>
+                </div>
               </div>
               <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
                 Update Settings

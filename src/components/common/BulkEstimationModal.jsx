@@ -14,7 +14,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
         if (isOpen && products) {
             const initialQuantities = {};
             products.forEach(p => {
-                initialQuantities[p._id] = 0;
+                initialQuantities[p._id] = '';
             });
             setQuantities(initialQuantities);
             setBaseQuantity('');
@@ -23,11 +23,10 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
     }, [isOpen, products]);
 
     const handleBaseQuantityChange = (val) => {
-        const q = parseInt(val) || 0;
         setBaseQuantity(val);
         const newQuantities = {};
         products.forEach(p => {
-            newQuantities[p._id] = q;
+            newQuantities[p._id] = val;
         });
         setQuantities(newQuantities);
     };
@@ -35,7 +34,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
     const updateIndividualQuantity = (productId, val) => {
         setQuantities(prev => ({
             ...prev,
-            [productId]: Math.max(0, parseInt(val) || 0)
+            [productId]: val === '' ? '' : Math.max(0, parseInt(val) || 0)
         }));
     };
 
@@ -47,30 +46,35 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
     };
 
     const handleCalculate = () => {
-        const totalUnits = Object.values(quantities).reduce((sum, q) => sum + q, 0);
-        const discountPercent = calculateDiscount(totalUnits);
+        let totalUnits = 0;
+        let totalAmount = 0;
 
         const items = products.map(p => {
-            const qty = quantities[p._id] || 0;
+            const rawQty = quantities[p._id];
+            const qty = Number(rawQty) || 0;
+            totalUnits += qty;
+
+            // Calculate discount for THIS product based on its specific quantity
+            const itemDiscountPercent = calculateDiscount(qty);
             const mrp = p.actualPrice || 0;
-            const discountAmount = (mrp * discountPercent) / 100;
+            const discountAmount = (mrp * itemDiscountPercent) / 100;
             const pricePerUnit = mrp - discountAmount;
             const totalForProduct = pricePerUnit * qty;
+
+            totalAmount += totalForProduct;
 
             return {
                 ...p,
                 quantity: qty,
                 mrp,
+                discountPercent: itemDiscountPercent,
                 pricePerUnit,
                 totalForProduct
             };
         });
 
-        const totalAmount = items.reduce((sum, item) => sum + item.totalForProduct, 0);
-
         setCalculatedResults({
             totalUnits,
-            discountPercent,
             totalAmount,
             items
         });
@@ -110,13 +114,13 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                 </div>
 
                 {/* Content */}
-                <div 
+                <div
                     ref={modalContentRef}
                     className="flex-grow overflow-y-auto p-4 sm:p-8 bg-gray-50/50"
                 >
 
                     {/* Bulk Input */}
-                    <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    {/* <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <label className="block text-xs sm:text-sm font-black text-gray-700 mb-2">Apply Quantity to All Products</label>
                             <div className="flex items-center gap-3">
@@ -130,14 +134,8 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                 <span className="text-xs sm:text-sm font-bold text-gray-700">units each</span>
                             </div>
                         </div>
-                        {/* <div className="flex flex-col gap-2">
-                             <div className="flex items-center gap-2 text-[10px] sm:text-xs font-black">
-                                <span className="px-2 py-1 bg-green-50 text-green-600 rounded-lg">1-200 units: 25% OFF</span>
-                                <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded-lg">201-500 units: 30% OFF</span>
-                                <span className="px-2 py-1 bg-purple-50 text-purple-600 rounded-lg">500+ units: 35% OFF</span>
-                             </div>
-                        </div> */}
-                    </div>
+                       
+                    </div> */}
 
                     {/* Product List */}
                     <div className="space-y-3 sm:space-y-4">
@@ -158,19 +156,20 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                 </div>
                                 <div className="flex items-center gap-1 sm:gap-2">
                                     <button
-                                        onClick={() => updateIndividualQuantity(product._id, (quantities[product._id] || 0) - 1)}
+                                        onClick={() => updateIndividualQuantity(product._id, (Number(quantities[product._id]) || 0) - 1)}
                                         className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg sm:rounded-xl text-gray-400 hover:text-blue-600 transition-colors border border-gray-100"
                                     >
                                         <Minus size={14} className="sm:w-4 sm:h-4" />
                                     </button>
                                     <input
                                         type="number"
-                                        value={quantities[product._id] || 0}
+                                        value={quantities[product._id]}
                                         onChange={(e) => updateIndividualQuantity(product._id, e.target.value)}
                                         className="w-10 sm:w-16 text-center font-black text-gray-900 outline-none text-xs sm:text-sm"
+                                        placeholder="0"
                                     />
                                     <button
-                                        onClick={() => updateIndividualQuantity(product._id, (quantities[product._id] || 0) + 1)}
+                                        onClick={() => updateIndividualQuantity(product._id, (Number(quantities[product._id]) || 0) + 1)}
                                         className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg sm:rounded-xl text-gray-400 hover:text-blue-600 transition-colors border border-gray-100"
                                     >
                                         <Plus size={14} className="sm:w-4 sm:h-4" />
@@ -183,15 +182,15 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                     {/* Results Display */}
                     {calculatedResults && (
                         <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-blue-600 rounded-[1.5rem] sm:rounded-[2rem] text-white shadow-xl shadow-blue-200 animate-in slide-in-from-bottom-4 duration-300">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center sm:text-left">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 text-center sm:text-left">
                                 <div className="border-b sm:border-b-0 sm:border-r border-blue-400/30 pb-4 sm:pb-0 sm:pr-4">
                                     <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Total Units</p>
                                     <p className="text-3xl sm:text-4xl font-black">{calculatedResults.totalUnits}</p>
                                 </div>
-                                <div className="border-b sm:border-b-0 sm:border-r border-blue-400/30 pb-4 sm:pb-0 sm:pr-4">
+                                {/* <div className="border-b sm:border-b-0 sm:border-r border-blue-400/30 pb-4 sm:pb-0 sm:pr-4">
                                     <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Applied Discount</p>
-                                    <p className="text-3xl sm:text-4xl font-black">{calculatedResults.discountPercent}% OFF</p>
-                                </div>
+                                    <p className="text-3xl sm:text-4xl font-black">Tiered Rate</p>
+                                </div> */}
                                 <div>
                                     <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1 leading-tight">Estimated Total<br className="sm:hidden" /> (With GST*)</p>
                                     <p className="text-3xl sm:text-4xl font-black">₹{calculatedResults.totalAmount.toLocaleString('en-IN')}</p>
@@ -222,6 +221,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                                 <th className="p-3 font-black">Product</th>
                                                 <th className="p-3 font-black text-center">Qty</th>
                                                 <th className="p-3 font-black text-right">MRP</th>
+                                                <th className="p-3 font-black text-right">Disc %</th>
                                                 <th className="p-3 font-black text-right">Offer Price</th>
                                                 <th className="p-3 font-black text-right">Subtotal</th>
                                             </tr>
@@ -232,6 +232,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                                     <td className="p-3 truncate max-w-[120px] sm:max-w-[150px]">{item.name}</td>
                                                     <td className="p-3 text-center">{item.quantity}</td>
                                                     <td className="p-3 text-right">₹{item.mrp}</td>
+                                                    <td className="p-3 text-right font-black text-blue-200">{item.discountPercent}%</td>
                                                     <td className="p-3 text-right font-black">₹{item.pricePerUnit.toFixed(2)}</td>
                                                     <td className="p-3 text-right font-black">₹{item.totalForProduct.toLocaleString('en-IN')}</td>
                                                 </tr>

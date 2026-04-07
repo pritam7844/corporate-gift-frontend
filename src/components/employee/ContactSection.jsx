@@ -71,7 +71,7 @@ export default function ContactSection({ companyId }) {
     };
 
     return (
-        <section id="contact" className="bg-gray-50 py-24 border-t border-gray-200">
+        <section id="contact" className="bg-gray-50 py-10 border-t border-gray-200">
             <div className="max-w-md mx-auto px-6">
                 <div className="text-center mb-8">
                     <MessageSquare className="mx-auto mb-4 text-gray-400" size={32} />

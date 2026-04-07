@@ -22,13 +22,13 @@ export default function EmployeeNewArrivals() {
         <div className="min-h-screen bg-white pb-32 selection:bg-blue-100 selection:text-blue-900">
             {/* Minimalist Professional Hero */}
             <div className="bg-[#F9FAFB] border-b border-gray-100">
-                <div className="max-w-5xl mx-auto px-6 py-20 md:py-32 text-center">
+                <div className="max-w-5xl mx-auto px-6 py-10 md:py-20 text-center">
                     {/* <div className="inline-flex items-center space-x-2 bg-white text-blue-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-gray-200 shadow-sm">
                         <Sparkles size={12} />
                         <span>Future Collection</span>
                     </div> */}
 
-                    <h1 className="text-4xl md:text-6xl font-black tracking-tight text-gray-900 mb-8 leading-[1.1]">
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 mb-8 leading-[1.1]">
                         The Next Generation of <br />
                         <span className="text-blue-600">Corporate Gifting.</span>
                     </h1>

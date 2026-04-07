@@ -732,7 +732,7 @@ export default function CartPage() {
                                         <Truck size={14} className="text-blue-500" />
                                         <span className="uppercase tracking-wider">Expected Delivery</span>
                                     </div>
-                                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px]">4-5 DAYS</span>
+                                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px]">4-5 Working Days</span>
                                 </div>
                             </div>
 

@@ -24,3 +24,14 @@ export const deleteCompanyAPI = async (id) => {
   const response = await api.delete(`/companies/${id}`);
   return response.data.data;
 };
+
+export const uploadLogoAPI = async (file) => {
+  const formData = new FormData();
+  formData.append('logo', file);
+  const response = await api.post('/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};

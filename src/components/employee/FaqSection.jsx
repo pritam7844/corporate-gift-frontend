@@ -60,7 +60,7 @@ export default function FaqSection() {
     };
 
     return (
-        <section id="faq" className="bg-white py-24 relative overflow-hidden">
+        <section id="faq" className="bg-white py-10 relative overflow-hidden">
             {/* Background Decorations */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/3 opacity-60"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -z-10 translate-y-1/2 -translate-x-1/3 opacity-60"></div>
@@ -81,13 +81,12 @@ export default function FaqSection() {
 
                 <div className="space-y-4">
                     {faqs.map((faq, i) => (
-                        <div 
-                            key={i} 
-                            className={`border transition-all duration-300 rounded-[1.5rem] overflow-hidden ${
-                                openIndex === i 
-                                ? 'border-blue-200 bg-blue-50/30 shadow-md shadow-blue-500/5' 
-                                : 'border-gray-100 bg-white hover:border-gray-200 shadow-sm'
-                            }`}
+                        <div
+                            key={i}
+                            className={`border transition-all duration-300 rounded-[1.5rem] overflow-hidden ${openIndex === i
+                                    ? 'border-blue-200 bg-blue-50/30 shadow-md shadow-blue-500/5'
+                                    : 'border-gray-100 bg-white hover:border-gray-200 shadow-sm'
+                                }`}
                         >
                             <button
                                 onClick={() => toggleFaq(i)}
@@ -96,15 +95,13 @@ export default function FaqSection() {
                                 <span className={`text-lg font-bold transition-colors ${openIndex === i ? 'text-blue-700' : 'text-gray-900'}`}>
                                     {faq.q.split(') ')[1]}
                                 </span>
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                                    openIndex === i ? 'bg-blue-600 text-white rotate-180' : 'bg-gray-50 text-gray-400 group-hover:bg-gray-100'
-                                }`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${openIndex === i ? 'bg-blue-600 text-white rotate-180' : 'bg-gray-50 text-gray-400 group-hover:bg-gray-100'
+                                    }`}>
                                     <ChevronDown size={18} />
                                 </div>
                             </button>
-                            <div className={`transition-all duration-300 ease-in-out ${
-                                openIndex === i ? 'max-h-[500px] opacity-100 border-t border-blue-100/50' : 'max-h-0 opacity-0 pointer-events-none'
-                            }`}>
+                            <div className={`transition-all duration-300 ease-in-out ${openIndex === i ? 'max-h-[500px] opacity-100 border-t border-blue-100/50' : 'max-h-0 opacity-0 pointer-events-none'
+                                }`}>
                                 <div className="p-6 md:p-8 pt-0 mt-6 text-gray-600 leading-relaxed font-medium">
                                     {faq.a}
                                 </div>
@@ -127,7 +124,7 @@ export default function FaqSection() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full lg:w-auto">
-                            <a 
+                            <a
                                 href="tel:8356094864"
                                 className="flex items-center space-x-4 p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-blue-500/50 transition-all duration-300 group"
                             >
@@ -140,7 +137,7 @@ export default function FaqSection() {
                                 </div>
                             </a>
 
-                            <a 
+                            <a
                                 href="tel:9082109156"
                                 className="flex items-center space-x-4 p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-blue-500/50 transition-all duration-300 group"
                             >
@@ -153,7 +150,7 @@ export default function FaqSection() {
                                 </div>
                             </a>
 
-                            <a 
+                            <a
                                 href="mailto:service.brandbarrel@gmail.com"
                                 className="flex items-center space-x-4 p-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl hover:bg-white/10 hover:border-indigo-500/50 transition-all duration-300 group"
                             >
@@ -166,7 +163,7 @@ export default function FaqSection() {
                                 </div>
                             </a>
 
-                            <button 
+                            <button
                                 onClick={() => router.push('/contact')}
                                 className="group flex items-center justify-between p-4 bg-blue-600 hover:bg-blue-700 rounded-xl transition-all duration-300 shadow-lg shadow-blue-900/40"
                             >

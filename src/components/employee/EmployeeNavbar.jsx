@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
+import api from '../../lib/api';
 import { LogOut, User as UserIcon, Settings, ChevronDown, Calendar, ShoppingCart, Package, Menu, X, Plus } from 'lucide-react';
 
 export default function EmployeeNavbar() {
@@ -18,6 +19,7 @@ export default function EmployeeNavbar() {
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [company, setCompany] = useState(null);
     const dropdownRef = useRef(null);
 
     // The middleware rewrites requests to /[subdomain]/...
@@ -26,7 +28,16 @@ export default function EmployeeNavbar() {
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+        const fetchCompany = async () => {
+            try {
+                const res = await api.get(`/companies/portal/${subdomain}`);
+                setCompany(res.data.data);
+            } catch (err) {
+                console.error("Failed to fetch company branding", err);
+            }
+        };
+        if (subdomain) fetchCompany();
+    }, [subdomain]);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -69,11 +80,15 @@ export default function EmployeeNavbar() {
                             className="flex items-center space-x-3 cursor-pointer group"
                             onClick={() => router.push('/')}
                         >
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black group-hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
-                                {subdomain?.charAt(0).toUpperCase()}
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black group-hover:scale-105 transition-all shadow-lg shadow-blue-500/20 overflow-hidden border border-blue-100/20">
+                                {company?.logo ? (
+                                    <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span>{subdomain?.charAt(0).toUpperCase()}</span>
+                                )}
                             </div>
                             <span className="text-xl font-black text-gray-900 capitalize tracking-tighter group-hover:text-blue-600 transition-colors hidden sm:block">
-                                {subdomain}
+                                {company?.name || subdomain}
                             </span>
                         </div>
                     </div>

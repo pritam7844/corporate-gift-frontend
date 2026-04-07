@@ -1,24 +1,55 @@
 'use client';
 
 import { useState } from 'react';
-import { Building2, Plus, Globe, Users, Trash2, ExternalLink } from 'lucide-react';
 import { useCompanies } from '../../../hooks/useCompanies';
+import { uploadLogoAPI } from '../../../services/company.service';
 import Link from 'next/link';
+import { Image as ImageIcon, X as CloseIcon, Plus, Trash2, Building2, ExternalLink, Globe, Users } from 'lucide-react';
 
 export default function CompaniesPage() {
   const { companies, loading, error, addCompany, fetchCompanies } = useCompanies();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({ name: '', subdomain: '' });
+  const [logoFile, setLogoFile] = useState(null);
+  const [logoPreview, setLogoPreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    const success = await addCompany(formData);
-    setSubmitting(false);
-    if (success) {
-      setShowModal(false);
-      setFormData({ name: '', subdomain: '' });
+
+    try {
+      let logoUrl = '';
+      if (logoFile) {
+        const uploadRes = await uploadLogoAPI(logoFile);
+        if (uploadRes.success) {
+          logoUrl = uploadRes.url;
+        }
+      }
+
+      const success = await addCompany({ ...formData, logo: logoUrl });
+      if (success) {
+        setShowModal(false);
+        setFormData({ name: '', subdomain: '' });
+        setLogoFile(null);
+        setLogoPreview('');
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -68,6 +99,38 @@ export default function CompaniesPage() {
                 <p className="text-xs text-gray-400 mt-1 italic">This will be the unique URL for the company portal.</p>
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Company Logo</label>
+                <div className="flex items-center space-x-4">
+                  <div className="relative group w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center overflow-hidden transition-all hover:border-blue-400">
+                    {logoPreview ? (
+                      <>
+                        <img src={logoPreview} alt="Logo preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => { setLogoFile(null); setLogoPreview(''); }}
+                          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </>
+                    ) : (
+                      <ImageIcon className="text-gray-300" size={24} />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500">Upload company logo (PNG, JPG). Max 5MB.</p>
+                    <p className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-wider">Recommended: 400x400px</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex space-x-3 pt-2">
                 <button
                   type="button"
@@ -100,8 +163,12 @@ export default function CompaniesPage() {
             <div key={company._id} className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden group">
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xl font-bold">
-                    {company.name.charAt(0)}
+                  <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center overflow-hidden border border-gray-100">
+                    {company.logo ? (
+                      <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl font-bold">{company.name.charAt(0)}</span>
+                    )}
                   </div>
                   <div className="flex space-x-1">
                     <Link

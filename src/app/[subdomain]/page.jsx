@@ -141,7 +141,7 @@ export default function CompanyLandingPage() {
 
     return (
         <div className="min-h-screen bg-[#F8F9FA] text-gray-900 font-sans selection:bg-blue-100 overflow-x-hidden">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-20">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-10">
 
                 {/* Personalized Hero Dashboard */}
                 <section className="mb-20 relative">
