@@ -124,8 +124,10 @@ export default function EventManagement() {
             submissionData.append('companyId', companyId);
             submissionData.append('isGlobal', 'false');
             
-            if (imageFile) {
-                submissionData.append('image', imageFile);
+            if (imageFiles.length > 0) {
+                imageFiles.forEach(file => {
+                    submissionData.append('images', file);
+                });
             }
 
             const product = await createProductAPI(submissionData);
