@@ -81,6 +81,31 @@ export default function EventProductsPage() {
         const item = items.find(i => i.product._id === productId && i.eventId === eventId);
         return item ? item.quantity : 0;
     };
+    const handleAddToCart = (product) => {
+        // Check for event conflict (only one event's products allowed in cart at once)
+        if (items.length > 0 && items[0].eventId !== eventId) {
+            openConfirm(
+                'Event Conflict',
+                'Your cart already contains items from another event. You can only add products from one event at a time. Please clear your cart or complete your current order first.',
+                () => { },
+                'warning'
+            );
+            return;
+        }
+
+        if (items.length >= 3) {
+            openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
+            return;
+        }
+
+        const quantity = getProductCartQuantity(product._id);
+        if (quantity >= 1) {
+            openConfirm('Limit Reached', 'Maximum 1 unit per product is allowed for sample orders.', () => { }, 'warning');
+            return;
+        }
+
+        addToCart(product, eventId);
+    };
 
     const [isHydrated, setIsHydrated] = useState(false);
 
@@ -244,13 +269,7 @@ export default function EventProductsPage() {
                                                 </button>
                                             ) : quantity === 0 ? (
                                                 <button
-                                                    onClick={() => {
-                                                        if (items.length >= 3) {
-                                                            openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
-                                                            return;
-                                                        }
-                                                        addToCart(product, eventId);
-                                                    }}
+                                                    onClick={() => handleAddToCart(product)}
                                                     className="bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors flex items-center"
                                                 >
                                                     <ShoppingCart size={16} className="mr-1.5" /> ADD
@@ -265,17 +284,7 @@ export default function EventProductsPage() {
                                                     </button>
                                                     <span className="font-bold text-sm px-2 w-8 text-center">{quantity}</span>
                                                     <button
-                                                        onClick={() => {
-                                                            if (quantity >= 1) {
-                                                                openConfirm('Limit Reached', 'Maximum 1 unit per product is allowed for sample orders.', () => { }, 'warning');
-                                                                return;
-                                                            }
-                                                            if (items.length >= 3) {
-                                                                openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
-                                                                return;
-                                                            }
-                                                            addToCart(product, eventId);
-                                                        }}
+                                                        onClick={() => handleAddToCart(product)}
                                                         className={`px-3 py-2 transition-colors hover:bg-blue-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
                                                     >
                                                         <Plus size={16} />

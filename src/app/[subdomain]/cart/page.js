@@ -36,12 +36,8 @@ export default function CartPage() {
         // New Fields
         customization: {
             isBrandingRequired: false,
-            brandingType: '',
-            brandingPositions: 1,
-            customBrandingPositions: '',
-            brandingSize: '',
-            customBrandingSize: '',
-            brandingLogo: ''
+            brandingLogo: '',
+            productCustomizations: {} // Map of productID -> { brandingType, brandingPositions, etc. }
         },
         shippingDetails: {
             deliveryType: 'Single Location'
@@ -113,6 +109,41 @@ export default function CartPage() {
         }
     }, [user, items]);
 
+    // Sync productCustomizations with items in cart
+    useEffect(() => {
+        if (items.length > 0) {
+            setFormData(prev => {
+                const newProductCustomizations = { ...prev.customization.productCustomizations };
+                let hasChanges = false;
+
+                items.forEach(item => {
+                    const productId = item.product._id;
+                    if (!newProductCustomizations[productId]) {
+                        newProductCustomizations[productId] = {
+                            brandingType: '',
+                            brandingPositions: 1,
+                            customBrandingPositions: '',
+                            brandingSize: '',
+                            customBrandingSize: ''
+                        };
+                        hasChanges = true;
+                    }
+                });
+
+                if (hasChanges) {
+                    return {
+                        ...prev,
+                        customization: {
+                            ...prev.customization,
+                            productCustomizations: newProductCustomizations
+                        }
+                    };
+                }
+                return prev;
+            });
+        }
+    }, [items]);
+
     if (!mounted) return null;
 
     // Calculate subtotal (without discounts) to show savings
@@ -125,11 +156,27 @@ export default function CartPage() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCustomizationChange = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            customization: { ...prev.customization, [field]: value }
-        }));
+    const handleCustomizationChange = (field, value, productId = null) => {
+        if (productId) {
+            setFormData(prev => ({
+                ...prev,
+                customization: {
+                    ...prev.customization,
+                    productCustomizations: {
+                        ...prev.customization.productCustomizations,
+                        [productId]: {
+                            ...prev.customization.productCustomizations[productId],
+                            [field]: value
+                        }
+                    }
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                customization: { ...prev.customization, [field]: value }
+            }));
+        }
     };
 
     const handleShippingChange = (field, value) => {
@@ -191,13 +238,25 @@ export default function CartPage() {
                     employeeId: formData.employeeId,
                     additionalRequirements: formData.additionalRequirements
                 },
-                selectedProducts: items.map(item => ({
-                    productId: item.product._id,
-                    quantity: item.quantity,
-                    actualPrice: item.product.actualPrice,
-                    discountedPrice: item.product.discountedPrice || item.product.actualPrice
-                })),
-                customization: formData.customization,
+                selectedProducts: items.map(item => {
+                    const productId = item.product._id;
+                    const cust = formData.customization.productCustomizations[productId] || {};
+                    return {
+                        productId: productId,
+                        quantity: item.quantity,
+                        actualPrice: item.product.actualPrice,
+                        discountedPrice: item.product.discountedPrice || item.product.actualPrice,
+                        brandingType: cust.brandingType,
+                        brandingPositions: cust.brandingPositions,
+                        customBrandingPositions: cust.customBrandingPositions,
+                        brandingSize: cust.brandingSize,
+                        customBrandingSize: cust.customBrandingSize
+                    };
+                }),
+                customization: {
+                    isBrandingRequired: formData.customization.isBrandingRequired,
+                    brandingLogo: formData.customization.brandingLogo
+                },
                 shippingDetails: formData.shippingDetails
             };
 
@@ -443,7 +502,7 @@ export default function CartPage() {
                                         <p className="text-gray-500 font-medium mt-2">Do you need custom branding or logo placement on your gifts?</p>
                                     </div>
 
-                                    <div className="space-y-8">
+                                    <div className="space-y-12">
                                         {/* Branding Toggle */}
                                         <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
                                             <button
@@ -461,135 +520,172 @@ export default function CartPage() {
                                         </div>
 
                                         {formData.customization.isBrandingRequired && (
-                                            <div className="grid grid-cols-1 gap-8 p-6 bg-blue-50/50 rounded-3xl border border-blue-100 animate-in zoom-in-95 duration-300">
-                                                {/* Branding Type */}
-                                                <div>
-                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">1. Personalization / Branding Type</label>
-                                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                                        {['Digital Print', 'Screen Print', 'Embroidery', 'Embossing', 'Engraving', 'Offset Print', 'UV Stickers'].map(type => (
-                                                            <button
-                                                                key={type}
-                                                                onClick={() => handleCustomizationChange('brandingType', type)}
-                                                                className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingType === type ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
-                                                            >
-                                                                {type}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">2. Number of Branding Positions</label>
-                                                    <div className="flex flex-wrap gap-3">
-                                                        {[1, 2, 3].map(pos => (
-                                                            <button
-                                                                key={pos}
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    handleCustomizationChange('brandingPositions', pos);
-                                                                    handleCustomizationChange('customBrandingPositions', '');
-                                                                }}
-                                                                className={`w-14 h-14 rounded-xl font-black border-2 transition-all ${formData.customization.brandingPositions === pos ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
-                                                            >
-                                                                {pos}
-                                                            </button>
-                                                        ))}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleCustomizationChange('brandingPositions', 'Custom')}
-                                                            className={`px-6 h-14 rounded-xl font-black border-2 transition-all ${formData.customization.brandingPositions === 'Custom' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
-                                                        >
-                                                            Custom
-                                                        </button>
-                                                    </div>
-
-                                                    {formData.customization.brandingPositions === 'Custom' && (
-                                                        <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Tell us about the branding positions..."
-                                                                value={formData.customization.customBrandingPositions}
-                                                                onChange={(e) => handleCustomizationChange('customBrandingPositions', e.target.value)}
-                                                                className="w-full px-5 py-4 bg-white border border-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <div>
-                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">3. Branding Size</label>
-                                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                                        {['1 inch to 3 inch', '3 inch to 5 inch', '5 inch to 10 inch'].map(size => (
-                                                            <button
-                                                                key={size}
-                                                                type="button"
-                                                                onClick={() => {
-                                                                    handleCustomizationChange('brandingSize', size);
-                                                                    handleCustomizationChange('customBrandingSize', '');
-                                                                }}
-                                                                className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingSize === size ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
-                                                            >
-                                                                {size}
-                                                            </button>
-                                                        ))}
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleCustomizationChange('brandingSize', 'Custom')}
-                                                            className={`px-4 py-3 rounded-xl text-sm font-bold border-2 transition-all ${formData.customization.brandingSize === 'Custom' ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-100 text-gray-600 hover:border-blue-200'}`}
-                                                        >
-                                                            Custom
-                                                        </button>
-                                                    </div>
-
-                                                    {formData.customization.brandingSize === 'Custom' && (
-                                                        <div className="mt-4 animate-in slide-in-from-top-2 duration-300">
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Enter custom branding size (e.g. 2x4 inches)..."
-                                                                value={formData.customization.customBrandingSize}
-                                                                onChange={(e) => handleCustomizationChange('customBrandingSize', e.target.value)}
-                                                                className="w-full px-5 py-4 bg-white border border-blue-100 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Branding File Upload */}
-                                                <div>
-                                                    <label className="text-xs font-bold text-blue-600 uppercase tracking-wider ml-1 mb-3 block">4. Branding File Upload (Logo)</label>
-                                                    <div className="flex items-center gap-4">
-                                                        <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-blue-200 rounded-2xl p-6 bg-white hover:bg-blue-50/50 cursor-pointer transition-all group">
-                                                            <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                                                {logoUploading ? <Loader2 size={20} className="animate-spin" /> : <FileUp size={20} />}
+                                            <div className="space-y-12">
+                                                {/* Global Branding Logo Section */}
+                                                <div className="p-8 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
+                                                    <div className="flex flex-col md:flex-row md:items-center gap-8">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-3 mb-2">
+                                                                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-black text-xs">A</div>
+                                                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Shared branding logo</h3>
                                                             </div>
-                                                            <span className="text-sm font-bold text-gray-700">{logoUploading ? 'Uploading...' : 'Click to upload logo'}</span>
-                                                            <span className="text-xs text-gray-400 mt-1">PNG, JPG or SVG (Max 5MB)</span>
-                                                            <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
-                                                        </label>
-                                                        {formData.customization.brandingLogo && (
-                                                            <div className="w-24 h-24 rounded-2xl border bg-white p-2 relative">
-                                                                <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center">
-                                                                    <img src={formData.customization.brandingLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                                            <p className="text-sm text-gray-500 font-medium">This logo will be applied to all your selected products.</p>
+                                                        </div>
+
+                                                        <div className="flex-shrink-0">
+                                                            <div className="flex items-center gap-4">
+                                                                <label className="flex flex-col items-center justify-center border-2 border-dashed border-blue-200 rounded-2xl px-8 py-4 bg-white hover:bg-blue-50/50 cursor-pointer transition-all group min-w-[200px]">
+                                                                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                                                                        {logoUploading ? <Loader2 size={18} className="animate-spin" /> : <FileUp size={18} />}
+                                                                    </div>
+                                                                    <span className="text-xs font-bold text-gray-700">{logoUploading ? 'Uploading...' : 'Click to Upload'}</span>
+                                                                    <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+                                                                </label>
+                                                                {formData.customization.brandingLogo && (
+                                                                    <div className="w-24 h-24 rounded-2xl border-2 border-blue-100 bg-white p-2 relative shadow-sm group">
+                                                                        <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                                                                            <img src={formData.customization.brandingLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={() => handleCustomizationChange('brandingLogo', '')}
+                                                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                                                        >
+                                                                            <X size={12} />
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Individual Product Customization */}
+                                                <div className="space-y-8">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-black text-xs">B</div>
+                                                        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Configure each product</h3>
+                                                    </div>
+
+                                                    {items.map((item, idx) => {
+                                                        const pId = item.product._id;
+                                                        const cust = formData.customization.productCustomizations[pId] || {};
+
+                                                        return (
+                                                            <div key={pId} className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
+                                                                <div className="flex items-center gap-4 mb-8 pb-4 border-b border-blue-100/50">
+                                                                    <div className="w-14 h-14 bg-white rounded-2xl border border-blue-100 p-1 flex-shrink-0 shadow-sm">
+                                                                        <img src={item.product.images?.[0] || item.product.image} className="w-full h-full object-cover rounded-xl" />
+                                                                    </div>
+                                                                    <div>
+                                                                        <h4 className="text-base font-black text-gray-900 leading-tight mb-1">{item.product.name}</h4>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded tracking-widest uppercase">Target Item</span>
+                                                                            <span className="text-[10px] font-bold text-blue-600">QTY: {item.quantity}</span>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => handleCustomizationChange('brandingLogo', '')}
-                                                                    className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg"
-                                                                >
-                                                                    <X size={12} />
-                                                                </button>
+
+                                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                                                    {/* Branding Type */}
+                                                                    <div className="space-y-4">
+                                                                        <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">1. Branding Type</label>
+                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                            {['Digital Print', 'Screen Print', 'Embroidery', 'Embossing', 'Engraving', 'UV Stickers'].map(type => (
+                                                                                <button
+                                                                                    key={type}
+                                                                                    onClick={() => handleCustomizationChange('brandingType', type, pId)}
+                                                                                    className={`px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all ${cust.brandingType === type ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                >
+                                                                                    {type}
+                                                                                </button>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div className="space-y-8">
+                                                                        {/* Positions */}
+                                                                        <div className="space-y-4">
+                                                                            <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">2. Branding Positions</label>
+                                                                            <div className="flex flex-wrap gap-2">
+                                                                                {[1, 2, 3].map(pos => (
+                                                                                    <button
+                                                                                        key={pos}
+                                                                                        onClick={() => {
+                                                                                            handleCustomizationChange('brandingPositions', pos, pId);
+                                                                                            handleCustomizationChange('customBrandingPositions', '', pId);
+                                                                                        }}
+                                                                                        className={`w-12 h-12 rounded-xl font-black border-2 transition-all ${cust.brandingPositions === pos ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                    >
+                                                                                        {pos}
+                                                                                    </button>
+                                                                                ))}
+                                                                                <button
+                                                                                    onClick={() => handleCustomizationChange('brandingPositions', 'Custom', pId)}
+                                                                                    className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingPositions === 'Custom' ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                >
+                                                                                    Custom
+                                                                                </button>
+                                                                            </div>
+                                                                            {cust.brandingPositions === 'Custom' && (
+                                                                                <input
+                                                                                    type="text"
+                                                                                    placeholder="Where should we place the logo?"
+                                                                                    value={cust.customBrandingPositions || ''}
+                                                                                    onChange={(e) => handleCustomizationChange('customBrandingPositions', e.target.value, pId)}
+                                                                                    className="w-full px-4 py-3 bg-white border border-blue-200 focus:border-blue-500 rounded-xl outline-none font-bold text-xs text-gray-900 placeholder:text-gray-300"
+                                                                                />
+                                                                            )}
+                                                                        </div>
+
+                                                                        {/* Size */}
+                                                                        <div className="space-y-4">
+                                                                            <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">3. Branding Size</label>
+                                                                            <div className="flex flex-wrap gap-2">
+                                                                                {['1 inch to 3 inch', '3 inch to 5 inch', '5 inch to 10 inch'].map(size => (
+                                                                                    <button
+                                                                                        key={size}
+                                                                                        onClick={() => {
+                                                                                            handleCustomizationChange('brandingSize', size, pId);
+                                                                                            handleCustomizationChange('customBrandingSize', '', pId);
+                                                                                        }}
+                                                                                        className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingSize === size ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                    >
+                                                                                        {size}
+                                                                                    </button>
+                                                                                ))}
+                                                                                <button
+                                                                                    onClick={() => handleCustomizationChange('brandingSize', 'Custom', pId)}
+                                                                                    className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingSize === 'Custom' ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                >
+                                                                                    Custom
+                                                                                </button>
+                                                                            </div>
+                                                                            {cust.brandingSize === 'Custom' && (
+                                                                                <input
+                                                                                    type="text"
+                                                                                    placeholder="Enter specific dimensions (e.g. 2x2 inch)"
+                                                                                    value={cust.customBrandingSize || ''}
+                                                                                    onChange={(e) => handleCustomizationChange('customBrandingSize', e.target.value, pId)}
+                                                                                    className="w-full px-4 py-3 bg-white border border-blue-200 focus:border-blue-500 rounded-xl outline-none font-bold text-xs text-gray-900 placeholder:text-gray-300"
+                                                                                />
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                        )}
-                                                    </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}
 
                                         {!formData.customization.isBrandingRequired && (
-                                            <div className="p-8 bg-gray-50 rounded-3xl border border-dashed border-gray-200 text-center">
-                                                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-sm">
-                                                    <Info size={24} className="text-gray-400" />
+                                            <div className="p-12 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200 text-center">
+                                                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                                                    <Info size={32} className="text-gray-300" />
                                                 </div>
-                                                <p className="text-gray-500 font-medium">No personalization selected. Your gifts will be delivered as standard catalog products.</p>
+                                                <h4 className="text-lg font-bold text-gray-900 mb-2">Standard Selection</h4>
+                                                <p className="text-gray-500 font-medium max-w-sm mx-auto">Your gifts will be delivered as standard catalog products without any additional corporate personalization.</p>
                                             </div>
                                         )}
                                     </div>
@@ -762,16 +858,17 @@ export default function CartPage() {
                                 <button
                                     onClick={() => {
                                         if (formData.customization.isBrandingRequired) {
-                                            if (!formData.customization.brandingType) {
-                                                openConfirm('Missing Details', 'Please select a branding type.', () => { }, 'warning');
-                                                return;
-                                            }
-                                            if (!formData.customization.brandingPositions || (formData.customization.brandingPositions === 'Custom' && !formData.customization.customBrandingPositions)) {
-                                                openConfirm('Missing Details', 'Please specify the number or details of branding positions.', () => { }, 'warning');
-                                                return;
-                                            }
-                                            if (!formData.customization.brandingSize || (formData.customization.brandingSize === 'Custom' && !formData.customization.customBrandingSize)) {
-                                                openConfirm('Missing Details', 'Please specify the branding size.', () => { }, 'warning');
+                                            const incompleteProduct = items.find(item => {
+                                                const cust = formData.customization.productCustomizations[item.product._id];
+                                                return !cust?.brandingType ||
+                                                    !cust?.brandingPositions ||
+                                                    (cust?.brandingPositions === 'Custom' && !cust?.customBrandingPositions) ||
+                                                    !cust?.brandingSize ||
+                                                    (cust?.brandingSize === 'Custom' && !cust?.customBrandingSize);
+                                            });
+
+                                            if (incompleteProduct) {
+                                                openConfirm('Missing Details', `Please complete the branding details for "${incompleteProduct.product.name}".`, () => { }, 'warning');
                                                 return;
                                             }
                                         }

@@ -247,18 +247,17 @@ export default function MyOrdersPage() {
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Personalization</h3>
                                 {selectedOrder.customization?.isBrandingRequired ? (
                                     <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <p className="text-xs text-gray-500">Branding Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
-                                                <p className="text-xs text-gray-500">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions === 'Custom' ? selectedOrder.customization.customBrandingPositions : selectedOrder.customization.brandingPositions}</span></p>
-                                                <p className="text-xs text-gray-500">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize === 'Custom' ? selectedOrder.customization.customBrandingSize : selectedOrder.customization.brandingSize}</span></p>
-                                            </div>
+                                        <div className="flex flex-col md:flex-row items-center gap-4">
                                             {selectedOrder.customization.brandingLogo && (
-                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-blue-50">
-                                                    <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-16 max-w-full object-contain mb-2" />
-                                                    <span className="text-[9px] font-bold text-gray-400 uppercase">Uploaded Logo</span>
+                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-blue-50 flex-shrink-0">
+                                                    <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-12 max-w-[80px] object-contain mb-1" />
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Logo</span>
                                                 </div>
                                             )}
+                                            <div className="flex-1">
+                                                <p className="text-xs font-bold text-blue-900 leading-tight">Corporate Branding Required</p>
+                                                <p className="text-[10px] text-blue-600/70 mt-1">Individual branding choices (Type, Position, Size) for each product are listed in the breakdown below.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
@@ -302,13 +301,18 @@ export default function MyOrdersPage() {
                                         <tbody className="bg-white divide-y divide-gray-100">
                                             {selectedOrder.selectedProducts.map((p, idx) => (
                                                 <tr key={idx}>
-                                                    <td className="px-4 py-3 whitespace-nowrap">
-                                                        <div className="flex items-center">
-                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3">
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center mb-1">
+                                                            <div className="w-8 h-8 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex-shrink-0">
                                                                 {p.productId?.images?.[0] || p.productId?.image ? <img src={p.productId.images?.[0] || p.productId.image} className="w-full h-full object-cover" /> : <Package size={16} className="m-2 text-gray-300" />}
                                                             </div>
-                                                            <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Item'}</div>
+                                                            <div className="text-xs font-bold text-gray-900 truncate max-w-[150px]">{p.productId?.name || 'Item'}</div>
                                                         </div>
+                                                        {selectedOrder.customization?.isBrandingRequired && (
+                                                            <div className="ml-11 text-[9px] text-gray-500 font-medium">
+                                                                {p.brandingType || 'Standard'} | {p.brandingPositions === 'Custom' ? p.customBrandingPositions : p.brandingPositions || '1'} Pos | {p.brandingSize === 'Custom' ? p.customBrandingSize : p.brandingSize || 'Standard'}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3 text-center text-xs font-bold text-gray-600">x{p.quantity}</td>
                                                     <td className="px-4 py-3 text-right">

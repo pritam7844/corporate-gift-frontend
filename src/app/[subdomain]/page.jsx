@@ -108,6 +108,18 @@ export default function CompanyLandingPage() {
             openConfirm('Order Already Placed', 'You have already requested samples for this event in the current cycle.', () => { }, 'warning');
             return;
         }
+
+        // Check for event conflict (only one event's products allowed in cart at once)
+        if (items.length > 0 && items[0].eventId !== eventId) {
+            openConfirm(
+                'Event Conflict', 
+                'Your cart already contains items from another event. You can only add products from one event at a time. Please clear your cart or complete your current order first.', 
+                () => { }, 
+                'warning'
+            );
+            return;
+        }
+
         if (items.length >= 3) {
             openConfirm('Limit Reached', 'Maximum 3 different products are allowed for a sample order.', () => { }, 'warning');
             return;

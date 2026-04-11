@@ -292,21 +292,20 @@ export default function AdminOrdersPage() {
                             <div className="space-y-3">
                                 <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Branding Requirements</h3>
                                 {selectedOrder.customization?.isBrandingRequired ? (
-                                    <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <p className="text-xs text-gray-600">Type: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingType}</span></p>
-                                                <p className="text-xs text-gray-600">Positions: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingPositions === 'Custom' ? selectedOrder.customization.customBrandingPositions : selectedOrder.customization.brandingPositions}</span></p>
-                                                <p className="text-xs text-gray-600">Size: <span className="text-gray-900 font-bold">{selectedOrder.customization.brandingSize === 'Custom' ? selectedOrder.customization.customBrandingSize : selectedOrder.customization.brandingSize}</span></p>
-                                            </div>
+                                    <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-4">
+                                        <div className="flex flex-col md:flex-row items-center gap-4">
                                             {selectedOrder.customization.brandingLogo && (
-                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100">
-                                                    <a href={selectedOrder.customization.brandingLogo} target="_blank" rel="noreferrer" className="block w-full">
-                                                        <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-20 max-w-full object-contain mx-auto mb-2" />
-                                                        <p className="text-[9px] font-black text-blue-600 text-center uppercase tracking-tighter">View Original Logo</p>
+                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100 flex-shrink-0">
+                                                    <a href={selectedOrder.customization.brandingLogo} target="_blank" rel="noreferrer" className="block">
+                                                        <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-12 max-w-[80px] object-contain mb-1" />
+                                                        <p className="text-[7px] font-black text-blue-600 text-center uppercase tracking-tighter">Logo</p>
                                                     </a>
                                                 </div>
                                             )}
+                                            <div className="flex-1">
+                                                <p className="text-xs font-black text-orange-900 leading-tight">Per-Product Customization Enabled</p>
+                                                <p className="text-[10px] text-orange-700/70 mt-1">Specific branding details for each item are listed in the breakdown below.</p>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
@@ -363,7 +362,7 @@ export default function AdminOrdersPage() {
                                         <tbody className="bg-white divide-y divide-gray-100">
                                             {selectedOrder.selectedProducts.map((p, idx) => (
                                                 <tr key={idx}>
-                                                    <td className="px-4 py-3 whitespace-nowrap">
+                                                    <td className="px-4 py-3">
                                                         <div className="flex items-center">
                                                             <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex flex-shrink-0 cursor-pointer"
                                                                  onClick={() => setSliderModal({ isOpen: true, images: p.productId?.images && p.productId.images.length > 0 ? p.productId.images : (p.productId?.image ? [p.productId.image] : []), index: 0 })}
@@ -374,7 +373,14 @@ export default function AdminOrdersPage() {
                                                                     <img src={p.productId.image} className="w-full h-full object-cover" />
                                                                 ) : <Package size={20} className="m-auto text-gray-300" />}
                                                             </div>
-                                                            <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Deleted Product'}</div>
+                                                            <div>
+                                                                <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Deleted Product'}</div>
+                                                                {selectedOrder.customization?.isBrandingRequired && (
+                                                                    <div className="text-[9px] text-gray-500 font-medium mt-1">
+                                                                        {p.brandingType || 'Standard'} | {p.brandingPositions === 'Custom' ? p.customBrandingPositions : p.brandingPositions || '1'} Pos | {p.brandingSize === 'Custom' ? p.customBrandingSize : p.brandingSize || 'Standard'}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3 text-center text-xs font-bold text-gray-600">x{p.quantity}</td>
