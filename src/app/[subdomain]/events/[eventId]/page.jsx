@@ -61,8 +61,8 @@ export default function EventProductsPage() {
                 // Check if user has already ordered for this event in the current cycle
                 const requestsRes = await import('../../../../lib/api').then(m => m.default.get('/gift-requests/my-requests'));
                 const userRequests = requestsRes.data.data || [];
-                const alreadyOrdered = userRequests.some(req => 
-                    req.eventId._id === eventId && 
+                const alreadyOrdered = userRequests.some(req =>
+                    req.eventId._id === eventId &&
                     new Date(req.createdAt) >= new Date(data.startDate)
                 );
                 setIsOrdered(alreadyOrdered);
@@ -133,7 +133,7 @@ export default function EventProductsPage() {
     if (loading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
             </div>
         );
     }
@@ -143,12 +143,12 @@ export default function EventProductsPage() {
             <div className="max-w-7xl mx-auto px-6 py-12">
                 <button
                     onClick={() => router.push(`/events`)}
-                    className="flex items-center text-gray-500 hover:text-blue-600 mb-6 transition-colors"
+                    className="flex items-center text-slate-500 hover:text-indigo-600 mb-6 transition-colors text-sm font-semibold"
                 >
-                    <ChevronLeft size={20} className="mr-1" /> Back to Events
+                    <ChevronLeft size={18} className="mr-1" /> Back to Programs
                 </button>
-                <div className="bg-red-50 text-red-600 p-4 rounded-xl font-medium border border-red-100">
-                    {error || 'Event not found.'}
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg font-medium border border-red-100/50">
+                    {error || 'Program not found.'}
                 </div>
             </div>
         );
@@ -160,134 +160,133 @@ export default function EventProductsPage() {
         <main className="max-w-7xl mx-auto px-6 py-12">
 
             {/* Header Content */}
-            <div className="mb-12">
+            <div className="mb-12 border-b border-slate-200 pb-8">
                 <button
                     onClick={() => router.push(`/events`)}
-                    className="flex items-center text-gray-500 hover:text-blue-600 mb-6 font-bold transition-colors"
+                    className="flex items-center text-slate-500 hover:text-indigo-600 mb-6 font-bold transition-colors text-xs uppercase tracking-wider"
                 >
-                    <ChevronLeft size={20} className="mr-1" /> Back to Events
+                    <ChevronLeft size={16} className="mr-1" /> Back to Programs
                 </button>
 
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-4">{event.name}</h1>
-                <div className="flex flex-wrap items-center gap-4 text-sm font-bold text-gray-500">
-                    <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg">
-                        {products.length} Exclusive Gifts
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">{event.name}</h1>
+                <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
+                    <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-100/50 uppercase tracking-wider">
+                        {products.length} Options
                     </span>
                     {event.endDate && (
-                        <span className="flex items-center text-orange-500 bg-orange-50 px-3 py-1 rounded-lg">
-                            <Clock size={16} className="mr-1" />
+                        <span className="flex items-center text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200/50 uppercase tracking-wider">
+                            <Clock size={14} className="mr-1.5" />
                             Ends <FormattedDate date={event.endDate} />
                         </span>
                     )}
                     {isOrdered && (
                         <div className="flex items-center gap-3">
-                            <span className="flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                                <ShoppingCart size={16} className="mr-1.5" />
-                                Order Already Placed
+                            <span className="flex items-center text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100/50 uppercase tracking-wider">
+                                <ShoppingCart size={14} className="mr-1.5" />
+                                Selection Submitted
                             </span>
                             <button
                                 onClick={() => router.push('/orders')}
-                                className="text-blue-600 hover:text-blue-800 text-sm font-black underline flex items-center"
+                                className="text-indigo-600 hover:text-indigo-800 text-xs font-bold underline flex items-center uppercase tracking-wider"
                             >
-                                View Order History <ChevronRight size={14} className="ml-0.5" />
+                                History <ChevronRight size={12} className="ml-0.5" />
                             </button>
                         </div>
                     )}
 
                     <button
                         onClick={() => setIsBulkModalOpen(true)}
-                        className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-xl text-sm font-black hover:bg-blue-600 transition-all shadow-lg shadow-gray-200"
+                        className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-sm uppercase tracking-wider"
                     >
-                        <Calculator size={16} />
-                        Bulk order estimation
+                        <Calculator size={14} />
+                        Bulk Estimate
                     </button>
                 </div>
             </div>
 
             {/* Product Grid */}
             {products.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <div className="w-20 h-20 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Tag size={40} />
+                <div className="text-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Tag size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">No Gifts Found</h2>
-                    <p className="text-gray-500 font-medium">There are currently no gifts assigned to this event.</p>
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">No Rewards Available</h2>
+                    <p className="text-slate-500 text-sm font-medium">There are currently no items assigned to this program.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                     {products.map((product) => {
                         const quantity = getProductCartQuantity(product._id);
                         const hasDiscount = product.discountedPrice && product.discountedPrice < product.actualPrice;
 
                         return (
-                            <div key={product._id} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col">
+                            <div key={product._id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col">
                                 {/* Image Box */}
-                                <div className="aspect-[4/3] bg-gray-50 relative overflow-hidden flex items-center justify-center">
-                                    <ProductImageSlider 
-                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
+                                <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                    <ProductImageSlider
+                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                         onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
                                     />
 
+                                    {/* Category Badge */}
+                                    <div className="absolute top-3 left-3 bg-white border border-slate-200 px-2 py-0.5 rounded text-[9px] font-bold text-slate-500 uppercase tracking-widest shadow-sm">
+                                        {product.category}
+                                    </div>
+
                                     {/* Discount Badge */}
                                     {hasDiscount && (
-                                        <div className="absolute top-4 left-4 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-lg shadow-sm">
+                                        <div className="absolute top-3 right-3 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">
                                             {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% OFF
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Content Box */}
-                                <div className="p-6 flex-grow flex flex-col">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
-                                    <p className="text-sm font-medium text-gray-400 capitalize mb-1">{product.category}</p>
+                                <div className="p-5 flex-grow flex flex-col">
+                                    <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
                                     {product.description && (
-                                        <p className="text-xs text-gray-500 mb-3 line-clamp-2 leading-relaxed">{product.description}</p>
+                                        <p className="text-[11px] text-slate-500 mb-4 line-clamp-2 leading-relaxed">{product.description}</p>
                                     )}
 
-                                    <div className="mt-auto pt-1 flex items-end justify-between border-t border-gray-50 relative">
+                                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100">
                                         <div>
-                                            <div className="flex flex-col">
-                                                {hasDiscount ? (
-                                                    <><span className="text-gray-700 font-black text-xl">₹
-                                                        <span className="text-gray-700 font-black text-xl line-through">{product.actualPrice}</span>
-                                                    </span><span className="text-gray-900 font-black text-xl">₹{product.discountedPrice}</span></>
-                                                ) : (
-                                                    <span className="text-gray-900 font-black text-xl">₹{product.actualPrice}</span>
-                                                )}
-                                            </div>
-
+                                            {hasDiscount ? (
+                                                <div className="flex flex-col">
+                                                    <span className="text-slate-400 text-[10px] line-through font-semibold">₹{product.actualPrice}</span>
+                                                    <span className="text-indigo-600 font-bold text-lg">₹{product.discountedPrice}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-slate-900 font-bold text-lg">₹{product.actualPrice}</span>
+                                            )}
                                         </div>
 
                                         {/* Add to Cart Controls */}
                                         <div className="relative">
                                             {isOrdered ? (
-                                                <button
-                                                    disabled
-                                                    className="bg-gray-100 text-gray-400 font-bold px-4 py-2 rounded-xl text-sm cursor-not-allowed flex items-center"
-                                                >
-                                                    <ShoppingCart size={16} className="mr-1.5" /> PLACED
-                                                </button>
+                                                <div className="bg-slate-50 text-slate-400 font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider border border-slate-100">
+                                                    Selected
+                                                </div>
                                             ) : quantity === 0 ? (
                                                 <button
                                                     onClick={() => handleAddToCart(product)}
-                                                    className="bg-blue-50 text-blue-600 font-bold px-4 py-2 rounded-xl text-sm hover:bg-blue-600 hover:text-white transition-colors flex items-center"
+                                                    className="bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-[10px] hover:bg-indigo-600 transition-colors uppercase tracking-wider"
                                                 >
-                                                    <ShoppingCart size={16} className="mr-1.5" /> ADD
+                                                    Add For Sample
                                                 </button>
                                             ) : (
-                                                <div className="flex items-center bg-blue-600 text-white rounded-xl overflow-hidden shadow-sm">
+                                                <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
                                                     <button
                                                         onClick={() => updateQuantity(product._id, eventId, quantity - 1)}
-                                                        className="px-3 py-2 hover:bg-blue-700 transition-colors"
+                                                        className="px-2.5 py-1.5 hover:bg-indigo-700 transition-colors"
                                                     >
-                                                        <Minus size={16} />
+                                                        <Minus size={14} />
                                                     </button>
-                                                    <span className="font-bold text-sm px-2 w-8 text-center">{quantity}</span>
+                                                    <span className="font-bold text-xs px-2 min-w-[24px] text-center">{quantity}</span>
                                                     <button
                                                         onClick={() => handleAddToCart(product)}
-                                                        className={`px-3 py-2 transition-colors hover:bg-blue-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                                        className={`px-2.5 py-1.5 transition-colors hover:bg-indigo-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
                                                     >
-                                                        <Plus size={16} />
+                                                        <Plus size={14} />
                                                     </button>
                                                 </div>
                                             )}
@@ -319,7 +318,7 @@ export default function EventProductsPage() {
                 type={confirmState.type}
             />
 
-            <BulkEstimationModal 
+            <BulkEstimationModal
                 isOpen={isBulkModalOpen}
                 onClose={() => setIsBulkModalOpen(false)}
                 products={products}

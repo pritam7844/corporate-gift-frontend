@@ -25,7 +25,7 @@ export default function ContactPage() {
     }, [subdomain]);
 
     return (
-        <div className="min-h-[80vh] bg-white  pb-20">
+        <div className="min-h-[80vh] bg-slate-50 pb-20">
             {/* <div className="max-w-6xl mx-auto px-6 mb-8">
                 <button
                     onClick={() => router.back()}

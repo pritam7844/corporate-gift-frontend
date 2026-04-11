@@ -27,7 +27,7 @@ export default function EmployeeEventsPage() {
     if (!isHydrated) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
             </div>
         );
     }
@@ -39,7 +39,7 @@ export default function EmployeeEventsPage() {
     if (loading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
             </div>
         );
     }
@@ -47,7 +47,7 @@ export default function EmployeeEventsPage() {
     if (error) {
         return (
             <div className="max-w-7xl mx-auto px-6 py-12">
-                <div className="bg-red-50 text-red-600 p-4 rounded-xl font-medium border border-red-100">
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg font-medium border border-red-100/50">
                     {error}
                 </div>
             </div>
@@ -73,38 +73,38 @@ export default function EmployeeEventsPage() {
     const EventCard = ({ event, isActive }) => (
         <div
             onClick={() => isActive && router.push(`/events/${event._id}`)}
-            className={`bg-white rounded-[2rem] p-8 border border-gray-100 shadow-sm transition-all group ${isActive ? 'cursor-pointer hover:shadow-md hover:border-blue-100' : 'opacity-60 cursor-not-allowed'}`}
+            className={`bg-white rounded-xl p-8 border border-slate-200 shadow-sm transition-all group ${isActive ? 'cursor-pointer hover:shadow-md hover:border-indigo-100' : 'opacity-60 cursor-not-allowed'}`}
         >
             <div className="flex justify-between items-start mb-6">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isActive ? 'bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform' : 'bg-gray-100 text-gray-400'}`}>
-                    <Calendar size={28} />
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${isActive ? 'bg-indigo-50 text-indigo-600 transition-transform' : 'bg-slate-100 text-slate-400'}`}>
+                    <Calendar size={24} />
                 </div>
                 {isActive ? (
-                    <span className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wider">Active</span>
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-md uppercase tracking-wider border border-emerald-100/50">Active</span>
                 ) : (
-                    <span className="px-3 py-1 bg-gray-100 text-gray-500 text-xs font-bold rounded-full uppercase tracking-wider">Closed</span>
+                    <span className="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-md uppercase tracking-wider border border-slate-200/50">Closed</span>
                 )}
             </div>
 
-            <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">{event.name}</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors tracking-tight">{event.name}</h3>
 
-            <div className="space-y-3 mb-8">
-                <div className="flex items-center text-gray-500 text-sm font-medium">
-                    <Gift size={16} className="mr-2 text-purple-500" />
-                    <span>{event.products?.length || 0} Exclusive Gifts</span>
+            <div className="space-y-2 mb-8">
+                <div className="flex items-center text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                    <Gift size={14} className="mr-2 text-indigo-400" />
+                    <span>{event.products?.length || 0} Selection Gifts</span>
                 </div>
                 {event.endDate && (
-                    <div className="flex items-center text-gray-500 text-sm font-medium">
-                        <Clock size={16} className="mr-2 text-orange-500" />
+                    <div className="flex items-center text-slate-500 text-xs font-semibold uppercase tracking-wider">
+                        <Clock size={14} className="mr-2 text-slate-400" />
                         <span>Ends <FormattedDate date={event.endDate} /></span>
                     </div>
                 )}
             </div>
 
             {isActive && (
-                <div className="flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-transform">
-                    <span>View Collection</span>
-                    <ChevronRight size={20} className="ml-1" />
+                <div className="flex items-center text-indigo-600 text-sm font-bold group-hover:translate-x-1 transition-transform">
+                    <span>Explore Collection</span>
+                    <ChevronRight size={18} className="ml-1" />
                 </div>
             )}
         </div>
@@ -112,10 +112,10 @@ export default function EmployeeEventsPage() {
 
     return (
         <main className="max-w-7xl mx-auto px-6 py-12">
-            <div className="mb-12">
-                <h1 className="text-4xl font-black text-gray-900 tracking-tight mb-4">Your Events</h1>
-                <p className="text-lg text-gray-500 font-medium max-w-2xl">
-                    Discover exclusive gift collections curated specifically for you. Select an active event to start choosing your gifts.
+            <div className="mb-12 border-b border-slate-200 pb-8">
+                <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-3">Milestone Programs</h1>
+                <p className="text-base text-slate-500 font-medium max-w-2xl">
+                    Experience rewarding corporate traditions. Select your gift from the active programs curated by your organization.
                 </p>
             </div>
 
@@ -126,22 +126,22 @@ export default function EmployeeEventsPage() {
             ) : null}
 
             {activeEvents.length === 0 && closedEvents.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <div className="w-20 h-20 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Calendar size={40} />
+                <div className="text-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Calendar size={32} />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">No Events Available</h2>
-                    <p className="text-gray-500 font-medium max-w-md mx-auto">
-                        There are currently no active events assigned to your profile. Please check back later or contact HR.
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">No Programs Assigned</h2>
+                    <p className="text-slate-500 text-sm font-medium max-w-xs mx-auto">
+                        Your account currently has no gifting programs. Please check back during the next quarterly cycle.
                     </p>
                 </div>
             )}
 
             {activeEvents.length > 0 && (
                 <div className="mb-16">
-                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
-                        <span className="w-3 h-3 rounded-full bg-green-500 mr-3"></span>
-                        Active Collections
+                    <h2 className="text-sm font-bold text-slate-400 mb-8 flex items-center uppercase tracking-[0.2em]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-3"></span>
+                        Active Cycles
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {activeEvents.map(event => (
@@ -153,9 +153,9 @@ export default function EmployeeEventsPage() {
 
             {closedEvents.length > 0 && (
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center text-gray-400">
-                        <span className="w-3 h-3 rounded-full bg-gray-300 mr-3"></span>
-                        Past Collections
+                    <h2 className="text-sm font-bold text-slate-300 mb-8 flex items-center uppercase tracking-[0.2em]">
+                        <span className="w-1.5 h-1.5 rounded-full bg-slate-200 mr-3"></span>
+                        Previous Cycles
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {closedEvents.map(event => (

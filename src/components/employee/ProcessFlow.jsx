@@ -5,36 +5,36 @@ import { Search, FileText, CheckCircle, Truck, ShoppingBag, ArrowRight } from 'l
 
 const steps = [
     {
-        title: "Browse & Select",
-        description: "Head over to the 'Events' tabs in the navigation bar  , Choose any event then  Explore the Catalog  and add up to 3 products you'd like to sample.",
-        icon: <Search className="w-6 h-6" />,
-        color: "bg-blue-500",
-        lightColor: "bg-blue-50",
-        textColor: "text-blue-600",
+        title: "Explore",
+        description: "Browse curated categories and select up to 3 premium products you'd like to evaluate per corporate event.",
+        icon: <ShoppingBag className="w-5 h-5" />,
+        color: "bg-slate-900",
+        lightColor: "bg-slate-50",
+        textColor: "text-slate-900",
     },
     {
-        title: "Review & Personalize",
-        description: "Open your Cart, confirm your selection, and click 'Review Personalization'. Specify your branding needs (logo, type, and size) for a tailored sample.",
-        icon: <FileText className="w-6 h-6" />,
-        color: "bg-indigo-500",
+        title: "Personalize",
+        description: "Configure your branding requirements—including logo placement and sizing—directly in the cart for a tailored sample.",
+        icon: <FileText className="w-5 h-5" />,
+        color: "bg-indigo-600",
         lightColor: "bg-indigo-50",
         textColor: "text-indigo-600",
     },
     {
-        title: "Submit & Confirm",
-        description: "Click 'Continue to Shipping', fill in your delivery details, and place your request. You'll receive a confirmation email with your Order Reference Number.",
-        icon: <CheckCircle className="w-6 h-6" />,
-        color: "bg-violet-500",
-        lightColor: "bg-violet-50",
-        textColor: "text-violet-600",
+        title: "Confirm",
+        description: "Review your selection and submit. You'll receive a detailed confirmation with your order reference ID instantly.",
+        icon: <CheckCircle className="w-5 h-5" />,
+        color: "bg-slate-900",
+        lightColor: "bg-slate-50",
+        textColor: "text-slate-900",
     },
     {
-        title: "Sample Delivery",
-        description: "Our team will process your request, and your curated samples will be delivered to your doorstep within 4-5 working days for evaluation.",
-        icon: <Truck className="w-6 h-6" />,
-        color: "bg-purple-500",
-        lightColor: "bg-purple-50",
-        textColor: "text-purple-600",
+        title: "Evaluation",
+        description: "Your curated samples will be delivered within 4-5 working days, ready for you to assess quality and branding.",
+        icon: <Truck className="w-5 h-5" />,
+        color: "bg-indigo-600",
+        lightColor: "bg-indigo-50",
+        textColor: "text-indigo-600",
     }
 ];
 
@@ -42,12 +42,12 @@ export default function ProcessFlow() {
     return (
         <div className="py-16 px-4">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 tracking-tight">
-                        How It <span className="text-blue-600">Works</span>
+                <div className="text-center mb-20">
+                    <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">
+                        Fulfillment <span className="text-indigo-600">Workflow</span>
                     </h2>
-                    <p className="text-gray-500 font-medium max-w-2xl mx-auto">
-                        A simple 5-step process to get premium corporate gifts delivered to your doorstep.
+                    <p className="text-slate-500 font-medium max-w-2xl mx-auto text-lg leading-relaxed">
+                        A streamlined process designed to fulfill your corporate gifting needs with precision and speed.
                     </p>
                 </div>
 
@@ -57,24 +57,24 @@ export default function ProcessFlow() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {steps.map((step, index) => (
-                            <div key={index} className="flex flex-col items-center text-center group">
+                             <div key={index} className="flex flex-col items-center text-center group relative">
                                 {/* Icon Container */}
-                                <div className={`w-24 h-24 rounded-3xl ${step.lightColor} flex items-center justify-center mb-6 relative transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-sm group-hover:shadow-xl`}>
-                                    <div className={`${step.color} text-white p-4 rounded-2xl shadow-lg transform transition-transform duration-500 group-hover:scale-105`}>
+                                <div className={`w-20 h-20 rounded-2xl ${step.lightColor} flex items-center justify-center mb-8 relative transition-all duration-500 group-hover:scale-110 shadow-sm border border-slate-100`}>
+                                    <div className={`${step.color} text-white p-3.5 rounded-xl shadow-lg transform transition-transform duration-500`}>
                                         {step.icon}
                                     </div>
 
                                     {/* Step Number Badge */}
-                                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white border-2 border-gray-50 rounded-full flex items-center justify-center text-xs font-black text-gray-900 shadow-sm">
-                                        {index + 1}
+                                    <div className="absolute -top-3 -right-3 w-8 h-8 bg-white border border-slate-100 rounded-lg flex items-center justify-center text-[10px] font-bold text-slate-900 shadow-sm">
+                                        0{index + 1}
                                     </div>
                                 </div>
 
                                 {/* Content */}
-                                <h3 className={`text-xl font-black mb-3 ${step.textColor} tracking-tight`}>
+                                <h3 className={`text-lg font-bold mb-4 ${step.textColor} tracking-tight uppercase tracking-widest`}>
                                     {step.title}
                                 </h3>
-                                <p className="text-gray-500 text-sm leading-relaxed font-medium px-4">
+                                <p className="text-slate-500 text-sm leading-relaxed font-medium px-4">
                                     {step.description}
                                 </p>
 

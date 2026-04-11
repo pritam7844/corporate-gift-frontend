@@ -63,7 +63,7 @@ export default function EmployeeNavbar() {
 
     return (
         <>
-            <nav className="bg-white backdrop-blur-xl border-b border-gray-100 sticky top-0 z-50">
+            <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 md:px-8 h-20 flex items-center justify-between">
 
                     {/* Logo Area */}
@@ -71,7 +71,7 @@ export default function EmployeeNavbar() {
                         {/* Hamburger Menu Toggle (Mobile) */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden p-2 -ml-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-xl transition-all active:scale-95"
+                            className="md:hidden p-2 -ml-2 text-slate-600 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-all active:scale-95"
                         >
                             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>
@@ -80,48 +80,48 @@ export default function EmployeeNavbar() {
                             className="flex items-center space-x-3 cursor-pointer group"
                             onClick={() => router.push('/')}
                         >
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black group-hover:scale-105 transition-all shadow-lg shadow-blue-500/20 overflow-hidden border border-blue-100/20">
+                            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold group-hover:bg-indigo-700 transition-all shadow-sm overflow-hidden border border-indigo-500/10">
                                 {company?.logo ? (
                                     <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <span>{subdomain?.charAt(0).toUpperCase()}</span>
                                 )}
                             </div>
-                            <span className="text-xl font-black text-gray-900 capitalize tracking-tighter group-hover:text-blue-600 transition-colors hidden sm:block">
+                            <span className="text-xl font-bold text-slate-900 capitalize tracking-tight group-hover:text-indigo-600 transition-colors hidden sm:block">
                                 {company?.name || subdomain}
                             </span>
                         </div>
                     </div>
 
                     {/* Main Navigation */}
-                    <div className="hidden md:flex items-center space-x-10">
+                    <div className="hidden md:flex items-center space-x-8">
                         <button
                             onClick={() => router.push('/')}
-                            className={`text-sm font-black uppercase tracking-widest transition-all hover:scale-105 ${isHome ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`}
+                            className={`text-[13px] font-semibold uppercase tracking-wider transition-colors ${isHome ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
                         >
                             Home
                         </button>
                         <button
                             onClick={() => router.push('/events')}
-                            className={`text-sm font-black uppercase tracking-widest transition-all hover:scale-105 ${pathname.includes('/events') ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`}
+                            className={`text-[13px] font-semibold uppercase tracking-wider transition-colors ${pathname.includes('/events') ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
                         >
                             Events
                         </button>
                         <button
                             onClick={() => router.push('/new-arrivals')}
-                            className={`text-sm font-black uppercase tracking-widest transition-all hover:scale-105 ${pathname.includes('/new-arrivals') ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`}
+                            className={`text-[13px] font-semibold uppercase tracking-wider transition-colors ${pathname.includes('/new-arrivals') ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
                         >
                             New Arrivals
                         </button>
                         <button
                             onClick={() => router.push('/faq')}
-                            className={`text-sm font-black uppercase tracking-widest transition-all hover:scale-105 ${pathname.includes('/faq') ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`}
+                            className={`text-[13px] font-semibold uppercase tracking-wider transition-colors ${pathname.includes('/faq') ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
                         >
                             FAQ
                         </button>
                         <button
                             onClick={() => router.push('/contact')}
-                            className={`text-sm font-black uppercase tracking-widest transition-all hover:scale-105 ${pathname.includes('/contact') ? 'text-blue-600' : 'text-gray-400 hover:text-blue-600'}`}
+                            className={`text-[13px] font-semibold uppercase tracking-wider transition-colors ${pathname.includes('/contact') ? 'text-indigo-600' : 'text-slate-500 hover:text-indigo-600'}`}
                         >
                             Contact
                         </button>
@@ -132,11 +132,11 @@ export default function EmployeeNavbar() {
                         {/* Cart Button */}
                         <button
                             onClick={() => router.push('/cart')}
-                            className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors hover:bg-gray-50 rounded-xl"
+                            className="relative p-2 text-slate-600 hover:text-indigo-600 transition-colors hover:bg-slate-50 rounded-lg"
                         >
-                            <ShoppingCart size={24} />
+                            <ShoppingCart size={22} />
                             {(mounted && cartCount > 0) && (
-                                <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in-75 duration-300">
+                                <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in-75 duration-300">
                                     {cartCount}
                                 </span>
                             )}
@@ -149,28 +149,28 @@ export default function EmployeeNavbar() {
                                     setIsProfileOpen(!isProfileOpen);
                                     setShowLogoutConfirm(false);
                                 }}
-                                className="flex items-center space-x-2 p-1.5 rounded-2xl hover:bg-gray-50 transition-all border border-transparent hover:border-gray-100 group"
+                                className="flex items-center space-x-2 p-1 rounded-lg hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100 group"
                             >
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center font-black relative shadow-inner group-hover:from-blue-100 group-hover:to-indigo-100">
+                                <div className="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold relative group-hover:bg-indigo-100 transition-colors">
                                     {user.name?.charAt(0)}
                                 </div>
                                 <div className="text-right hidden lg:block px-1">
-                                    <p className="text-xs font-black text-gray-900 leading-none mb-1">{user.name}</p>
-                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Gold Member</p>
+                                    <p className="text-xs font-bold text-slate-900 leading-none mb-1">{user.name}</p>
+                                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-tight">Access Level: User</p>
                                 </div>
-                                <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180 text-blue-600' : ''}`} />
+                                <ChevronDown size={14} className={`text-slate-400 transition-transform duration-300 ${isProfileOpen ? 'rotate-180 text-indigo-600' : ''}`} />
                             </button>
 
                             {/* Dropdown Menu */}
                             {isProfileOpen && (
-                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 animate-in slide-in-from-top-2 fade-in duration-200 z-50 overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-gray-50 flex items-center space-x-3">
-                                        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                                            <UserIcon size={20} className="text-gray-400" />
+                                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-2 animate-in slide-in-from-top-2 fade-in duration-200 z-50 overflow-hidden">
+                                    <div className="px-4 py-3 border-b border-slate-50 flex items-center space-x-3">
+                                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                            <UserIcon size={20} className="text-slate-400" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-bold text-gray-800">{user.name}</p>
-                                            <p className="text-xs text-gray-500 truncate w-32">{user.email}</p>
+                                            <p className="text-sm font-bold text-slate-900">{user.name}</p>
+                                            <p className="text-xs text-slate-500 truncate w-32">{user.email}</p>
                                         </div>
                                     </div>
 
@@ -180,15 +180,12 @@ export default function EmployeeNavbar() {
                                                 setIsProfileOpen(false);
                                                 router.push('/orders');
                                             }}
-                                            className={`w-full text-left px-4 py-2.5 text-sm font-medium rounded-xl transition-colors flex items-center ${pathname.includes('/orders') ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'}`}
+                                            className={`w-full text-left px-4 py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center ${pathname.includes('/orders') ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:text-indigo-600 hover:bg-indigo-50'}`}
                                         >
                                             <Package size={16} className="mr-3" /> My Orders
                                         </button>
-                                        {/* <button className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors flex items-center">
-                                            <Settings size={16} className="mr-3" /> Account Settings
-                                        </button> */}
 
-                                        <div className="h-px bg-gray-50 my-1"></div>
+                                        <div className="h-px bg-slate-50 my-1"></div>
 
                                         {!showLogoutConfirm ? (
                                             <button
@@ -196,27 +193,27 @@ export default function EmployeeNavbar() {
                                                     e.stopPropagation();
                                                     setShowLogoutConfirm(true);
                                                 }}
-                                                className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center group"
+                                                className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors flex items-center group"
                                             >
                                                 <LogOut size={16} className="mr-3 group-hover:-translate-x-1 transition-transform" />
                                                 Sign Out
                                             </button>
                                         ) : (
-                                            <div className="p-3 bg-red-50 rounded-xl border border-red-100 mt-2 animate-in zoom-in-95 duration-200">
+                                            <div className="p-3 bg-red-50 rounded-lg border border-red-100 mt-2 animate-in zoom-in-95 duration-200">
                                                 <p className="text-xs font-bold text-red-800 mb-2 text-center">Are you sure?</p>
                                                 <div className="flex space-x-2">
                                                     <button
                                                         onClick={handleLogout}
-                                                        className="flex-1 bg-red-600 text-white text-xs font-bold py-2 rounded-lg hover:bg-red-700 transition-colors"
+                                                        className="flex-1 bg-red-600 text-white text-xs font-bold py-2 rounded-md hover:bg-red-700 transition-colors"
                                                     >
-                                                        Yes, Sign Out
+                                                        Sign Out
                                                     </button>
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             setShowLogoutConfirm(false);
                                                         }}
-                                                        className="flex-1 bg-white text-gray-600 text-xs font-bold py-2 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                                                        className="flex-1 bg-white text-slate-600 text-xs font-bold py-2 rounded-md hover:bg-slate-50 transition-colors border border-slate-200"
                                                     >
                                                         Cancel
                                                     </button>
@@ -233,18 +230,18 @@ export default function EmployeeNavbar() {
 
             {/* Mobile Menu Overlay */}
             <div className={`fixed inset-0 z-[100] md:hidden transition-all duration-500 ${isMobileMenuOpen ? 'visible' : 'invisible pointer-events-none'}`}>
-                {/* Backdrop with strong blur */}
+                {/* Backdrop - Clean overlay */}
                 <div
-                    className={`absolute inset-0 bg-white/60 backdrop-blur-2xl transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+                    className={`absolute inset-0 bg-slate-900/40 transition-opacity duration-500 ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0'}`}
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
 
-                {/* Menu Content - Side Drawer style but from top for better reach */}
-                <div className={`absolute top-0 left-0 right-0 max-h-[95vh] overflow-y-auto bg-white border-b border-gray-100 shadow-2xl px-6 pt-24 pb-32 transition-all duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
+                {/* Menu Content */}
+                <div className={`absolute top-0 right-0 bottom-0 w-4/5 max-w-sm bg-white shadow-2xl px-6 pt-24 pb-32 transition-transform duration-500 ease-out flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
                     {/* <button onClick={() => setIsMobileMenuOpen(false)} className="absolute top-6 right-6 text-gray-700 hover:text-gray-900 transition-colors"><X size={24} /></button> */}
 
                     {/* Navigation Items */}
-                    <div className="flex flex-col space-y-2">
+                    <div className="flex flex-col space-y-1">
                         {[
                             { name: 'Home', path: '/', icon: <ShoppingCart size={20} /> },
                             { name: 'Events', path: '/events', icon: <Calendar size={20} /> },
@@ -258,48 +255,48 @@ export default function EmployeeNavbar() {
                                 <button
                                     key={item.name}
                                     onClick={() => { router.push(item.path); setIsMobileMenuOpen(false); }}
-                                    className={`w-full text-left px-6 py-5 rounded-3xl flex items-center justify-between transition-all active:scale-95 ${active ? 'bg-blue-600 text-white shadow-xl shadow-blue-500/20 px-8' : 'text-gray-900 bg-gray-50/50 hover:bg-gray-100'}`}
+                                    className={`w-full text-left px-5 py-4 rounded-xl flex items-center justify-between transition-colors ${active ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-900 hover:bg-slate-50'}`}
                                 >
-                                    <span className="text-xl font-black tracking-tight">{item.name}</span>
-                                    {active ? <ChevronDown className="-rotate-90" size={20} /> : <Plus className="text-gray-300" size={20} />}
+                                    <span className="text-lg font-bold tracking-tight">{item.name}</span>
+                                    {active ? <ChevronDown className="-rotate-90" size={18} /> : <Plus className="text-slate-300" size={18} />}
                                 </button>
                             );
                         })}
                     </div>
 
                     {/* Bottom Profile/Actions in Mobile Menu */}
-                    <div className="mt-10 pt-10 border-t border-gray-100">
+                    <div className="mt-8 pt-8 border-t border-slate-100">
                         <div className="flex items-center space-x-4 mb-8">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center text-2xl font-black shadow-inner">
+                            <div className="w-14 h-14 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
                                 {user.name?.charAt(0)}
                             </div>
                             <div>
-                                <p className="text-lg font-black text-gray-900 leading-none mb-1">{user.name}</p>
-                                <p className="text-sm text-gray-400 font-bold">{user.email}</p>
+                                <p className="text-lg font-bold text-slate-900 leading-none mb-1">{user.name}</p>
+                                <p className="text-sm text-slate-500 font-semibold truncate w-48">{user.email}</p>
                             </div>
                         </div>
 
                         {!showLogoutConfirm ? (
                             <button
                                 onClick={() => setShowLogoutConfirm(true)}
-                                className="w-full bg-red-600 text-white px-6 py-5 rounded-3xl font-black flex items-center justify-center space-x-3 active:scale-95 transition-all shadow-xl shadow-red-500/20"
+                                className="w-full bg-slate-900 text-white px-6 py-4 rounded-xl font-bold flex items-center justify-center space-x-3 active:scale-95 transition-all shadow-sm"
                             >
                                 <LogOut size={20} />
                                 <span>Sign Out</span>
                             </button>
                         ) : (
-                            <div className="bg-red-50 rounded-[2.5rem] p-4 border border-red-100 flex flex-col items-center">
-                                <p className="text-sm font-black text-red-900 mb-4 tracking-tight">Are you sure you want to exit?</p>
+                            <div className="bg-red-50 rounded-2xl p-4 border border-red-100 flex flex-col items-center">
+                                <p className="text-sm font-bold text-red-900 mb-4 tracking-tight">Are you sure you want to sign out?</p>
                                 <div className="flex w-full space-x-3">
                                     <button
                                         onClick={handleLogout}
-                                        className="flex-1 bg-red-600 text-white text-sm font-black py-4 rounded-2xl shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+                                        className="flex-1 bg-red-600 text-white text-sm font-bold py-3.5 rounded-lg active:scale-95 transition-all"
                                     >
                                         Yes, Exit
                                     </button>
                                     <button
                                         onClick={() => setShowLogoutConfirm(false)}
-                                        className="flex-1 bg-white text-gray-600 text-sm font-black py-4 rounded-2xl border border-gray-100 active:scale-95 transition-all"
+                                        className="flex-1 bg-white text-slate-600 text-sm font-bold py-3.5 rounded-lg border border-slate-200 active:scale-95 transition-all"
                                     >
                                         Stay
                                     </button>

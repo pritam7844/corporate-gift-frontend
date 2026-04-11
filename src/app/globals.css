@@ -3,14 +3,15 @@
 @config "../../tailwind.config.js";
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
+  --foreground-rgb: 15, 23, 42; /* Slate-900 */
+  --background-start-rgb: 248, 250, 252; /* Slate-50 */
   --background-end-rgb: 255, 255, 255;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: rgb(var(--background-start-rgb));
 }
 
 

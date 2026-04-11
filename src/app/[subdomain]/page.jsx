@@ -74,9 +74,22 @@ export default function CompanyLandingPage() {
                 const companyRes = await api.get(`/companies/portal/${subdomain}`);
                 setCompany(companyRes.data.data);
 
-                // Fetch Active Events for this Company
+                // Fetch ALL Events for this Company (Backend now returns all)
                 const eventsRes = await api.get('/events/my-events');
-                const activeEvents = eventsRes.data.data || [];
+                const allEvents = eventsRes.data.data || [];
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                // Filter for active events only on landing page
+                const activeEvents = allEvents.filter(e => {
+                    const start = new Date(e.startDate);
+                    const end = new Date(e.endDate);
+                    start.setHours(0, 0, 0, 0);
+                    end.setHours(23, 59, 59, 999);
+                    return today >= start && today <= end;
+                });
+
                 setEvents(activeEvents);
 
                 // Fetch User's Order History to check for cycle participation
@@ -112,9 +125,9 @@ export default function CompanyLandingPage() {
         // Check for event conflict (only one event's products allowed in cart at once)
         if (items.length > 0 && items[0].eventId !== eventId) {
             openConfirm(
-                'Event Conflict', 
-                'Your cart already contains items from another event. You can only add products from one event at a time. Please clear your cart or complete your current order first.', 
-                () => { }, 
+                'Event Conflict',
+                'Your cart already contains items from another event. You can only add products from one event at a time. Please clear your cart or complete your current order first.',
+                () => { },
                 'warning'
             );
             return;
@@ -152,57 +165,54 @@ export default function CompanyLandingPage() {
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-[#F8F9FA] text-gray-900 font-sans selection:bg-blue-100 overflow-x-hidden">
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-4 md:py-10">
+        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100 overflow-x-hidden">
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
                 {/* Personalized Hero Dashboard */}
-                <section className="mb-20 relative">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2 opacity-70"></div>
-                    <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-100/50 rounded-full blur-3xl -z-10 -translate-x-1/2 translate-y-1/2 opacity-70"></div>
-
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-14 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden">
-                        {/* Decorative Background Pattern */}
-                        <div className="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-blue-50/20 to-transparent pointer-events-none"></div>
+                <section className="mb-16">
+                    <div className="bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden">
+                        {/* Subtle Background Accent */}
+                        <div className="absolute right-0 top-0 w-1/2 h-full bg-indigo-50/30 skew-x-12 translate-x-1/4 pointer-events-none"></div>
 
                         <div className="relative z-10 flex-1 text-center lg:text-left">
-                            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-widest mb-6 border border-blue-100/50">
-                                <span>{company?.name || subdomain} Rewards</span>
+                            <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-6 border border-indigo-100">
+                                <span>{company?.name || subdomain} Portal</span>
                             </div>
-                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-6 text-gray-900 leading-[1.1]">
+                            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-slate-900 leading-[1.15]">
                                 Welcome back,<br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+                                <span className="text-indigo-600">
                                     {user?.name || 'Employee'}
                                 </span>
                             </h1>
-                            <p className="text-base sm:text-lg text-gray-500 max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0">
-                                We're excited to celebrate your milestones. Explore your active events below and claim the premium corporate gifts you deserve.
+                            <p className="text-base sm:text-lg text-slate-500 max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0">
+                                Discover curated corporate gift programs designed specifically for you. Select your preferred rewards below.
                             </p>
 
                             {/* Summary Cards */}
                             <div className="flex gap-4 w-full overflow-x-auto pb-4 md:pb-0 snap-x mb-10 justify-center lg:justify-start hide-scrollbar">
-                                <div className="min-w-[150px] bg-white rounded-3xl p-6 border border-gray-100 snap-center flex-shrink-0 shadow-lg shadow-gray-200/20">
-                                    <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-blue-50/30">
-                                        <Calendar size={22} />
+                                <div className="min-w-[140px] bg-slate-50 rounded-xl p-5 border border-slate-100 snap-center flex-shrink-0">
+                                    <div className="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                                        <Calendar size={20} />
                                     </div>
-                                    <p className="text-3xl font-black text-gray-900 mb-1 leading-none">{events.length}</p>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Events</p>
+                                    <p className="text-2xl font-bold text-slate-900 mb-0.5">{events.length}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Events</p>
                                 </div>
 
-                                <div className="min-w-[150px] bg-white rounded-3xl p-6 border border-gray-100 snap-center flex-shrink-0 shadow-lg shadow-gray-200/20">
-                                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mb-4 ring-8 ring-indigo-50/30">
-                                        <Gift size={22} />
+                                <div className="min-w-[140px] bg-slate-50 rounded-xl p-5 border border-slate-100 snap-center flex-shrink-0">
+                                    <div className="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                                        <Gift size={20} />
                                     </div>
-                                    <p className="text-3xl font-black text-gray-900 mb-1 leading-none">
+                                    <p className="text-2xl font-bold text-slate-900 mb-0.5">
                                         {events.reduce((total, event) => total + (event.products?.length || 0), 0)}
                                     </p>
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Gift Options</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gift Options</p>
                                 </div>
                             </div>
 
                             <div className="flex justify-center lg:justify-start">
                                 <button
                                     onClick={() => router.push('/events')}
-                                    className="bg-black text-white px-8 py-4.5 rounded-[1.25rem] font-black hover:bg-blue-600 transition-all flex items-center shadow-2xl shadow-blue-900/10 active:scale-95"
+                                    className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center shadow-md active:scale-95"
                                 >
                                     Browse Events <ArrowRight size={18} className="ml-3" />
                                 </button>
@@ -211,13 +221,13 @@ export default function CompanyLandingPage() {
 
                         {/* Image Right Side */}
                         <div className="relative z-10 w-full lg:w-5/12 hidden md:block">
-                            <div className="relative w-full aspect-square rounded-[2rem] overflow-hidden shadow-2xl shadow-blue-900/10 border-4 border-white">
+                            <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg border-4 border-slate-50">
                                 <img
                                     src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop"
                                     alt="Premium Corporate Gift Box"
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent pointer-events-none"></div>
+                                <div className="absolute inset-0 bg-slate-900/10 transition-opacity group-hover:bg-slate-900/20 pointer-events-none"></div>
                             </div>
                         </div>
                     </div>
@@ -225,76 +235,76 @@ export default function CompanyLandingPage() {
 
                 {/* Events & Products Section */}
                 <section id="events" className="scroll-mt-32">
-                    <div className="flex items-center justify-between mb-10 border-b border-gray-200 pb-6">
+                    <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-6">
                         <div>
-                            <h2 className="text-3xl font-black tracking-tight text-gray-900">Your Active Events</h2>
-                            <p className="text-gray-500 mt-2">Select your gifts from the programs below.</p>
+                            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Available Programs</h2>
+                            <p className="text-slate-500 mt-1.5 text-sm uppercase tracking-wider font-semibold">Active Selection Cycles</p>
                         </div>
                     </div>
 
                     {events.length === 0 ? (
-                        <div className="bg-white p-16 rounded-[2rem] border border-gray-100 text-center shadow-sm flex flex-col items-center">
-                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
-                                <Gift size={32} className="text-gray-300" />
+                        <div className="bg-white p-16 rounded-xl border border-slate-200 text-center shadow-sm flex flex-col items-center">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                <Gift size={28} className="text-slate-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">No active events entirely</h3>
-                            <p className="text-gray-500 max-w-md">There are currently no active reward programs for your account. Check back later!</p>
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">No active programs</h3>
+                            <p className="text-slate-500 max-w-md">There are currently no active reward programs for your account. Check back later!</p>
                         </div>
                     ) : (
-                        <div className="space-y-16">
+                        <div className="space-y-12">
                             {events.map((event) => (
-                                <div key={event._id} className="bg-white rounded-[2rem] p-8 md:p-12 border border-gray-100 shadow-sm relative overflow-hidden">
+                                <div key={event._id} className="bg-white rounded-xl p-6 md:p-10 border border-slate-200 shadow-sm relative overflow-hidden">
 
                                     {/* Event Header */}
-                                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6 relative z-10">
+                                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 relative z-10">
                                         <div className="text-center md:text-left">
-                                            <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                                                <div className="inline-flex items-center px-3 py-1.5 rounded-xl bg-green-50 text-green-700 text-[10px] font-black uppercase tracking-widest border border-green-100">
-                                                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                                            <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
+                                                <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider border border-emerald-100/50">
+                                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></div>
                                                     {event.status}
                                                 </div>
                                                 {orderedEventIds.includes(event._id) && (
-                                                    <div className="inline-flex items-center px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-[10px] font-black uppercase tracking-widest border border-blue-100">
-                                                        <ShoppingCart size={12} className="mr-2" />
-                                                        Order Placed
+                                                    <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider border border-indigo-100/50">
+                                                        <ShoppingCart size={11} className="mr-1.5" />
+                                                        Selected
                                                     </div>
                                                 )}
                                             </div>
-                                            <h3 className="text-3xl sm:text-4xl font-black text-gray-900 mb-4 tracking-tighter">{event.name}</h3>
-                                            <p className="text-sm text-gray-400 font-bold flex items-center justify-center md:justify-start uppercase tracking-widest">
-                                                <Calendar size={16} className="mr-2 opacity-50" />
+                                            <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">{event.name}</h3>
+                                            <p className="text-xs text-slate-400 font-semibold flex items-center justify-center md:justify-start uppercase tracking-wider">
+                                                <Calendar size={14} className="mr-2" />
                                                 Closes on <FormattedDate date={event.endDate} />
                                             </p>
                                         </div>
                                         <button
                                             onClick={() => router.push(orderedEventIds.includes(event._id) ? '/orders' : `/events/${event._id}`)}
-                                            className={`${orderedEventIds.includes(event._id) ? 'bg-gray-100 text-gray-400' : 'bg-blue-600 text-white shadow-xl shadow-blue-500/20'} px-8 py-4 rounded-2xl font-black transition-all flex items-center justify-center group/more active:scale-95 w-full md:w-auto`}
+                                            className={`${orderedEventIds.includes(event._id) ? 'bg-slate-50 text-slate-400 border border-slate-200' : 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-700'} px-6 py-3 rounded-lg font-bold transition-all flex items-center justify-center group/more active:scale-95 w-full md:w-auto text-sm`}
                                         >
-                                            {orderedEventIds.includes(event._id) ? 'View Request' : 'Choose Gift'} <ArrowRight size={18} className="ml-3 transition-transform group-hover/more:translate-x-1" />
+                                            {orderedEventIds.includes(event._id) ? 'View Request' : 'Select Reward'} <ArrowRight size={16} className="ml-2 transition-transform group-hover/more:translate-x-1" />
                                         </button>
                                     </div>
 
                                     {/* Products Grid */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative z-10">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
                                         {event.products?.slice(0, 4).map((product) => (
-                                            <div key={product._id} className="group bg-white border border-gray-100 hover:border-blue-200 hover:shadow-xl hover:shadow-blue-900/5 rounded-2xl flex flex-col overflow-hidden transition-all duration-300">
+                                            <div key={product._id} className="group bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md rounded-xl flex flex-col overflow-hidden transition-all duration-300">
                                                 {/* Image Area */}
-                                                <div className="aspect-square bg-[#F8F9FA] overflow-hidden relative border-b border-gray-50">
+                                                <div className="aspect-square bg-slate-50 overflow-hidden relative border-b border-slate-100">
                                                     <ProductImageSlider
                                                         images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                                         onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
                                                     />
-                                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs font-bold text-gray-900 uppercase tracking-wider shadow-sm">
+                                                    <div className="absolute top-3 left-3 bg-white border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-600 uppercase tracking-widest">
                                                         {product.category}
                                                     </div>
                                                 </div>
 
                                                 {/* Content Area */}
-                                                <div className="p-6 flex-1 flex flex-col justify-between bg-white">
+                                                <div className="p-5 flex-1 flex flex-col justify-between">
                                                     <div className="mb-4">
-                                                        <h5 className="font-bold text-lg text-gray-900 leading-tight mb-1 line-clamp-2">{product.name}</h5>
+                                                        <h5 className="font-bold text-slate-900 leading-snug mb-1 line-clamp-2">{product.name}</h5>
                                                         {product.description && (
-                                                            <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                                                            <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
                                                         )}
                                                     </div>
 
@@ -306,10 +316,10 @@ export default function CompanyLandingPage() {
                                                             return (
                                                                 <button
                                                                     disabled
-                                                                    className="w-full bg-gray-100 text-gray-400 font-bold py-3.5 rounded-xl flex items-center justify-center space-x-2 cursor-not-allowed"
+                                                                    className="w-full bg-slate-50 text-slate-400 text-xs font-bold py-3 rounded-lg flex items-center justify-center space-x-2 border border-slate-100 cursor-not-allowed"
                                                                 >
-                                                                    <ShoppingCart size={18} />
-                                                                    <span>Request Placed</span>
+                                                                    <ShoppingCart size={14} />
+                                                                    <span>Selected</span>
                                                                 </button>
                                                             );
                                                         }
@@ -317,25 +327,25 @@ export default function CompanyLandingPage() {
                                                         return quantity === 0 ? (
                                                             <button
                                                                 onClick={() => handleAddToCart(product, event._id)}
-                                                                className="w-full bg-gray-900 text-white hover:bg-blue-600 font-bold py-3.5 rounded-xl transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
+                                                                className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
                                                             >
-                                                                <ShoppingCart size={18} className="transition-transform group-hover/btn:scale-110" />
-                                                                <span>Add to Cart</span>
+                                                                <ShoppingCart size={14} />
+                                                                <span>Add For Sample</span>
                                                             </button>
                                                         ) : (
-                                                            <div className="flex items-center bg-blue-600 text-white rounded-xl overflow-hidden shadow-sm">
+                                                            <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
                                                                 <button
                                                                     onClick={() => updateQuantity(product._id, event._id, quantity - 1)}
-                                                                    className="px-4 py-3 hover:bg-blue-700 transition-colors"
+                                                                    className="px-3 py-2.5 hover:bg-indigo-700 transition-colors"
                                                                 >
-                                                                    <Minus size={16} />
+                                                                    <Minus size={14} />
                                                                 </button>
-                                                                <span className="font-bold text-sm flex-1 text-center">{quantity}</span>
+                                                                <span className="font-bold text-xs flex-1 text-center">{quantity}</span>
                                                                 <button
                                                                     onClick={() => handleAddToCart(product, event._id)}
-                                                                    className={`px-4 py-3 transition-colors hover:bg-blue-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                                                    className={`px-3 py-2.5 transition-colors hover:bg-indigo-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
                                                                 >
-                                                                    <Plus size={16} />
+                                                                    <Plus size={14} />
                                                                 </button>
                                                             </div>
                                                         );
@@ -374,8 +384,8 @@ export default function CompanyLandingPage() {
             {/* <FaqSection /> */}
 
             {/* Subtle Footer */}
-            <footer className="py-8 text-center text-sm font-medium text-gray-400">
-                <p>&copy; {new Date().getFullYear()} {company?.name || subdomain} Corporate Gifts</p>
+            <footer className="py-12 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                <p>&copy; {new Date().getFullYear()} {company?.name || subdomain} &bull; Corporate Gifting Operations</p>
             </footer>
         </div>
     );

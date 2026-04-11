@@ -277,43 +277,37 @@ export default function CartPage() {
 
     // Trackbar Component
     const TrackBar = () => (
-        <div className="w-full mb-10 pb-8 border-b border-gray-100">
-            <div className="flex items-center justify-between max-w-2xl mx-auto relative px-4">
+        <div className="w-full mb-12 border-b border-slate-100 pb-8">
+            <div className="flex items-center justify-between max-w-lg mx-auto relative px-4 text-[10px] font-bold uppercase tracking-widest">
                 {/* Connecting Line */}
-                <div className="absolute left-10 right-10 top-5 h-[2px] bg-gray-100 -z-10 rounded-full"></div>
+                <div className="absolute left-10 right-10 top-[14px] h-[1px] bg-slate-100 -z-10"></div>
                 <div
-                    className="absolute left-10 top-5 h-[2px] bg-blue-600 -z-10 rounded-full transition-all duration-500"
-                    style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '40%' : '85%' }}
+                    className="absolute left-10 top-[14px] h-[1px] bg-indigo-600 -z-10 transition-all duration-500"
+                    style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
                 ></div>
 
                 {/* Step 1 */}
-                <div className="flex flex-col items-center flex-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 1 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
-                        {currentStep > 1 ? <CheckCircle2 size={20} className="text-white" /> : '1'}
+                <div className="flex flex-col items-center">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 1 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
+                        {currentStep > 1 ? <Check size={14} /> : '1'}
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 1 ? 'text-gray-900' : 'text-gray-400'}`}>
-                        Cart
-                    </span>
+                    <span className={`mt-3 ${currentStep >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>Cart</span>
                 </div>
 
                 {/* Step 2 */}
-                <div className="flex flex-col items-center flex-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 2 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
-                        {currentStep > 2 ? <CheckCircle2 size={20} className="text-white" /> : '2'}
+                <div className="flex flex-col items-center">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 2 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
+                        {currentStep > 2 ? <Check size={14} /> : '2'}
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 2 ? 'text-gray-900' : 'text-gray-400'}`}>
-                        Customization
-                    </span>
+                    <span className={`mt-3 ${currentStep >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>Design</span>
                 </div>
 
                 {/* Step 3 */}
-                <div className="flex flex-col items-center flex-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm transition-all duration-300 ${currentStep >= 3 ? 'bg-blue-600 text-white shadow-blue-500/30' : 'bg-white border-2 border-gray-200 text-gray-400'}`}>
+                <div className="flex flex-col items-center">
+                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 3 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
                         3
                     </div>
-                    <span className={`text-[10px] sm:text-xs font-bold mt-3 uppercase tracking-wider text-center ${currentStep >= 3 ? 'text-gray-900' : 'text-gray-400'}`}>
-                        Shipping
-                    </span>
+                    <span className={`mt-3 ${currentStep >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>Shipping</span>
                 </div>
             </div>
         </div>
@@ -322,25 +316,25 @@ export default function CartPage() {
     if (currentStep === 4) {
         return (
             <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-500">
-                <div className="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-xl shadow-green-500/20">
-                    <CheckCircle2 size={48} className="stroke-[2.5]" />
+                <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-8 border border-emerald-100 shadow-sm">
+                    <Check size={40} className="stroke-[3]" />
                 </div>
-                <h1 className="text-4xl font-black text-gray-900 mb-3 tracking-tight text-center">Order Placed Successfully!</h1>
-                <p className="text-gray-500 font-medium text-lg mb-10 max-w-md text-center">
-                    Your gift request has been sent to the company. You will be notified once the admin approves it.
+                <h1 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight text-center">Selection Submitted!</h1>
+                <p className="text-slate-500 font-medium text-base mb-10 max-w-sm text-center">
+                    Your reward selection has been recorded. Our team will begin processing your corporate tokens shortly.
                 </p>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
                     <button
                         onClick={() => router.push(`/`)}
-                        className="px-8 py-4 border-2 border-gray-200 text-gray-700 font-bold rounded-2xl hover:bg-gray-50 transition-all active:scale-95"
+                        className="flex-1 px-8 py-3.5 border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all active:scale-[0.98] text-sm"
                     >
                         Back to Home
                     </button>
                     <button
                         onClick={() => router.push(`/orders`)}
-                        className="px-8 py-4 bg-gray-900 text-white font-bold rounded-2xl hover:bg-gray-800 transition-all active:scale-95 shadow-xl shadow-gray-900/20"
+                        className="flex-1 px-8 py-3.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-indigo-600 transition-all active:scale-[0.98] shadow-sm text-sm"
                     >
-                        Track Order
+                        View Requests
                     </button>
                 </div>
             </div>
@@ -348,7 +342,7 @@ export default function CartPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f8fafc] py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-6xl mx-auto">
 
                 {/* Header / Back */}
@@ -358,48 +352,48 @@ export default function CartPage() {
                             if (currentStep === 1) router.back();
                             else setCurrentStep(currentStep - 1);
                         }}
-                        className="flex items-center text-gray-500 hover:text-gray-900 font-bold transition-colors group"
+                        className="flex items-center text-slate-500 hover:text-slate-900 font-bold transition-all group text-xs uppercase tracking-widest"
                     >
-                        <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-3 group-hover:border-gray-400 group-hover:bg-gray-50 transition-all">
-                            <ChevronLeft size={16} className="stroke-[2.5]" />
+                        <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center mr-3 group-hover:bg-slate-50 transition-all">
+                            <ChevronLeft size={14} />
                         </div>
-                        {currentStep === 1 ? 'Continue Shopping' : currentStep === 2 ? 'Back to Cart' : 'Back to Customization'}
+                        {currentStep === 1 ? 'Back to Portal' : 'Previous Step'}
                     </button>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8 items-start">
 
                     {/* Main Content Area */}
-                    <div className="flex-grow w-full lg:w-2/3 bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-10">
+                    <div className="flex-grow w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-10">
                         <TrackBar />
 
                         <div className="relative">
                             {/* Step 1: Cart Items */}
                             {currentStep === 1 && (
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Your Cart</h2>
-                                        <span className="bg-blue-50 text-blue-700 font-bold px-4 py-1.5 rounded-full text-sm">
+                                    <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6">
+                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Your Selection</h2>
+                                        <span className="bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-md text-[10px] uppercase tracking-wider border border-indigo-100/50">
                                             {items.length} {items.length === 1 ? 'Item' : 'Items'}
                                         </span>
                                     </div>
 
                                     {items.length === 0 ? (
                                         <div className="py-20 flex flex-col items-center justify-center text-center">
-                                            <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-6 border border-gray-100">
-                                                <ShoppingBag size={40} className="text-gray-300" />
+                                            <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-6 border border-slate-100">
+                                                <ShoppingBag size={32} className="text-slate-300" />
                                             </div>
-                                            <h3 className="text-xl font-black text-gray-900 mb-2">Your cart is empty</h3>
-                                            <p className="text-gray-500 mb-8">Looks like you haven't added any premium gifts yet.</p>
+                                            <h3 className="text-xl font-bold text-slate-900 mb-2">Selection is empty</h3>
+                                            <p className="text-slate-500 text-sm mb-8">Looks like you haven't added any premium gifts yet.</p>
                                             <button
                                                 onClick={() => router.push(`/`)}
-                                                className="px-8 py-3.5 bg-gray-900 text-white font-bold rounded-xl hover:bg-gray-800 transition-all shadow-lg"
+                                                className="px-8 py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-indigo-600 transition-all shadow-sm"
                                             >
                                                 Start Browsing
                                             </button>
                                         </div>
                                     ) : (
-                                        <div className="space-y-6">
+                                        <div className="space-y-4">
                                             {items.map((item) => {
                                                 const hasDiscount = item.product.discountedPrice && item.product.discountedPrice < item.product.actualPrice;
                                                 const price = hasDiscount ? item.product.discountedPrice : (item.product.actualPrice || item.product.price);
@@ -407,7 +401,7 @@ export default function CartPage() {
                                                 return (
                                                     <div
                                                         key={`${item.product._id}-${item.eventId}`}
-                                                        className="flex gap-6 p-4 rounded-2xl border border-transparent hover:border-gray-100 hover:bg-gray-50/50 transition-all group relative"
+                                                        className="flex gap-6 p-5 rounded-xl border border-slate-100 hover:border-indigo-100 hover:bg-slate-50/30 transition-all group relative"
                                                     >
                                                         <button
                                                             onClick={() => {
@@ -418,70 +412,65 @@ export default function CartPage() {
                                                                     'warning'
                                                                 );
                                                             }}
-                                                            className="absolute top-4 right-4 p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                                                            className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                                                         >
-                                                            <X size={18} className="stroke-2" />
+                                                            <X size={16} />
                                                         </button>
 
-                                                        <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-white border border-gray-100 shadow-sm p-1 cursor-pointer"
+                                                        <div className="w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-slate-200 p-1 cursor-pointer"
                                                             onClick={() => setSliderModal({ isOpen: true, images: item.product.images && item.product.images.length > 0 ? item.product.images : (item.product.image ? [item.product.image] : []), index: 0 })}
                                                         >
-                                                            <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center relative group/img">
+                                                            <div className="w-full h-full rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center relative group/img">
                                                                 {item.product.images?.[0] || item.product.image ? (
                                                                     <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                                 ) : (
-                                                                    <Tag size={32} className="text-gray-300 stroke-1" />
+                                                                    <Tag size={32} className="text-slate-200" />
                                                                 )}
-                                                                <div className="absolute inset-0 bg-black/10 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                                <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
                                                                     <Maximize2 size={24} className="text-white scale-90" />
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex-grow flex flex-col justify-center py-2">
+                                                        <div className="flex-grow flex flex-col justify-center">
                                                             <div>
-                                                                <p className="text-xs font-black tracking-wider text-blue-600 uppercase mb-1 flex items-center">
-                                                                    <MapPin size={12} className="mr-1 inline" /> {item.product.category || 'Gift'}
+                                                                <p className="text-[10px] font-bold tracking-widest text-indigo-600 uppercase mb-1.5 flex items-center">
+                                                                    <Tag size={10} className="mr-1.5" /> {item.product.category || 'Gift Selection'}
                                                                 </p>
-                                                                <h4 className="text-lg font-bold text-gray-900 leading-tight mb-3 pr-8">{item.product.name}</h4>
+                                                                <h4 className="text-base font-bold text-slate-900 leading-snug mb-3 pr-8">{item.product.name}</h4>
                                                             </div>
 
-                                                            <div className="flex items-center justify-between mt-auto">
-                                                                <div className="flex flex-col">
-                                                                    <div className="flex items-center gap-2 mb-1">
-                                                                        <span className="font-black text-xl text-gray-900 leading-none">
-                                                                            ₹{(price * item.quantity).toLocaleString('en-IN')}
+                                                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className="font-bold text-lg text-slate-900 leading-none">
+                                                                        ₹{(price * item.quantity).toLocaleString('en-IN')}
+                                                                    </span>
+                                                                    {hasDiscount && (
+                                                                        <span className="text-[10px] font-bold text-slate-400 line-through">
+                                                                            ₹{(item.product.actualPrice * item.quantity).toLocaleString('en-IN')}
                                                                         </span>
-                                                                        {hasDiscount && (
-                                                                            <span className="text-xs font-bold text-gray-400 line-through decoration-gray-300/80 decoration-2">
-                                                                                ₹{(item.product.actualPrice * item.quantity).toLocaleString('en-IN')}
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                    {/* <div className="text-[10px] font-bold text-blue-600 uppercase tracking-tight">
-                                                                        Subtotal: ₹{(price * item.quantity).toLocaleString('en-IN')}
-                                                                    </div> */}
+                                                                    )}
                                                                 </div>
 
-                                                                <div className="flex items-center bg-white rounded-xl border border-gray-200 p-1 shadow-sm">
+                                                                <div className="flex items-center bg-white rounded-lg border border-slate-200 p-0.5">
                                                                     <button
                                                                         onClick={() => updateQuantity(item.product._id, item.eventId, item.quantity - 1)}
-                                                                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 hover:text-blue-600 rounded-lg transition-all"
+                                                                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded transition-all"
                                                                     >
-                                                                        <Minus size={16} className="stroke-[2.5]" />
+                                                                        <Minus size={14} />
                                                                     </button>
-                                                                    <span className="text-base font-black w-10 text-center text-gray-900">{item.quantity}</span>
+                                                                    <span className="text-sm font-bold w-8 text-center text-slate-900">{item.quantity}</span>
                                                                     <button
                                                                         onClick={() => {
                                                                             if (item.quantity >= 1) {
-                                                                                openConfirm('Limit Reached', 'Maximum 1 unit per product is allowed for sample orders.', () => { }, 'warning');
+                                                                                openConfirm('Limit Reached', 'Only 1 unit per product is allowed.', () => { }, 'warning');
                                                                                 return;
                                                                             }
                                                                             updateQuantity(item.product._id, item.eventId, item.quantity + 1);
                                                                         }}
-                                                                        className={`w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white hover:shadow-sm transition-all text-gray-500 ${item.quantity >= 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                                                                        className={`w-7 h-7 flex items-center justify-center rounded transition-all text-slate-400 ${item.quantity >= 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-indigo-600'}`}
                                                                     >
-                                                                        <Plus size={16} className="stroke-[2.5]" />
+                                                                        <Plus size={14} />
                                                                     </button>
                                                                 </div>
                                                             </div>
@@ -497,60 +486,60 @@ export default function CartPage() {
                             {/* Step 2: Customization / Branding */}
                             {currentStep === 2 && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                    <div className="mb-8">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Personalization</h2>
-                                        <p className="text-gray-500 font-medium mt-2">Do you need custom branding or logo placement on your gifts?</p>
+                                    <div className="mb-8 border-b border-slate-50 pb-6">
+                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Design & Branding</h2>
+                                        <p className="text-slate-500 font-medium mt-1.5 text-sm">Configure how your organization's logo should appear.</p>
                                     </div>
 
-                                    <div className="space-y-12">
+                                    <div className="space-y-10">
                                         {/* Branding Toggle */}
-                                        <div className="flex p-1 bg-gray-100 rounded-2xl w-fit">
+                                        <div className="flex p-1 bg-slate-100 rounded-lg w-fit">
                                             <button
                                                 onClick={() => handleCustomizationChange('isBrandingRequired', false)}
-                                                className={`px-8 py-3 rounded-xl font-bold transition-all ${!formData.customization.isBrandingRequired ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                className={`px-6 py-2 rounded-md font-bold text-xs uppercase tracking-wider transition-all ${!formData.customization.isBrandingRequired ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
                                             >
-                                                No Branding
+                                                Standard
                                             </button>
                                             <button
                                                 onClick={() => handleCustomizationChange('isBrandingRequired', true)}
-                                                className={`px-8 py-3 rounded-xl font-bold transition-all ${formData.customization.isBrandingRequired ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                className={`px-6 py-2 rounded-md font-bold text-xs uppercase tracking-wider transition-all ${formData.customization.isBrandingRequired ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500'}`}
                                             >
-                                                Yes, Personalize
+                                                Custom Logo
                                             </button>
                                         </div>
 
                                         {formData.customization.isBrandingRequired && (
-                                            <div className="space-y-12">
+                                            <div className="space-y-10">
                                                 {/* Global Branding Logo Section */}
-                                                <div className="p-8 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
+                                                <div className="p-8 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
                                                     <div className="flex flex-col md:flex-row md:items-center gap-8">
                                                         <div className="flex-1">
                                                             <div className="flex items-center gap-3 mb-2">
-                                                                <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center font-black text-xs">A</div>
-                                                                <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Shared branding logo</h3>
+                                                                <div className="w-6 h-6 bg-indigo-100 text-indigo-700 rounded flex items-center justify-center font-bold text-[10px] uppercase">A</div>
+                                                                <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Organization Logo</h3>
                                                             </div>
-                                                            <p className="text-sm text-gray-500 font-medium">This logo will be applied to all your selected products.</p>
+                                                            <p className="text-xs text-slate-500 font-medium">Upload the primary logo for branding application.</p>
                                                         </div>
 
                                                         <div className="flex-shrink-0">
                                                             <div className="flex items-center gap-4">
-                                                                <label className="flex flex-col items-center justify-center border-2 border-dashed border-blue-200 rounded-2xl px-8 py-4 bg-white hover:bg-blue-50/50 cursor-pointer transition-all group min-w-[200px]">
-                                                                    <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                                                        {logoUploading ? <Loader2 size={18} className="animate-spin" /> : <FileUp size={18} />}
+                                                                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl px-6 py-4 bg-white hover:border-indigo-300 cursor-pointer transition-all group min-w-[180px]">
+                                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-2">
+                                                                        {logoUploading ? <Loader2 size={16} className="animate-spin" /> : <FileUp size={16} />}
                                                                     </div>
-                                                                    <span className="text-xs font-bold text-gray-700">{logoUploading ? 'Uploading...' : 'Click to Upload'}</span>
+                                                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">{logoUploading ? 'Uploading...' : 'Browse Files'}</span>
                                                                     <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
                                                                 </label>
                                                                 {formData.customization.brandingLogo && (
-                                                                    <div className="w-24 h-24 rounded-2xl border-2 border-blue-100 bg-white p-2 relative shadow-sm group">
-                                                                        <div className="w-full h-full rounded-xl overflow-hidden bg-gray-50 flex items-center justify-center">
+                                                                    <div className="w-20 h-20 rounded-xl border border-slate-200 bg-white p-2 relative shadow-sm group">
+                                                                        <div className="w-full h-full rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
                                                                             <img src={formData.customization.brandingLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
                                                                         </div>
                                                                         <button
                                                                             onClick={() => handleCustomizationChange('brandingLogo', '')}
-                                                                            className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                                                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white"
                                                                         >
-                                                                            <X size={12} />
+                                                                            <X size={10} />
                                                                         </button>
                                                                     </div>
                                                                 )}
@@ -560,10 +549,10 @@ export default function CartPage() {
                                                 </div>
 
                                                 {/* Individual Product Customization */}
-                                                <div className="space-y-8">
+                                                <div className="space-y-6">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-black text-xs">B</div>
-                                                        <h3 className="text-lg font-black text-gray-900 uppercase tracking-tight">Configure each product</h3>
+                                                        <div className="w-6 h-6 bg-slate-100 text-slate-700 rounded flex items-center justify-center font-bold text-[10px] uppercase">B</div>
+                                                        <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Product Specifications</h3>
                                                     </div>
 
                                                     {items.map((item, idx) => {
@@ -571,30 +560,29 @@ export default function CartPage() {
                                                         const cust = formData.customization.productCustomizations[pId] || {};
 
                                                         return (
-                                                            <div key={pId} className="p-8 bg-blue-50/50 rounded-[2.5rem] border border-blue-100 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
-                                                                <div className="flex items-center gap-4 mb-8 pb-4 border-b border-blue-100/50">
-                                                                    <div className="w-14 h-14 bg-white rounded-2xl border border-blue-100 p-1 flex-shrink-0 shadow-sm">
-                                                                        <img src={item.product.images?.[0] || item.product.image} className="w-full h-full object-cover rounded-xl" />
+                                                            <div key={pId} className="p-6 bg-slate-50 rounded-xl border border-slate-200 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
+                                                                <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200/50">
+                                                                    <div className="w-12 h-12 bg-white rounded-lg border border-slate-200 p-0.5 flex-shrink-0">
+                                                                        <img src={item.product.images?.[0] || item.product.image} className="w-full h-full object-cover rounded-md" />
                                                                     </div>
-                                                                    <div>
-                                                                        <h4 className="text-base font-black text-gray-900 leading-tight mb-1">{item.product.name}</h4>
+                                                                    <div className="min-w-0">
+                                                                        <h4 className="text-sm font-bold text-slate-900 leading-none truncate mb-1.5">{item.product.name}</h4>
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-black bg-blue-600 text-white px-2 py-0.5 rounded tracking-widest uppercase">Target Item</span>
-                                                                            <span className="text-[10px] font-bold text-blue-600">QTY: {item.quantity}</span>
+                                                                            <span className="text-[10px] font-bold text-slate-400">Qty: {item.quantity}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                                     {/* Branding Type */}
                                                                     <div className="space-y-4">
-                                                                        <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">1. Branding Type</label>
+                                                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">1. Style</label>
                                                                         <div className="grid grid-cols-2 gap-2">
                                                                             {['Digital Print', 'Screen Print', 'Embroidery', 'Embossing', 'Engraving', 'UV Stickers'].map(type => (
                                                                                 <button
                                                                                     key={type}
                                                                                     onClick={() => handleCustomizationChange('brandingType', type, pId)}
-                                                                                    className={`px-4 py-3 rounded-xl text-xs font-bold border-2 transition-all ${cust.brandingType === type ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                    className={`px-3 py-2 rounded-lg text-[10px] font-bold border transition-all ${cust.brandingType === type ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                                                                                 >
                                                                                     {type}
                                                                                 </button>
@@ -602,10 +590,10 @@ export default function CartPage() {
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className="space-y-8">
+                                                                    <div className="space-y-6">
                                                                         {/* Positions */}
                                                                         <div className="space-y-4">
-                                                                            <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">2. Branding Positions</label>
+                                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">2. Placement</label>
                                                                             <div className="flex flex-wrap gap-2">
                                                                                 {[1, 2, 3].map(pos => (
                                                                                     <button
@@ -614,59 +602,59 @@ export default function CartPage() {
                                                                                             handleCustomizationChange('brandingPositions', pos, pId);
                                                                                             handleCustomizationChange('customBrandingPositions', '', pId);
                                                                                         }}
-                                                                                        className={`w-12 h-12 rounded-xl font-black border-2 transition-all ${cust.brandingPositions === pos ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                        className={`w-9 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingPositions === pos ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                                                                                     >
                                                                                         {pos}
                                                                                     </button>
                                                                                 ))}
                                                                                 <button
                                                                                     onClick={() => handleCustomizationChange('brandingPositions', 'Custom', pId)}
-                                                                                    className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingPositions === 'Custom' ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                    className={`px-4 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingPositions === 'Custom' ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                                                                                 >
-                                                                                    Custom
+                                                                                    Other
                                                                                 </button>
                                                                             </div>
                                                                             {cust.brandingPositions === 'Custom' && (
                                                                                 <input
                                                                                     type="text"
-                                                                                    placeholder="Where should we place the logo?"
+                                                                                    placeholder="Describe placement..."
                                                                                     value={cust.customBrandingPositions || ''}
                                                                                     onChange={(e) => handleCustomizationChange('customBrandingPositions', e.target.value, pId)}
-                                                                                    className="w-full px-4 py-3 bg-white border border-blue-200 focus:border-blue-500 rounded-xl outline-none font-bold text-xs text-gray-900 placeholder:text-gray-300"
+                                                                                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none font-medium text-xs text-slate-900 placeholder:text-slate-300"
                                                                                 />
                                                                             )}
                                                                         </div>
 
                                                                         {/* Size */}
                                                                         <div className="space-y-4">
-                                                                            <label className="text-xs font-black text-blue-600 uppercase tracking-widest ml-1 block">3. Branding Size</label>
+                                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">3. Dimensions</label>
                                                                             <div className="flex flex-wrap gap-2">
-                                                                                {['1 inch to 3 inch', '3 inch to 5 inch', '5 inch to 10 inch'].map(size => (
+                                                                                {['1" to 3"', '3" to 5"', '5" to 10"'].map(size => (
                                                                                     <button
                                                                                         key={size}
                                                                                         onClick={() => {
                                                                                             handleCustomizationChange('brandingSize', size, pId);
                                                                                             handleCustomizationChange('customBrandingSize', '', pId);
                                                                                         }}
-                                                                                        className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingSize === size ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                        className={`px-3 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingSize === size ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                                                                                     >
                                                                                         {size}
                                                                                     </button>
                                                                                 ))}
                                                                                 <button
                                                                                     onClick={() => handleCustomizationChange('brandingSize', 'Custom', pId)}
-                                                                                    className={`px-4 h-12 rounded-xl font-bold text-xs border-2 transition-all ${cust.brandingSize === 'Custom' ? 'bg-blue-600 border-blue-600 text-white shadow-md' : 'bg-white border-blue-100/50 text-blue-900/60 hover:border-blue-400'}`}
+                                                                                    className={`px-4 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingSize === 'Custom' ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
                                                                                 >
-                                                                                    Custom
+                                                                                    Specs
                                                                                 </button>
                                                                             </div>
                                                                             {cust.brandingSize === 'Custom' && (
                                                                                 <input
                                                                                     type="text"
-                                                                                    placeholder="Enter specific dimensions (e.g. 2x2 inch)"
+                                                                                    placeholder="e.g. 2x2 inch"
                                                                                     value={cust.customBrandingSize || ''}
                                                                                     onChange={(e) => handleCustomizationChange('customBrandingSize', e.target.value, pId)}
-                                                                                    className="w-full px-4 py-3 bg-white border border-blue-200 focus:border-blue-500 rounded-xl outline-none font-bold text-xs text-gray-900 placeholder:text-gray-300"
+                                                                                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none font-medium text-xs text-slate-900 placeholder:text-slate-300"
                                                                                 />
                                                                             )}
                                                                         </div>
@@ -680,12 +668,12 @@ export default function CartPage() {
                                         )}
 
                                         {!formData.customization.isBrandingRequired && (
-                                            <div className="p-12 bg-gray-50 rounded-[2.5rem] border border-dashed border-gray-200 text-center">
-                                                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-                                                    <Info size={32} className="text-gray-300" />
+                                            <div className="p-12 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                                                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                                    <Info size={24} className="text-slate-300" />
                                                 </div>
-                                                <h4 className="text-lg font-bold text-gray-900 mb-2">Standard Selection</h4>
-                                                <p className="text-gray-500 font-medium max-w-sm mx-auto">Your gifts will be delivered as standard catalog products without any additional corporate personalization.</p>
+                                                <h4 className="text-base font-bold text-slate-900 mb-1">Standard Selection</h4>
+                                                <p className="text-slate-500 text-sm max-w-xs mx-auto">Your rewards will be delivered as standard catalog products without additional personalization.</p>
                                             </div>
                                         )}
                                     </div>
@@ -695,67 +683,58 @@ export default function CartPage() {
                             {/* Step 3: Shipping Form */}
                             {currentStep === 3 && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                    <div className="mb-8">
-                                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Delivery Details</h2>
-                                        <p className="text-gray-500 font-medium mt-2">Where should we deliver your premium gifts?</p>
+                                    <div className="mb-8 border-b border-slate-50 pb-6">
+                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Delivery Details</h2>
+                                        <p className="text-slate-500 font-medium mt-1.5 text-sm">Where should we deliver your selected rewards?</p>
                                     </div>
 
-                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-8">
+                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6">
                                         {/* Contact Section */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Full Name *</label>
-                                                <input readOnly required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-100 border border-gray-200 focus:border-blue-500 rounded-2xl outline-none font-semibold text-gray-500 cursor-not-allowed" placeholder="Full Name" />
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                                                <input readOnly required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-500 cursor-not-allowed text-sm" placeholder="Full Name" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Email Address *</label>
-                                                <input readOnly required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-100 border border-gray-200 focus:border-blue-500 rounded-2xl outline-none font-semibold text-gray-500 cursor-not-allowed" placeholder="Email Address" />
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
+                                                <input readOnly required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-500 cursor-not-allowed text-sm" placeholder="Email Address" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Phone Number *</label>
-                                                <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="+91 9876543210" />
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone</label>
+                                                <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 text-sm" placeholder="+91 00000 00000" />
                                             </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">WhatsApp Number</label>
-                                                <input type="tel" name="whatsapp" value={formData.whatsapp} onChange={handleInputChange} className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Optional for order updates" />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Employee ID *</label>
-                                                <input required type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-5 py-4 bg-blue-50/20 hover:bg-blue-50/50 border border-blue-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900" placeholder="Enter your official employee ID" />
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Employee ID</label>
+                                                <input required type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 text-sm" placeholder="ID Number" />
                                             </div>
                                         </div>
 
                                         {/* Address Area */}
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1 font-black text-blue-600">Delivery Address *</label>
-                                            </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Delivery Address</label>
                                             <textarea
                                                 required
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleInputChange}
-                                                rows="4"
-                                                className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none"
-                                                placeholder="Enter flat, building, area and city details for delivery..."
+                                                rows="3"
+                                                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 resize-none text-sm"
+                                                placeholder="Enter your complete delivery address..."
                                             ></textarea>
                                         </div>
 
                                         {/* Additional Requirements Area */}
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider ml-1">Additional Requirements / Notes (Optional)</label>
-                                            </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Notes (Optional)</label>
                                             <textarea
                                                 name="additionalRequirements"
                                                 value={formData.additionalRequirements}
                                                 onChange={handleInputChange}
-                                                rows="3"
-                                                className="w-full px-5 py-4 bg-gray-50/50 hover:bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 rounded-2xl outline-none transition-all font-semibold text-gray-900 resize-none"
-                                                placeholder="Like Expected quantity, Budget, Expected Delivery time for actual products etc..."
+                                                rows="2"
+                                                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 resize-none text-sm"
+                                                placeholder="Any additional instructions..."
                                             ></textarea>
                                         </div>
-
                                     </form>
                                 </div>
                             )}
@@ -764,95 +743,83 @@ export default function CartPage() {
                     </div>
 
                     {/* Order Summary Sidebar */}
-                    <div className="w-full lg:w-1/3 space-y-6">
-                        <div className="bg-white rounded-[2rem] shadow-sm border border-gray-100 p-6 sm:p-8 sticky top-28">
-                            <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center">
-                                <CreditCard className="mr-3 text-blue-600" size={24} />
+                    <aside className="w-full lg:w-1/3 space-y-6">
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8 sticky top-28">
+                            <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
+                                <CreditCard className="mr-3 text-indigo-600" size={20} />
                                 Order Summary
                             </h3>
 
                             <div className="space-y-4 mb-6">
-                                {/* Only show pricing breakdown if on Step 1. On step 2, show small items list */}
                                 {currentStep === 1 ? (
                                     <>
-                                        <div className="flex justify-between text-gray-600 font-semibold">
-                                            <span>Actual Amount ({items.length} items)</span>
-                                            <span className="text-gray-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                                        <div className="flex justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                            <span>Subtotal</span>
+                                            <span className="text-slate-900">₹{subtotal.toLocaleString('en-IN')}</span>
                                         </div>
                                         {savings > 0 && (
-                                            <div className="flex justify-between font-bold text-green-600">
-                                                <span>Discount Savings</span>
+                                            <div className="flex justify-between text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
+                                                <span>Savings</span>
                                                 <span>- ₹{savings.toLocaleString('en-IN')}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between text-gray-600 font-semibold pb-4 border-b border-gray-100">
-                                            <span>Delivery Charges</span>
-                                            <span className="text-green-600 font-bold uppercase tracking-wider text-xs flex items-center">Free</span>
+                                        <div className="flex justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider pb-4 border-b border-slate-100">
+                                            <span>Shipping</span>
+                                            <span className="text-emerald-600">Included</span>
                                         </div>
 
-                                        <div className="flex justify-between items-end pt-2">
-                                            <div className="flex flex-col">
-                                                <span className="font-black text-2xl text-gray-900">Total Amount</span>
-                                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mt-0.5">(Incl. of GST & all taxes)</span>
-                                            </div>
-                                            <span className="font-black text-2xl text-gray-900">₹{total.toLocaleString('en-IN')}</span>
+                                        <div className="flex justify-between items-center pt-2">
+                                            <span className="font-bold text-base text-slate-900">Total</span>
+                                            <span className="font-bold text-xl text-slate-900">₹{total.toLocaleString('en-IN')}</span>
                                         </div>
-
                                     </>
                                 ) : (
-                                    // Step 2: Show small item thumbnails instead of price breakdown
-                                    <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 pb-4 border-b border-gray-100">
-                                        <h4 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2">Items Included</h4>
+                                    <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2 pb-4 border-b border-slate-100">
+                                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Item Overview</h4>
                                         {items.map(item => (
                                             <div key={`${item.product._id}-${item.eventId}`} className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0">
-                                                    {item.product.images?.[0] || item.product.image ? (
-                                                        <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                            <Tag size={16} />
-                                                        </div>
-                                                    )}
+                                                <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0">
+                                                    <img src={item.product.images?.[0] || item.product.image} alt="" className="w-full h-full object-cover" />
                                                 </div>
-                                                <div className="flex-1">
-                                                    <p className="text-sm font-bold text-gray-900 leading-tight line-clamp-1">{item.product.name}</p>
-                                                    <p className="text-xs text-gray-500 font-medium mt-0.5">Qty: {item.quantity}</p>
+                                                <div className="min-w-0">
+                                                    <p className="text-xs font-bold text-slate-900 truncate">{item.product.name}</p>
+                                                    <p className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-between text-xs font-bold text-blue-600 bg-blue-50/50 px-4 py-3 rounded-xl border border-blue-100/50 mt-4">
-                                    <div className="flex items-center gap-2">
-                                        <Truck size={14} className="text-blue-500" />
-                                        <span className="uppercase tracking-wider">Expected Delivery</span>
+                                <div className="flex items-center justify-between text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-4 py-3 rounded-lg border border-indigo-100/50 mt-4">
+                                    <div className="flex items-center gap-2 uppercase tracking-widest">
+                                        <Truck size={14} />
+                                        <span>Delivery</span>
                                     </div>
-                                    <span className="bg-blue-600 text-white px-2 py-0.5 rounded-md text-[10px]">4-5 Working Days</span>
+                                    <span>5-7 Days</span>
                                 </div>
                             </div>
 
-                            {/* Actions based on step */}
+                            {/* Actions */}
                             {isAlreadyOrdered ? (
-                                <div className="bg-red-50 border border-red-100 rounded-2xl p-4 text-center">
-                                    <Info className="text-red-500 mx-auto mb-2" size={24} />
-                                    <p className="text-red-700 font-bold text-sm">Participation Limit Reached</p>
-                                    <p className="text-red-600 text-[10px] mt-1">You have already placed an order for the "{participatingEvent?.name}" event in the current cycle.</p>
+                                <div className="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
+                                    <Info className="text-red-500 mx-auto mb-2" size={20} />
+                                    <p className="text-red-700 font-bold text-xs uppercase tracking-wider">Limit Reached</p>
+                                    <p className="text-red-600 text-[10px] mt-1">Order already submitted for this event.</p>
                                     <button
                                         onClick={() => router.push('/')}
-                                        className="mt-4 text-red-700 font-black text-xs uppercase tracking-widest hover:underline"
+                                        className="mt-4 text-slate-900 font-bold text-[10px] uppercase tracking-widest border-b border-slate-900"
                                     >
-                                        Back to Home
+                                        Home
                                     </button>
                                 </div>
                             ) : currentStep === 1 ? (
                                 <button
                                     onClick={() => setCurrentStep(2)}
                                     disabled={items.length === 0}
-                                    className="w-full bg-blue-600 text-white font-black text-lg py-4 px-6 rounded-2xl flex items-center justify-center group hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
                                 >
-                                    Review Personalization
-                                    <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    Proceed to Design
+                                    <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ) : currentStep === 2 ? (
                                 <button
@@ -868,54 +835,46 @@ export default function CartPage() {
                                             });
 
                                             if (incompleteProduct) {
-                                                openConfirm('Missing Details', `Please complete the branding details for "${incompleteProduct.product.name}".`, () => { }, 'warning');
+                                                openConfirm('Missing Info', `Please complete branding for ${incompleteProduct.product.name}`, () => { }, 'warning');
                                                 return;
                                             }
                                         }
                                         setCurrentStep(3);
                                     }}
-                                    className="w-full bg-blue-600 text-white font-black text-lg py-4 px-6 rounded-2xl flex items-center justify-center group hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-[0.98]"
+                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98]"
                                 >
-                                    Continue to Shipping
-                                    <ArrowRight size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    Shipping Details
+                                    <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ) : (
                                 <button
                                     form="checkout-form"
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full relative overflow-hidden bg-gray-900 text-white font-black text-lg py-4 px-6 rounded-2xl flex items-center justify-center group hover:bg-gray-800 transition-all shadow-xl shadow-gray-900/20 active:scale-[0.98] disabled:opacity-70"
+                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98] disabled:opacity-70"
                                 >
                                     {isSubmitting ? (
                                         <div className="flex items-center space-x-2">
-                                            <Loader2 size={20} className="animate-spin" />
+                                            <Loader2 size={14} className="animate-spin" />
                                             <span>Processing...</span>
                                         </div>
                                     ) : (
-                                        <div className="flex items-center justify-center w-full">
-                                            <span>Place Order</span>
-                                        </div>
+                                        <span>Confirm Selection</span>
                                     )}
                                 </button>
                             )}
 
                             {/* Trust Elements */}
-                            <div className="mt-6 flex flex-col items-center gap-3">
-                                <div className="flex items-center justify-center text-xs font-bold text-gray-500 bg-gray-50 py-2 px-4 rounded-xl w-full">
-                                    <ShieldCheck size={16} className="mr-2 text-green-500" />
-                                    Secure & Encrypted Checkout
-                                </div>
-                                {savings > 0 && (
-                                    <p className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1.5 rounded-lg">
-                                        You will save ₹{savings.toLocaleString('en-IN')} on this order
-                                    </p>
-                                )}
+                            <div className="mt-6 flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                <ShieldCheck size={14} className="mr-2 text-emerald-500" />
+                                Secure Verification
                             </div>
                         </div>
-                    </div>
+                    </aside>
                 </div>
             </div>
-            {/* Confirmation Modal */}
+
+            {/* Modals */}
             <ConfirmModal
                 isOpen={confirmState.isOpen}
                 onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
@@ -925,7 +884,7 @@ export default function CartPage() {
                 type={confirmState.type}
                 confirmText={confirmState.type === 'danger' ? 'Okay' : 'Yes, Proceed'}
             />
-            {/* Image Slider Modal */}
+
             <ImageSliderModal
                 isOpen={sliderModal.isOpen}
                 onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
@@ -935,4 +894,3 @@ export default function CartPage() {
         </div>
     );
 }
-
