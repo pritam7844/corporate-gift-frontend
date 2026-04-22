@@ -7,6 +7,7 @@ import { useNewArrivals } from '../../../hooks/useNewArrivals';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
+import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
 
 export default function NewArrivalsAdmin() {
     const { arrivals, loading, error, addArrival, updateArrival, removeArrival } = useNewArrivals();
@@ -99,6 +100,15 @@ export default function NewArrivalsAdmin() {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        try {
+            validateImageFiles(files);
+        } catch (err) {
+            alert(err.message);
+            return;
+        }
+
         if (files.length > 0) {
             const selectedFiles = files.slice(0, 5 - imagePreviews.length);
             const newFiles = [...imageFiles, ...selectedFiles];
@@ -115,11 +125,20 @@ export default function NewArrivalsAdmin() {
     };
 
     const removeImagePreview = (index) => {
+        const previewToRemove = imagePreviews[index];
+        const isNewFile = typeof previewToRemove === 'string' && previewToRemove.startsWith('data:image');
+        
         const updatedPreviews = [...imagePreviews];
-        const removedItem = updatedPreviews.splice(index, 1)[0];
+        updatedPreviews.splice(index, 1);
         setImagePreviews(updatedPreviews);
 
-        if (isEditing) {
+        if (isNewFile) {
+            const newFileIndex = imagePreviews
+                .slice(0, index)
+                .filter(p => typeof p === 'string' && p.startsWith('data:image'))
+                .length;
+            setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
+        } else if (isEditing) {
             setFormData({
                 ...formData,
                 images: updatedPreviews.filter(p => typeof p === 'string' && p.startsWith('http'))
@@ -131,28 +150,36 @@ export default function NewArrivalsAdmin() {
         e.preventDefault();
         setSubmitting(true);
 
-        const submissionData = new FormData();
-        submissionData.append('productName', formData.productName);
-        submissionData.append('description', formData.description);
-        submissionData.append('isComingSoon', formData.isComingSoon);
-        submissionData.append('comingSoonDate', formData.comingSoonDate || '');
+        try {
+            // 1. Upload new images to Cloudinary
+            let newImageUrls = [];
+            if (imageFiles.length > 0) {
+                newImageUrls = await uploadImagesToCloudinary(imageFiles, 'new-arrivals');
+            }
 
-        if (imageFiles.length > 0) {
-            imageFiles.forEach(file => {
-                submissionData.append('images', file);
-            });
+            // 2. Prepare payload
+            const payload = {
+                productName: formData.productName,
+                description: formData.description,
+                isComingSoon: formData.isComingSoon,
+                comingSoonDate: formData.comingSoonDate || '',
+                images: isEditing 
+                    ? [...(formData.images || []), ...newImageUrls] 
+                    : newImageUrls
+            };
+
+            // 3. Send to backend
+            const success = isEditing
+                ? await updateArrival(editingId, payload)
+                : await addArrival(payload);
+
+            if (success) closeModal();
+        } catch (err) {
+            console.error('Submission failed:', err);
+            alert(err.message || 'Failed to save item');
+        } finally {
+            setSubmitting(false);
         }
-
-        if (isEditing) {
-            submissionData.append('images', JSON.stringify(formData.images));
-        }
-
-        const success = isEditing
-            ? await updateArrival(editingId, submissionData)
-            : await addArrival(submissionData);
-
-        setSubmitting(false);
-        if (success) closeModal();
     };
 
     const handleDelete = async (id) => {

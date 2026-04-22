@@ -6,6 +6,7 @@ import { useProducts } from '../../../hooks/useProducts';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
+import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
 
 export default function ProductCatalog() {
   const { products, loading, error, addProduct, updateProduct, removeProduct } = useProducts(true);
@@ -87,6 +88,13 @@ export default function ProductCatalog() {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    try {
+      validateImageFiles(files);
+    } catch (err) {
+      alert(err.message);
+      return;
+    }
+
     const currentTotal = imagePreviews.length;
     const remainingSlots = 5 - currentTotal;
 
@@ -133,34 +141,38 @@ export default function ProductCatalog() {
     e.preventDefault();
     setSubmitting(true);
 
-    const submissionData = new FormData();
-    submissionData.append('name', formData.name);
-    submissionData.append('description', formData.description);
-    // submissionData.append('category', formData.category);
-    submissionData.append('actualPrice', formData.actualPrice);
-    submissionData.append('discountedPrice', formData.discountedPrice);
-    submissionData.append('isGlobal', formData.isGlobal);
-    if (formData.companyId) {
-      submissionData.append('companyId', formData.companyId);
+    try {
+      // 1. Upload new images to Cloudinary
+      let newImageUrls = [];
+      if (imageFiles.length > 0) {
+        newImageUrls = await uploadImagesToCloudinary(imageFiles, 'products');
+      }
+
+      // 2. Prepare payload
+      const payload = {
+        name: formData.name,
+        description: formData.description,
+        actualPrice: formData.actualPrice,
+        discountedPrice: formData.discountedPrice,
+        isGlobal: formData.isGlobal,
+        companyId: formData.companyId || null,
+        images: isEditing 
+          ? [...(formData.images || []), ...newImageUrls] 
+          : newImageUrls
+      };
+
+      // 3. Send to backend
+      const success = isEditing
+        ? await updateProduct(editingId, payload)
+        : await addProduct(payload);
+
+      if (success) closeModal();
+    } catch (err) {
+      console.error('Submission failed:', err);
+      alert(err.message || 'Failed to save product');
+    } finally {
+      setSubmitting(false);
     }
-
-    if (imageFiles.length > 0) {
-      imageFiles.forEach(file => {
-        submissionData.append('images', file);
-      });
-    }
-
-    // Always include existing image URLs when editing
-    if (isEditing && formData.images) {
-      submissionData.append('images', JSON.stringify(formData.images));
-    }
-
-    const success = isEditing
-      ? await updateProduct(editingId, submissionData)
-      : await addProduct(submissionData);
-
-    setSubmitting(false);
-    if (success) closeModal();
   };
 
   const handleDelete = async (id) => {

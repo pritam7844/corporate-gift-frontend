@@ -6,16 +6,12 @@ export const getArrivalsAPI = async () => {
 };
 
 export const createArrivalAPI = async (arrivalData) => {
-    const response = await api.post('/new-arrivals', arrivalData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.post('/new-arrivals', arrivalData);
     return response.data.data;
 };
 
 export const updateArrivalAPI = async (id, arrivalData) => {
-    const response = await api.put(`/new-arrivals/${id}`, arrivalData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    const response = await api.put(`/new-arrivals/${id}`, arrivalData);
     return response.data.data;
 };
 

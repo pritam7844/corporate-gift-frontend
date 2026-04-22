@@ -11,6 +11,7 @@ import ProductImageSlider from '../../../../../../components/common/ProductImage
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
 import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
+import { uploadImagesToCloudinary, validateImageFiles } from '../../../../../../lib/cloudinaryUpload';
 
 export default function EventManagement() {
     const { id: companyId, eventId } = useParams();
@@ -51,23 +52,46 @@ export default function EventManagement() {
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
-        const remainingSlots = 5 - imageFiles.length;
-        const filesToProcess = files.slice(0, remainingSlots);
+        if (files.length === 0) return;
 
-        setImageFiles(prev => [...prev, ...filesToProcess]);
+        try {
+            validateImageFiles(files);
+        } catch (err) {
+            alert(err.message);
+            return;
+        }
+
+        const remainingSlots = 5 - imagePreviews.length;
+        const filesToProcess = files.slice(0, remainingSlots);
 
         filesToProcess.forEach(file => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImagePreviews(prev => [...prev, reader.result]);
+                setImageFiles(prev => [...prev, file]);
             };
             reader.readAsDataURL(file);
         });
     };
 
     const removeImagePreview = (index) => {
+        const previewToRemove = imagePreviews[index];
+        const isNewFile = typeof previewToRemove === 'string' && previewToRemove.startsWith('data:image');
+        
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
-        setImageFiles(prev => prev.filter((_, i) => i !== index));
+
+        if (isNewFile) {
+            const newFileIndex = imagePreviews
+                .slice(0, index)
+                .filter(p => typeof p === 'string' && p.startsWith('data:image'))
+                .length;
+            setImageFiles(prev => prev.filter((_, i) => i !== newFileIndex));
+        } else if (showEditProductModal) {
+            // Update edit form's images when removing existing remote ones
+            const remainingRemote = imagePreviews
+                .filter((p, i) => i !== index && typeof p === 'string' && p.startsWith('http'));
+            setEditProductForm(prev => ({ ...prev, images: remainingRemote }));
+        }
     };
 
     const openConfirm = (title, message, onConfirm, type = 'warning') => {
@@ -115,24 +139,26 @@ export default function EventManagement() {
         e.preventDefault();
         setUpdating(true);
         try {
-            const submissionData = new FormData();
-            submissionData.append('name', privateGiftForm.name);
-            submissionData.append('description', privateGiftForm.description);
-            // submissionData.append('category', privateGiftForm.category);
-            submissionData.append('actualPrice', privateGiftForm.actualPrice);
-            submissionData.append('discountedPrice', privateGiftForm.discountedPrice);
-            submissionData.append('companyId', companyId);
-            submissionData.append('isGlobal', 'false');
-            
+            // 1. Upload images to Cloudinary
+            let imageUrls = [];
             if (imageFiles.length > 0) {
-                imageFiles.forEach(file => {
-                    submissionData.append('images', file);
-                });
+                imageUrls = await uploadImagesToCloudinary(imageFiles, 'products');
             }
 
-            const product = await createProductAPI(submissionData);
+            // 2. Create product with JSON payload
+            const productPayload = {
+                name: privateGiftForm.name,
+                description: privateGiftForm.description,
+                actualPrice: privateGiftForm.actualPrice,
+                discountedPrice: privateGiftForm.discountedPrice,
+                companyId: companyId,
+                isGlobal: false,
+                images: imageUrls
+            };
+
+            const product = await createProductAPI(productPayload);
             
-            // Now add this new product to the event
+            // 3. Now add this new product to the event
             await updateEventProductsAPI(eventId, [...(event.products?.map(p => p._id) || []), product._id]);
 
             const refreshedEvent = await getEventByIdAPI(eventId);
@@ -142,7 +168,8 @@ export default function EventManagement() {
             setImageFiles([]);
             setImagePreviews([]);
         } catch (err) {
-            alert("Failed to create private gift");
+            console.error('Private gift creation failed:', err);
+            alert(err.message || "Failed to create private gift");
         } finally {
             setUpdating(false);
         }
@@ -176,6 +203,7 @@ export default function EventManagement() {
             category: product.category || 'electronics',
             actualPrice: product.actualPrice || '',
             discountedPrice: product.discountedPrice || '',
+            images: product.images || []
         });
         setImageFiles([]);
         setImagePreviews(product.images || []);
@@ -186,27 +214,22 @@ export default function EventManagement() {
         e.preventDefault();
         setSavingProduct(true);
         try {
-            const submissionData = new FormData();
-            submissionData.append('name', editProductForm.name);
-            submissionData.append('description', editProductForm.description);
-            // submissionData.append('category', editProductForm.category);
-            submissionData.append('actualPrice', editProductForm.actualPrice);
-            submissionData.append('discountedPrice', editProductForm.discountedPrice);
-            
-            // Handle existing images
-            const existingImages = imagePreviews.filter(p => p.startsWith('http'));
-            existingImages.forEach(img => {
-                submissionData.append('images', img);
-            });
-
-            // Handle new file uploads
+            // 1. Upload new images to Cloudinary
+            let newImageUrls = [];
             if (imageFiles.length > 0) {
-                imageFiles.forEach(file => {
-                    submissionData.append('images', file);
-                });
+                newImageUrls = await uploadImagesToCloudinary(imageFiles, 'products');
             }
 
-            await updateProductAPI(editingProduct._id, submissionData);
+            // 2. Prepare payload
+            const payload = {
+                name: editProductForm.name,
+                description: editProductForm.description,
+                actualPrice: editProductForm.actualPrice,
+                discountedPrice: editProductForm.discountedPrice,
+                images: [...(editProductForm.images || []), ...newImageUrls]
+            };
+
+            await updateProductAPI(editingProduct._id, payload);
             const refreshedEvent = await getEventByIdAPI(eventId);
             setEvent(refreshedEvent);
             setShowEditProductModal(false);
@@ -214,7 +237,8 @@ export default function EventManagement() {
             setImageFiles([]);
             setImagePreviews([]);
         } catch (err) {
-            alert('Failed to update product');
+            console.error('Edit failed:', err);
+            alert(err.message || 'Failed to update product');
         } finally {
             setSavingProduct(false);
         }
