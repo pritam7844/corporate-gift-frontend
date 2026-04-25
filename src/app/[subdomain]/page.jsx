@@ -290,7 +290,7 @@ export default function CompanyLandingPage() {
                                         {event.products?.slice(0, 4).map((product) => (
                                             <div key={product._id} className="group bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md rounded-xl flex flex-col overflow-hidden transition-all duration-300">
                                                 {/* Image Area */}
-                                                <div className="h-80 bg-slate-50 overflow-hidden relative border-b border-slate-100">
+                                                <div className="h-100 bg-slate-50 overflow-hidden relative border-b border-slate-100">
                                                     <Link href={`/events/${event._id}/products/${product._id}`} className="block h-full">
                                                         <ProductImageSlider
                                                             images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}

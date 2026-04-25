@@ -223,7 +223,7 @@ export default function EventProductsPage() {
                         return (
                             <div key={product._id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col">
                                 {/* Image Box */}
-                                <div className="h-80 bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                <div className="h-100 bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
                                     <Link href={`/events/${eventId}/products/${product._id}`} className="block h-full w-full">
                                         <ProductImageSlider
                                             images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
