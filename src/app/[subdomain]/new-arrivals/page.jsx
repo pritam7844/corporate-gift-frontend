@@ -65,12 +65,12 @@ export default function EmployeeNewArrivals() {
                                 className="group flex flex-col bg-white rounded-2xl border border-slate-100 transition-all duration-300 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-900/5 overflow-hidden"
                             >
                                 {/* Image Stage */}
-                                <div className="aspect-[1/1] bg-slate-50 m-4 rounded-xl relative overflow-hidden border border-slate-100">
+                                <div className="h-80 bg-slate-50 m-4 rounded-xl relative overflow-hidden border border-slate-100">
                                     <ProductImageSlider
                                         images={arrival.images}
                                         onOpenModal={(idx) => setSliderModal({ isOpen: true, images: arrival.images, index: idx })}
+                                        showFullscreen={false}
                                     />
-
                                     {/* Precise Badges */}
                                     <div className="absolute top-4 left-4 flex flex-col gap-2">
                                         {arrival.isComingSoon && (

@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
-import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus, Maximize2 } from 'lucide-react';
+import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus, Maximize2, Tag, Eye } from 'lucide-react';
+import Link from 'next/link';
 import FormattedDate from '../../components/common/FormattedDate';
 import ImageSliderModal from '../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../components/common/ProductImageSlider';
@@ -285,28 +286,32 @@ export default function CompanyLandingPage() {
                                     </div>
 
                                     {/* Products Grid */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                                         {event.products?.slice(0, 4).map((product) => (
                                             <div key={product._id} className="group bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md rounded-xl flex flex-col overflow-hidden transition-all duration-300">
                                                 {/* Image Area */}
-                                                <div className="aspect-square bg-slate-50 overflow-hidden relative border-b border-slate-100">
-                                                    <ProductImageSlider
-                                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
-                                                        onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
-                                                    />
-                                                    <div className="absolute top-3 left-3 bg-white border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                                                <div className="h-80 bg-slate-50 overflow-hidden relative border-b border-slate-100">
+                                                    <Link href={`/events/${event._id}/products/${product._id}`} className="block h-full">
+                                                        <ProductImageSlider
+                                                            images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                                                            showFullscreen={false}
+                                                        />
+                                                    </Link>
+                                                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-600 uppercase tracking-widest shadow-sm">
                                                         {product.category}
                                                     </div>
                                                 </div>
 
                                                 {/* Content Area */}
-                                                <div className="p-5 flex-1 flex flex-col justify-between">
+                                                <Link href={`/events/${event._id}/products/${product._id}`} className="p-5 flex-1 flex flex-col group/link">
                                                     <div className="mb-4">
-                                                        <h5 className="font-bold text-slate-900 leading-snug mb-1 line-clamp-2">{product.name}</h5>
+                                                        <h5 className="font-bold text-slate-900 leading-snug mb-1 line-clamp-2 group-hover/link:text-indigo-600 transition-colors">{product.name}</h5>
                                                         {product.description && (
                                                             <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
                                                         )}
                                                     </div>
+                                                </Link>
+                                                <div className="px-5 pb-5 mt-auto">
 
                                                     {(() => {
                                                         const isOrdered = orderedEventIds.includes(event._id);
@@ -325,13 +330,22 @@ export default function CompanyLandingPage() {
                                                         }
 
                                                         return quantity === 0 ? (
-                                                            <button
-                                                                onClick={() => handleAddToCart(product, event._id)}
-                                                                className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
-                                                            >
-                                                                <ShoppingCart size={14} />
-                                                                <span>Add For Sample</span>
-                                                            </button>
+                                                            <div className="space-y-2">
+                                                                <Link
+                                                                    href={`/events/${event._id}/products/${product._id}`}
+                                                                    className="w-full bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 border border-slate-200"
+                                                                >
+                                                                    {/* <Eye size={14} /> */}
+                                                                    <span>View Details</span>
+                                                                </Link>
+                                                                <button
+                                                                    onClick={() => handleAddToCart(product, event._id)}
+                                                                    className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
+                                                                >
+                                                                    <ShoppingCart size={14} />
+                                                                    <span>Add For Sample</span>
+                                                                </button>
+                                                            </div>
                                                         ) : (
                                                             <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
                                                                 <button

@@ -22,7 +22,7 @@ export default function NewArrivalsAdmin() {
     // UI State
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all'); // all, coming-soon, live
-    const [viewMode, setViewMode] = useState('table'); // card, table
+    const [viewMode, setViewMode] = useState('card'); // card, table
 
     const emptyForm = { productName: '', description: '', images: [], isComingSoon: true, comingSoonDate: '' };
     const [formData, setFormData] = useState(emptyForm);
@@ -127,7 +127,7 @@ export default function NewArrivalsAdmin() {
     const removeImagePreview = (index) => {
         const previewToRemove = imagePreviews[index];
         const isNewFile = typeof previewToRemove === 'string' && previewToRemove.startsWith('data:image');
-        
+
         const updatedPreviews = [...imagePreviews];
         updatedPreviews.splice(index, 1);
         setImagePreviews(updatedPreviews);
@@ -163,8 +163,8 @@ export default function NewArrivalsAdmin() {
                 description: formData.description,
                 isComingSoon: formData.isComingSoon,
                 comingSoonDate: formData.comingSoonDate || '',
-                images: isEditing 
-                    ? [...(formData.images || []), ...newImageUrls] 
+                images: isEditing
+                    ? [...(formData.images || []), ...newImageUrls]
                     : newImageUrls
             };
 
@@ -213,22 +213,6 @@ export default function NewArrivalsAdmin() {
                         <span className="capitalize">{filterStatus.replace('-', ' ')}</span>
                     </button>
                     <div className="h-10 w-px bg-gray-200 mx-2 hidden lg:block"></div>
-                    <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
-                        <button
-                            onClick={() => setViewMode('card')}
-                            className={`p-1.5 rounded-lg transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Grid View"
-                        >
-                            <LayoutGrid size={20} />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('table')}
-                            className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Table View"
-                        >
-                            <List size={20} />
-                        </button>
-                    </div>
                     <button
                         onClick={openCreateModal}
                         className="bg-gray-900 hover:bg-black text-white px-8 py-3.5 rounded-2xl flex items-center space-x-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all active:scale-95 text-sm font-black"
@@ -268,7 +252,7 @@ export default function NewArrivalsAdmin() {
                         <button onClick={() => setSearchTerm('')} className="text-blue-600 font-black text-sm p-4 hover:bg-blue-50 rounded-2xl transition-all">Clear All Search</button>
                     )}
                 </div>
-            ) : viewMode === 'card' ? (
+            ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {filteredArrivals.map((arrival) => (
                         <div key={arrival._id} className="group bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col">
@@ -332,52 +316,6 @@ export default function NewArrivalsAdmin() {
                             </div>
                         </div>
                     ))}
-                </div>
-            ) : (
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Product</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest">Launch Date</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {filteredArrivals.map((arrival) => (
-                                <tr key={arrival._id} className="hover:bg-gray-50/50 transition-colors group">
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden flex-shrink-0">
-                                                <img src={arrival.images?.[0] || ''} className="w-full h-full object-contain p-2" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-black text-gray-900 text-sm group-hover:text-blue-600">{arrival.productName}</h4>
-                                                <p className="text-xs text-gray-400 font-medium truncate max-w-[200px]">{arrival.description}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        {arrival.isComingSoon ? (
-                                            <span className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100">Coming Soon</span>
-                                        ) : (
-                                            <span className="px-3 py-1.5 bg-green-50 text-green-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-green-100">Live</span>
-                                        )}
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <span className="text-xs font-bold text-gray-600">{arrival.comingSoonDate ? <FormattedDate date={arrival.comingSoonDate} /> : 'N/A'}</span>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center justify-end gap-3 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all">
-                                            <button onClick={() => openEditModal(arrival)} className="p-2.5 text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit size={18} /></button>
-                                            <button onClick={() => handleDelete(arrival._id)} className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
                 </div>
             )}
 

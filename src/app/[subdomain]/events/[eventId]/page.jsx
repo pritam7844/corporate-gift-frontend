@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
-import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator, Maximize, Eye } from 'lucide-react';
+import Link from 'next/link';
 import FormattedDate from '../../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../../components/common/ProductImageSlider';
@@ -214,7 +215,7 @@ export default function EventProductsPage() {
                     <p className="text-slate-500 text-sm font-medium">There are currently no items assigned to this program.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     {products.map((product) => {
                         const quantity = getProductCartQuantity(product._id);
                         const hasDiscount = product.discountedPrice && product.discountedPrice < product.actualPrice;
@@ -222,12 +223,13 @@ export default function EventProductsPage() {
                         return (
                             <div key={product._id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col">
                                 {/* Image Box */}
-                                <div className="aspect-[4/3] bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
-                                    <ProductImageSlider
-                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
-                                        onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
-                                    />
-
+                                <div className="h-80 bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
+                                    <Link href={`/events/${eventId}/products/${product._id}`} className="block h-full w-full">
+                                        <ProductImageSlider
+                                            images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                                            showFullscreen={false}
+                                        />
+                                    </Link>
                                     {/* Category Badge */}
                                     <div className="absolute top-3 left-3 bg-white border border-slate-200 px-2 py-0.5 rounded text-[9px] font-bold text-slate-500 uppercase tracking-widest shadow-sm">
                                         {product.category}
@@ -242,11 +244,13 @@ export default function EventProductsPage() {
                                 </div>
 
                                 {/* Content Box */}
-                                <div className="p-5 flex-grow flex flex-col">
-                                    <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
+                                <Link href={`/events/${eventId}/products/${product._id}`} className="p-5 flex-grow flex flex-col group/link">
+                                    <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2 min-h-[2.5rem] group-hover/link:text-indigo-600 transition-colors">{product.name}</h3>
                                     {product.description && (
                                         <p className="text-[11px] text-slate-500 mb-4 line-clamp-2 leading-relaxed">{product.description}</p>
                                     )}
+                                </Link>
+                                <div className="px-5 pb-5">
 
                                     <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100">
                                         <div>
@@ -267,12 +271,22 @@ export default function EventProductsPage() {
                                                     Selected
                                                 </div>
                                             ) : quantity === 0 ? (
-                                                <button
-                                                    onClick={() => handleAddToCart(product)}
-                                                    className="bg-slate-900 text-white font-bold px-4 py-2 rounded-lg text-[10px] hover:bg-indigo-600 transition-colors uppercase tracking-wider"
-                                                >
-                                                    Add For Sample
-                                                </button>
+                                                <div className="space-y-2">
+                                                    <Link
+                                                        href={`/events/${eventId}/products/${product._id}`}
+                                                        className="w-full bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 border border-slate-200"
+                                                    >
+                                                        {/* <Eye size={14} /> */}
+                                                        <span>View Details</span>
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => handleAddToCart(product)}
+                                                        className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn shadow-md p-5"
+                                                    >
+                                                        <ShoppingCart size={14} />
+                                                        <span>Add For Sample</span>
+                                                    </button>
+                                                </div>
                                             ) : (
                                                 <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
                                                     <button

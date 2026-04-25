@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
     Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload, Maximize2
 } from 'lucide-react';
@@ -77,7 +78,7 @@ export default function EventManagement() {
     const removeImagePreview = (index) => {
         const previewToRemove = imagePreviews[index];
         const isNewFile = typeof previewToRemove === 'string' && previewToRemove.startsWith('data:image');
-        
+
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
 
         if (isNewFile) {
@@ -157,7 +158,7 @@ export default function EventManagement() {
             };
 
             const product = await createProductAPI(productPayload);
-            
+
             // 3. Now add this new product to the event
             await updateEventProductsAPI(eventId, [...(event.products?.map(p => p._id) || []), product._id]);
 
@@ -329,14 +330,16 @@ export default function EventManagement() {
                 </div>
 
                 <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {event?.products?.map((product) => (
                             <div key={product._id} className="border border-gray-100 rounded-xl overflow-hidden group hover:shadow-md transition-all">
-                                <div className="h-40 bg-gray-50 relative overflow-hidden">
-                                    <ProductImageSlider 
-                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])} 
-                                        onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
-                                    />
+                                <div className="h-64 bg-gray-50 relative overflow-hidden">
+                                    <Link href={`/products/${product._id}`} className="block h-full">
+                                        <ProductImageSlider
+                                            images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                                            showFullscreen={false}
+                                        />
+                                    </Link>
                                     <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => handleOpenEditProduct(product)}
@@ -364,9 +367,14 @@ export default function EventManagement() {
                                         )}
                                     </div>
                                 </div>
-                                <div className="p-4">
+                                <div className="p-4 flex-1 flex flex-col">
                                     <h3 className="font-bold text-gray-800 text-sm mb-1 truncate">{product.name}</h3>
-                                    <div className="flex justify-between items-center">
+                                    {product.description && (
+                                        <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed mb-3">
+                                            {product.description}
+                                        </p>
+                                    )}
+                                    <div className="flex justify-between items-center mt-auto">
                                         {/* <span className="text-xs font-bold text-blue-600 uppercase bg-blue-50 px-2 py-0.5 rounded">
                                             {product.category}
                                         </span> */}
@@ -593,7 +601,7 @@ export default function EventManagement() {
 
 
             {/* Image Slider Modal */}
-            <ImageSliderModal 
+            <ImageSliderModal
                 isOpen={sliderModal.isOpen}
                 onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
                 images={sliderModal.images}

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload, Maximize2, LayoutGrid, List } from 'lucide-react';
+import { Package, Plus, Tag, Image as ImageIcon, X, Trash2, Edit, Upload, Maximize2, LayoutGrid, List, ArrowRight } from 'lucide-react';
 import { useProducts } from '../../../hooks/useProducts';
 import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
+import Link from 'next/link';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
 
 export default function ProductCatalog() {
@@ -17,7 +18,7 @@ export default function ProductCatalog() {
   const [submitting, setSubmitting] = useState(false);
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState('card');
 
   const emptyForm = { name: '', description: '', images: [], /* category: 'electronics', */ actualPrice: '', discountedPrice: '', isGlobal: true };
   const [formData, setFormData] = useState(emptyForm);
@@ -156,8 +157,8 @@ export default function ProductCatalog() {
         discountedPrice: formData.discountedPrice,
         isGlobal: formData.isGlobal,
         companyId: formData.companyId || null,
-        images: isEditing 
-          ? [...(formData.images || []), ...newImageUrls] 
+        images: isEditing
+          ? [...(formData.images || []), ...newImageUrls]
           : newImageUrls
       };
 
@@ -192,22 +193,6 @@ export default function ProductCatalog() {
           <p className="text-gray-500">Manage gifts available for all company events.</p>
         </div>
         <div className="flex items-center space-x-3">
-          <div className="flex bg-gray-100 p-1 rounded-xl border border-gray-200">
-            <button
-              onClick={() => setViewMode('card')}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === 'card' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-              title="Grid View"
-            >
-              <LayoutGrid size={20} />
-            </button>
-            <button
-              onClick={() => setViewMode('table')}
-              className={`p-1.5 rounded-lg transition-all ${viewMode === 'table' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'}`}
-              title="Table View"
-            >
-              <List size={20} />
-            </button>
-          </div>
           <button
             onClick={openCreateModal}
             className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
@@ -351,107 +336,62 @@ export default function ProductCatalog() {
             Add your first global product
           </button>
         </div>
-      ) : viewMode === 'card' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <div key={product._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all">
-              <div className="h-48 bg-gray-100 relative overflow-hidden">
-                <ProductImageSlider
-                  images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
-                  onOpenModal={(idx) => setSliderModal({ isOpen: true, images: product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : []), index: idx })}
-                />
+            <div key={product._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full">
+              <div className="h-100 bg-gray-100 relative overflow-hidden">
+                <Link href={`/products/${product._id}`} className="block h-full">
+                  <ProductImageSlider
+                    images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                    showFullscreen={false}
+                  />
+                </Link>
                 {/* Action buttons – visible on hover */}
-                <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                   <button
-                    onClick={() => openEditModal(product)}
-                    className="p-2 bg-white/90 backdrop-blur-sm text-blue-600 rounded-lg shadow-sm hover:bg-blue-600 hover:text-white transition-all"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEditModal(product); }}
+                    className="p-2.5 bg-white text-blue-600 rounded-xl shadow-lg hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+                    title="Edit Product"
                   >
-                    <Edit size={16} />
+                    <Edit size={18} />
                   </button>
                   <button
-                    onClick={() => handleDelete(product._id)}
-                    className="p-2 bg-white/90 backdrop-blur-sm text-red-600 rounded-lg shadow-sm hover:bg-red-600 hover:text-white transition-all"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(product._id); }}
+                    className="p-2.5 bg-white text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                    title="Delete Product"
                   >
-                    <Trash2 size={16} />
+                    <Trash2 size={18} />
                   </button>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="font-bold text-gray-800 mb-2 truncate">{product.name}</h3>
-                <div className="flex justify-between items-end">
-                  <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold">Actual Price</p>
-                    <p className="text-gray-800 font-bold">₹{product.actualPrice}</p>
+
+              <Link href={`/products/${product._id}`} className="p-6 flex-1 flex flex-col">
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">{product.name}</h3>
+                  <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">
+                    {product.description || 'No description provided for this premium global product.'}
+                  </p>
+                </div>
+
+                <div className="flex justify-between items-end pt-4 border-t border-gray-50">
+                  <div className="space-y-1">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-0.5">Actual MRP</span>
+                      <span className="text-gray-400 text-sm line-through font-bold">₹{product.actualPrice}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-0.5">Offer Price</span>
+                      <span className="text-blue-600 text-xl font-black">₹{product.discountedPrice}</span>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-[10px] text-blue-600 uppercase font-bold">Offer Price</p>
-                    <p className="text-blue-600 font-bold">₹{product.discountedPrice}</p>
+                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-900 uppercase tracking-widest hover:text-blue-600 transition-colors group/link">
+                    View Details <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
                   </div>
                 </div>
-              </div>
+              </Link>
             </div>
           ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-100">
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Actual Price</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Offer Price</th>
-                  <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {products.map((product) => (
-                  <tr key={product._id} className="hover:bg-gray-50 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                          <img
-                            src={product.images && product.images.length > 0 ? product.images[0] : (product.image || '')}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=No+Image'; }}
-                          />
-                        </div>
-                        <div>
-                          <p className="font-bold text-gray-800">{product.name}</p>
-                          <p className="text-xs text-gray-500 truncate max-w-xs">{product.description || 'No description'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-gray-600 font-medium">₹{product.actualPrice}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-blue-600 font-bold">₹{product.discountedPrice}</p>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end space-x-2">
-                        <button
-                          onClick={() => openEditModal(product)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <Edit size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product._id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
         </div>
       )}
 

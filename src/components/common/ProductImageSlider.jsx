@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Maximize2, Fullscreen, Maximize } from 'lucide-react';
 
-export default function ProductImageSlider({ images, onOpenModal, className = "" }) {
+export default function ProductImageSlider({ images, onOpenModal, onImageClick, showFullscreen = true, className = "" }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const scrollRef = useRef(null);
 
@@ -44,11 +44,24 @@ export default function ProductImageSlider({ images, onOpenModal, className = ""
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 {images.map((img, idx) => (
-                    <div key={idx} className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center p-4">
+                    <div 
+                        key={idx} 
+                        onClick={(e) => {
+                            if (onImageClick) {
+                                e.stopPropagation();
+                                onImageClick(idx);
+                            } else if (onOpenModal) {
+                                e.stopPropagation();
+                                onOpenModal(idx);
+                            }
+                            // Otherwise, let it bubble to parent Link
+                        }}
+                        className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center p-4 cursor-pointer"
+                    >
                         <img
                             src={img}
                             alt={`Product View ${idx + 1}`}
-                            className="w-full h-full object-contain pointer-events-none select-none"
+                            className="w-full h-full object-contain select-none"
                         />
                     </div>
                 ))}
@@ -70,14 +83,15 @@ export default function ProductImageSlider({ images, onOpenModal, className = ""
             )}
 
             {/* Full Screen Action */}
-            <button
-                onClick={(e) => { e.stopPropagation(); onOpenModal && onOpenModal(currentIndex); }}
-                className="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-600 shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100"
-                title="View Full Screen"
-            >
-                <Maximize size={18} />
-            </button>
-
+            {showFullscreen && (
+                <button
+                    onClick={(e) => { e.stopPropagation(); onOpenModal && onOpenModal(currentIndex); }}
+                    className="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-600 shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100"
+                    title="View Full Screen"
+                >
+                    <Maximize size={18} />
+                </button>
+            )}
             <style jsx>{`
                 .no-scrollbar::-webkit-scrollbar { display: none; }
                 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
