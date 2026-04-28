@@ -14,6 +14,7 @@ import { useUsers } from '../../../../hooks/useUsers';
 import { useProducts } from '../../../../hooks/useProducts';
 import { assignEventToCompanyAPI } from '../../../../services/event.service';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
+import Toast from '../../../../components/common/Toast';
 import {
   getCompanyByIdAPI,
   updateCompanyAPI,
@@ -65,6 +66,12 @@ export default function CompanyDetail() {
     onConfirm: () => { },
     type: 'warning'
   });
+
+  const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ isVisible: true, message, type });
+  };
 
   const openConfirm = (title, message, onConfirm, type = 'warning') => {
     setConfirmState({
@@ -221,6 +228,15 @@ export default function CompanyDetail() {
     setShowEditUserModal(true);
   };
 
+  const handleDeleteUser = (user) => {
+    openConfirm(
+      'Delete Employee?',
+      `Are you sure you want to delete ${user.name}? This will remove their access to the portal.`,
+      () => removeUser(user._id),
+      'danger'
+    );
+  };
+
   const handleUpdateUser = async (e) => {
     e.preventDefault();
     setIsSavingUser(true);
@@ -229,8 +245,9 @@ export default function CompanyDetail() {
     if (result.success) {
       setShowEditUserModal(false);
       setEditingUser(null);
+      showToast('Employee updated successfully!');
     } else {
-      alert(`Error: ${result.error || "Unknown error"}`);
+      showToast(result.error || "Unknown error", 'error');
     }
   };
 
@@ -260,7 +277,7 @@ export default function CompanyDetail() {
             </p>
           </div>
         </div>
-        {/* <div className="flex space-x-3">
+        <div className="flex space-x-3">
           <button
             onClick={() => setShowEditModal(true)}
             className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50 text-gray-600 transition-all font-medium"
@@ -273,7 +290,7 @@ export default function CompanyDetail() {
           >
             <Trash2 size={18} /> <span>Delete</span>
           </button>
-        </div> */}
+        </div>
       </div>
 
       {/* Tabs Nav */}
@@ -436,7 +453,7 @@ export default function CompanyDetail() {
                             <Edit size={18} />
                           </button>
                           <button
-                            onClick={() => removeUser(user._id)}
+                            onClick={() => handleDeleteUser(user)}
                             className="p-2 text-gray-400 hover:text-red-500 transition-colors"
                             title="Delete employee"
                           >
@@ -555,7 +572,12 @@ export default function CompanyDetail() {
                   password: e.target.password.value,
                   role: 'company_user'
                 });
-                if (success) setShowUserModal(false);
+                if (success) {
+                  setShowUserModal(false);
+                  showToast('Employee registered successfully!');
+                } else {
+                  showToast('Failed to register employee. Check email or connection.', 'error');
+                }
               }}
               className="p-6 space-y-4"
             >
@@ -791,6 +813,13 @@ export default function CompanyDetail() {
         message={confirmState.message}
         type={confirmState.type}
         confirmText={confirmState.type === 'danger' ? 'Confirm Delete' : 'Yes, Proceed'}
+      />
+
+      <Toast 
+        isVisible={toast.isVisible}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ ...toast, isVisible: false })}
       />
     </div>
   );
