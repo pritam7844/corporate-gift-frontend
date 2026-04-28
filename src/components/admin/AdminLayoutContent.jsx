@@ -21,7 +21,7 @@ export default function AdminLayoutContent({ children }) {
 
     return (
         <HydrationWrapper>
-            <div className="flex min-h-screen bg-gray-50">
+            <div className="flex min-h-screen" style={{backgroundColor: 'var(--color-bg)'}}>
                 {/* Backdrop for mobile */}
                 {isMobileMenuOpen && (
                     <div 

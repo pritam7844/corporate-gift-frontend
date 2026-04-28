@@ -53,7 +53,7 @@ export default function ImageSliderModal({ isOpen, onClose, images, initialIndex
       {/* Close Button */}
       <button 
         onClick={onClose}
-        className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-[110]"
+        className="absolute top-6 right-6 p-3 bg-[var(--color-surface)]/10 hover:bg-[var(--color-surface)]/20 text-white rounded-full transition-all z-[110]"
       >
         <X size={24} />
       </button>
@@ -64,14 +64,14 @@ export default function ImageSliderModal({ isOpen, onClose, images, initialIndex
           <button 
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-[110] disabled:opacity-20 disabled:cursor-not-allowed ${currentIndex === 0 ? 'hidden md:flex' : 'flex'}`}
+            className={`absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 bg-[var(--color-surface)]/10 hover:bg-[var(--color-surface)]/20 text-white rounded-full transition-all z-[110] disabled:opacity-20 disabled:cursor-not-allowed ${currentIndex === 0 ? 'hidden md:flex' : 'flex'}`}
           >
             <ChevronLeft size={32} />
           </button>
           <button 
             onClick={handleNext}
             disabled={currentIndex === images.length - 1}
-            className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-all z-[110] disabled:opacity-20 disabled:cursor-not-allowed ${currentIndex === images.length - 1 ? 'hidden md:flex' : 'flex'}`}
+            className={`absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 bg-[var(--color-surface)]/10 hover:bg-[var(--color-surface)]/20 text-white rounded-full transition-all z-[110] disabled:opacity-20 disabled:cursor-not-allowed ${currentIndex === images.length - 1 ? 'hidden md:flex' : 'flex'}`}
           >
             <ChevronRight size={32} />
           </button>
@@ -105,7 +105,7 @@ export default function ImageSliderModal({ isOpen, onClose, images, initialIndex
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`w-2 h-2 rounded-full transition-all ${currentIndex === idx ? 'bg-white w-6' : 'bg-white/30'}`}
+                className={`w-2 h-2 rounded-full transition-all ${currentIndex === idx ? 'bg-[var(--color-surface)] w-6' : 'bg-[var(--color-surface)]/30'}`}
               />
             ))}
           </div>

@@ -86,7 +86,7 @@ export default function ProductImageSlider({ images, onOpenModal, onImageClick, 
             {showFullscreen && (
                 <button
                     onClick={(e) => { e.stopPropagation(); onOpenModal && onOpenModal(currentIndex); }}
-                    className="absolute bottom-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm border border-gray-100 rounded-xl flex items-center justify-center text-gray-600 shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100"
+                    className="absolute bottom-4 right-4 w-10 h-10 bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)] rounded-xl flex items-center justify-center text-[var(--color-text-muted)] shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100"
                     title="View Full Screen"
                 >
                     <Maximize size={18} />

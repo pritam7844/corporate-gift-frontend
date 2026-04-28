@@ -27,8 +27,6 @@ const menuItems = [
   { name: 'Orders/Requests', href: '/requests', icon: Package },
   { name: 'Order History', href: '/history', icon: History },
   { name: 'Support', href: '/support', icon: MessageSquare },
-  // { name: 'Manage Users', href: '/users', icon: Users },
-  // { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
@@ -44,18 +42,38 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
 
   return (
     <>
-    <aside className={`bg-gray-900 text-white h-screen flex flex-col fixed left-0 top-0 border-r border-gray-800 z-50 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-      <div className={`p-6 border-b border-gray-800 h-20 flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-        <h1 className={`font-black text-blue-500 tracking-tighter transition-all duration-300 ${isCollapsed ? 'text-2xl' : 'text-xl'}`}>
+    <aside
+      className={`h-screen flex flex-col fixed left-0 top-0 z-50 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'} ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+      style={{
+        backgroundColor: 'var(--color-surface)',
+        borderRight: '1px solid var(--color-border)',
+      }}
+    >
+      {/* Logo */}
+      <div
+        className={`h-20 flex items-center px-6 ${isCollapsed ? 'justify-center' : 'justify-between'}`}
+        style={{ borderBottom: '1px solid var(--color-border)' }}
+      >
+        <h1
+          className={`font-black tracking-tighter transition-all duration-300 ${isCollapsed ? 'text-2xl' : 'text-xl'}`}
+          style={{ color: 'var(--color-text)' }}
+        >
           {isCollapsed ? 'GP' : (
-            <span className="flex items-center">
-              GIFT PRO <span className="text-[10px] bg-blue-900 text-blue-200 px-2 py-0.5 rounded ml-1 font-bold">ADMIN</span>
+            <span className="flex items-center gap-2">
+              GIFT PRO
+              <span
+                className="text-[10px] px-2 py-0.5 rounded font-black tracking-wide"
+                style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}
+              >
+                ADMIN
+              </span>
             </span>
           )}
         </h1>
       </div>
 
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+      {/* Nav */}
+      <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
         {menuItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -63,19 +81,25 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
               key={item.name}
               href={item.href}
               onClick={() => onCloseMobile?.()}
-              className={`flex items-center p-3 rounded-xl transition-all group relative ${isActive
-                ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
-                : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-                } ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+              className={`flex items-center p-3 rounded-xl transition-all group relative font-bold text-sm ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+              style={isActive
+                ? { backgroundColor: 'var(--color-text)', color: '#ffffff' }
+                : { color: 'var(--color-text-muted)' }
+              }
+              onMouseEnter={e => { if (!isActive) { e.currentTarget.style.backgroundColor = 'var(--color-border)'; e.currentTarget.style.color = 'var(--color-text)'; } }}
+              onMouseLeave={e => { if (!isActive) { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--color-text-muted)'; } }}
               title={isCollapsed ? item.name : ''}
             >
               <item.icon size={20} className={`shrink-0 transition-transform ${!isActive && 'group-hover:scale-110'}`} />
-              {!isCollapsed && <span className="font-bold text-sm whitespace-nowrap overflow-hidden transition-all duration-300">{item.name}</span>}
-              
+              {!isCollapsed && <span className="whitespace-nowrap overflow-hidden transition-all duration-300">{item.name}</span>}
+
               {/* Tooltip for collapsed mode */}
               {isCollapsed && (
-                <div className="fixed left-20 ml-2 px-3 py-2 bg-gray-800 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60] border border-gray-700 shadow-xl">
-                    {item.name}
+                <div
+                  className="fixed left-20 ml-2 px-3 py-2 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60] shadow-xl"
+                  style={{ backgroundColor: 'var(--color-text)' }}
+                >
+                  {item.name}
                 </div>
               )}
             </Link>
@@ -83,22 +107,25 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-800">
+      {/* Logout */}
+      <div className="p-4" style={{ borderTop: '1px solid var(--color-border)' }}>
         <button
           onClick={() => setShowLogoutConfirm(true)}
-          className={`flex items-center p-3 w-full text-gray-400 hover:text-red-400 transition-all rounded-xl hover:bg-red-900/10 group relative ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+          className={`flex items-center p-3 w-full rounded-xl transition-all group relative text-sm font-bold ${isCollapsed ? 'justify-center' : 'space-x-3'}`}
+          style={{ color: 'var(--color-text-muted)' }}
+          onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
+          onMouseLeave={e => { e.currentTarget.style.backgroundColor = ''; e.currentTarget.style.color = 'var(--color-text-muted)'; }}
           title={isCollapsed ? 'Sign Out' : ''}
         >
           <LogOut size={20} className="shrink-0 transition-transform group-hover:-translate-x-1" />
-          {!isCollapsed && <span className="font-bold text-sm">Sign Out</span>}
-          
+          {!isCollapsed && <span>Sign Out</span>}
+
           {isCollapsed && (
             <div className="fixed left-20 ml-2 px-3 py-2 bg-red-600 text-white text-xs font-bold rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-[60] shadow-xl">
-                Sign Out
+              Sign Out
             </div>
           )}
         </button>
-
       </div>
     </aside>
 

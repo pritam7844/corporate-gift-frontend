@@ -189,15 +189,16 @@ export default function ProductCatalog() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Global Product Catalog</h1>
-          <p className="text-gray-500">Manage gifts available for all company events.</p>
+          <h1 className="text-2xl font-black" style={{ color: 'var(--color-text)' }}>Global Product Catalog</h1>
+          <p className="text-sm mt-1 font-medium" style={{ color: 'var(--color-text-muted)' }}>Manage gifts available for all company events.</p>
         </div>
         <div className="flex items-center space-x-3">
           <button
             onClick={openCreateModal}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg flex items-center space-x-2 shadow-lg transition-all"
+            className="px-5 py-2.5 rounded-xl flex items-center space-x-2 font-bold text-sm transition-all active:scale-95 hover:opacity-90"
+            style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
           >
-            <Plus size={20} />
+            <Plus size={18} />
             <span>Add Global Product</span>
           </button>
         </div>
@@ -205,32 +206,38 @@ export default function ProductCatalog() {
 
       {/* Create / Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-              <h2 className="text-xl font-bold text-gray-800">{isEditing ? 'Edit Product' : 'New Product'}</h2>
-              <button onClick={closeModal} className="text-gray-400 hover:text-gray-600">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg)' }}>
+              <h2 className="text-xl font-black" style={{ color: 'var(--color-text)' }}>{isEditing ? 'Edit Product' : 'New Product'}</h2>
+              <button onClick={closeModal} style={{ color: 'var(--color-text-muted)' }}>
                 <X size={24} />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Product Name</label>
                 <input
                   type="text" required
                   placeholder="e.g. Sony WH-1000XM5"
-                  className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  className="w-full p-3 rounded-xl outline-none transition-all font-medium text-sm border"
+                  style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--color-text)'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Description <span className="text-gray-400 font-normal">(optional)</span></label>
+                <label className="block text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Description <span className="normal-case font-medium">(optional)</span></label>
                 <textarea
                   rows={3}
                   placeholder="Describe the product, materials, features..."
-                  className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm"
+                  className="w-full p-3 rounded-xl outline-none transition-all font-medium text-sm border resize-none"
+                  style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                  onFocus={e => e.currentTarget.style.borderColor = 'var(--color-text)'}
+                  onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
@@ -238,24 +245,30 @@ export default function ProductCatalog() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Actual Price(With GST*)</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Actual Price (With GST*)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-gray-400">₹</span>
+                    <span className="absolute left-3 top-3 text-sm" style={{ color: 'var(--color-text-muted)' }}>₹</span>
                     <input
                       type="number" required
-                      className="w-full border pl-7 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full pl-7 p-3 rounded-xl outline-none transition-all font-medium text-sm border"
+                      style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                      onFocus={e => e.currentTarget.style.borderColor = 'var(--color-text)'}
+                      onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
                       value={formData.actualPrice}
                       onChange={(e) => setFormData({ ...formData, actualPrice: e.target.value })}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Selling Price(With GST*)</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: 'var(--color-text-muted)' }}>Selling Price (With GST*)</label>
                   <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-gray-400">₹</span>
+                    <span className="absolute left-3 top-3 text-sm" style={{ color: 'var(--color-text-muted)' }}>₹</span>
                     <input
                       type="number" required
-                      className="w-full border pl-7 p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full pl-7 p-3 rounded-xl outline-none transition-all font-medium text-sm border"
+                      style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                      onFocus={e => e.currentTarget.style.borderColor = 'var(--color-text)'}
+                      onBlur={e => e.currentTarget.style.borderColor = 'var(--color-border)'}
                       value={formData.discountedPrice}
                       onChange={(e) => setFormData({ ...formData, discountedPrice: e.target.value })}
                     />
@@ -264,7 +277,7 @@ export default function ProductCatalog() {
               </div>
 
               {/* <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Category</label>
                 <select
                   className="w-full border p-2.5 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500"
                   value={formData.category}
@@ -278,11 +291,11 @@ export default function ProductCatalog() {
               </div> */}
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Images (Max 5)</label>
+                <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">Product Images (Max 5)</label>
                 <div className="space-y-4">
                   <div className="flex flex-wrap gap-2">
                     {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative w-20 h-20 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden group">
+                      <div key={index} className="relative w-20 h-20 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg overflow-hidden group">
                         <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                         <button
                           type="button"
@@ -294,9 +307,9 @@ export default function ProductCatalog() {
                       </div>
                     ))}
                     {imagePreviews.length < 5 && (
-                      <label className="w-20 h-20 bg-gray-50 border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
-                        <Upload size={20} className="text-gray-400" />
-                        <span className="text-[10px] text-gray-400 mt-1 uppercase font-bold text-center">Add</span>
+                      <label className="w-20 h-20 bg-[var(--color-bg)] border-2 border-dashed border-[var(--color-border)] rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-[var(--color-bg)] transition-colors">
+                        <Upload size={20} className="text-[var(--color-text-muted)]" />
+                        <span className="text-[10px] text-[var(--color-text-muted)] mt-1 uppercase font-bold text-center">Add</span>
                         <input
                           type="file"
                           multiple
@@ -307,14 +320,15 @@ export default function ProductCatalog() {
                       </label>
                     )}
                   </div>
-                  <p className="text-[10px] text-gray-400 text-center">PNG, JPG or JPEG (Max. 5MB per file)</p>
+                  <p className="text-[10px] text-[var(--color-text-muted)] text-center">PNG, JPG or JPEG (Max. 5MB per file)</p>
                 </div>
               </div>
 
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg disabled:bg-blue-300"
+                className="w-full py-3 rounded-xl font-black text-sm transition-all active:scale-95 disabled:opacity-50 mt-2"
+                style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
               >
                 {submitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Global Product'}
               </button>
@@ -325,22 +339,26 @@ export default function ProductCatalog() {
 
       {loading && products.length === 0 ? (
         <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="text-gray-500 mt-4">Loading products...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style={{ borderColor: 'var(--color-text)' }}></div>
+          <p className="mt-4 font-medium text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading products...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 py-20 text-center">
-          <Package size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 font-medium">No global products found.</p>
-          <button onClick={openCreateModal} className="mt-4 text-blue-600 font-bold hover:underline">
+        <div className="rounded-2xl border-2 border-dashed py-20 text-center" style={{ borderColor: 'var(--color-border)' }}>
+          <Package size={48} className="mx-auto mb-4" style={{ color: 'var(--color-border)' }} />
+          <p className="font-bold text-sm" style={{ color: 'var(--color-text-muted)' }}>No global products found.</p>
+          <button onClick={openCreateModal} className="mt-4 font-black text-sm hover:underline" style={{ color: 'var(--color-text)' }}>
             Add your first global product
           </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {products.map((product) => (
-            <div key={product._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-xl hover:border-blue-100 transition-all duration-300 flex flex-col h-full">
-              <div className="h-100 bg-gray-100 relative overflow-hidden">
+            <div
+              key={product._id}
+              className="rounded-2xl border overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+              style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+            >
+              <div className="h-100 relative overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
                 <Link href={`/products/${product._id}`} className="block h-full">
                   <ProductImageSlider
                     images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
@@ -351,14 +369,15 @@ export default function ProductCatalog() {
                 <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEditModal(product); }}
-                    className="p-2.5 bg-white text-blue-600 rounded-xl shadow-lg hover:bg-blue-600 hover:text-white transition-all active:scale-95"
+                    className="p-2.5 rounded-xl shadow-lg transition-all active:scale-95 font-bold"
+                    style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}
                     title="Edit Product"
                   >
                     <Edit size={18} />
                   </button>
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(product._id); }}
-                    className="p-2.5 bg-white text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                    className="p-2.5 bg-[var(--color-surface)] text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all active:scale-95"
                     title="Delete Product"
                   >
                     <Trash2 size={18} />
@@ -368,25 +387,25 @@ export default function ProductCatalog() {
 
               <Link href={`/products/${product._id}`} className="p-6 flex-1 flex flex-col">
                 <div className="flex-1">
-                  <h3 className="font-bold text-gray-900 text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-1">{product.name}</h3>
-                  <p className="text-gray-500 text-sm line-clamp-2 mb-4 leading-relaxed">
+                  <h3 className="font-black text-lg mb-2 line-clamp-1 transition-colors" style={{ color: 'var(--color-text)' }}>{product.name}</h3>
+                  <p className="text-sm line-clamp-2 mb-4 leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
                     {product.description || 'No description provided for this premium global product.'}
                   </p>
                 </div>
 
-                <div className="flex justify-between items-end pt-4 border-t border-gray-50">
+                <div className="flex justify-between items-end pt-4 border-t" style={{ borderColor: 'var(--color-border)' }}>
                   <div className="space-y-1">
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-0.5">Actual MRP</span>
-                      <span className="text-gray-400 text-sm line-through font-bold">₹{product.actualPrice}</span>
+                      <span className="text-[10px] uppercase font-black tracking-widest mb-0.5" style={{ color: 'var(--color-text-muted)' }}>Actual MRP</span>
+                      <span className="text-sm line-through font-bold" style={{ color: 'var(--color-text-muted)' }}>₹{product.actualPrice}</span>
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-[10px] text-blue-600 uppercase font-black tracking-widest mb-0.5">Offer Price</span>
-                      <span className="text-blue-600 text-xl font-black">₹{product.discountedPrice}</span>
+                      <span className="text-[10px] uppercase font-black tracking-widest mb-0.5" style={{ color: 'var(--color-text)' }}>Offer Price</span>
+                      <span className="text-xl font-black" style={{ color: 'var(--color-text)' }}>₹{product.discountedPrice}</span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] font-black text-gray-900 uppercase tracking-widest hover:text-blue-600 transition-colors group/link">
-                    View Details <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--color-text)' }}>
+                    View Details <ArrowRight size={14} />
                   </div>
                 </div>
               </Link>

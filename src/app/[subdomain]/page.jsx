@@ -153,10 +153,10 @@ export default function CompanyLandingPage() {
 
     if (!isHydrated || loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-bg)' }}>
                 <div className="flex flex-col items-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black mb-4"></div>
-                    <p className="text-gray-500 font-medium tracking-wide">Loading your dashboard...</p>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 mb-4" style={{ borderColor: 'var(--color-text)' }}></div>
+                    <p className="font-medium tracking-wide" style={{ color: 'var(--color-text-muted)' }}>Loading your dashboard...</p>
                 </div>
             </div>
         );
@@ -166,54 +166,53 @@ export default function CompanyLandingPage() {
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-indigo-100 overflow-x-hidden">
+        <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 md:py-12">
 
                 {/* Personalized Hero Dashboard */}
                 <section className="mb-16">
-                    <div className="bg-white rounded-2xl p-8 md:p-12 shadow-sm border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden">
-                        {/* Subtle Background Accent */}
-                        <div className="absolute right-0 top-0 w-1/2 h-full bg-indigo-50/30 skew-x-12 translate-x-1/4 pointer-events-none"></div>
+                    <div className="rounded-2xl p-8 md:p-12 border flex flex-col lg:flex-row items-center justify-between gap-12 relative overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                        <div className="absolute right-0 top-0 w-1/2 h-full skew-x-12 translate-x-1/4 pointer-events-none" style={{ backgroundColor: 'var(--color-bg)', opacity: 0.5 }}></div>
 
                         <div className="relative z-10 flex-1 text-center lg:text-left">
-                            <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider mb-6 border border-indigo-100">
+                            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider mb-6 border" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)', borderColor: 'var(--color-accent-dark)' }}>
                                 <span>{company?.name || subdomain} Portal</span>
                             </div>
-                            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 text-slate-900 leading-[1.15]">
+                            <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-6 leading-[1.15]" style={{ color: 'var(--color-text)' }}>
                                 Welcome back,<br />
-                                <span className="text-indigo-600">
+                                <span style={{ color: 'var(--color-text)' }}>
                                     {user?.name || 'Employee'}
                                 </span>
                             </h1>
-                            <p className="text-base sm:text-lg text-slate-500 max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0">
+                            <p className="text-base sm:text-lg max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0" style={{ color: 'var(--color-text-muted)' }}>
                                 Discover curated corporate gift programs designed specifically for you. Select your preferred rewards below.
                             </p>
 
                             {/* Summary Cards */}
                             <div className="flex gap-4 w-full overflow-x-auto pb-4 md:pb-0 snap-x mb-10 justify-center lg:justify-start hide-scrollbar">
-                                <div className="min-w-[140px] bg-slate-50 rounded-xl p-5 border border-slate-100 snap-center flex-shrink-0">
-                                    <div className="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                                <div className="min-w-[140px] rounded-xl p-5 border snap-center flex-shrink-0" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
                                         <Calendar size={20} />
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900 mb-0.5">{events.length}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Active Events</p>
+                                    <p className="text-2xl font-black mb-0.5" style={{ color: 'var(--color-text)' }}>{events.length}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Active Events</p>
                                 </div>
 
-                                <div className="min-w-[140px] bg-slate-50 rounded-xl p-5 border border-slate-100 snap-center flex-shrink-0">
-                                    <div className="w-10 h-10 bg-white text-indigo-600 rounded-lg flex items-center justify-center mb-3 shadow-sm">
+                                <div className="min-w-[140px] rounded-xl p-5 border snap-center flex-shrink-0" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                    <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
                                         <Gift size={20} />
                                     </div>
-                                    <p className="text-2xl font-bold text-slate-900 mb-0.5">
+                                    <p className="text-2xl font-black mb-0.5" style={{ color: 'var(--color-text)' }}>
                                         {events.reduce((total, event) => total + (event.products?.length || 0), 0)}
                                     </p>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gift Options</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>Gift Options</p>
                                 </div>
                             </div>
 
                             <div className="flex justify-center lg:justify-start">
                                 <button
                                     onClick={() => router.push('/events')}
-                                    className="bg-indigo-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center shadow-md active:scale-95"
+                                    className="px-8 py-4 rounded-xl font-black transition-all flex items-center active:scale-95" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                                 >
                                     Browse Events <ArrowRight size={18} className="ml-3" />
                                 </button>
@@ -236,78 +235,75 @@ export default function CompanyLandingPage() {
 
                 {/* Events & Products Section */}
                 <section id="events" className="scroll-mt-32">
-                    <div className="flex items-center justify-between mb-8 border-b border-slate-200 pb-6">
+                    <div className="flex items-center justify-between mb-8 pb-6" style={{ borderBottom: '1px solid var(--color-border)' }}>
                         <div>
-                            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Available Programs</h2>
-                            <p className="text-slate-500 mt-1.5 text-sm uppercase tracking-wider font-semibold">Active Selection Cycles</p>
+                            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>Available Programs</h2>
+                            <p className="mt-1.5 text-sm uppercase tracking-wider font-black" style={{ color: 'var(--color-text-muted)' }}>Active Selection Cycles</p>
                         </div>
                     </div>
 
                     {events.length === 0 ? (
-                        <div className="bg-white p-16 rounded-xl border border-slate-200 text-center shadow-sm flex flex-col items-center">
-                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-6">
-                                <Gift size={28} className="text-slate-300" />
+                        <div className="p-16 rounded-2xl border text-center flex flex-col items-center" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-border)' }}>
+                                <Gift size={28} />
                             </div>
-                            <h3 className="text-xl font-bold text-slate-900 mb-2">No active programs</h3>
-                            <p className="text-slate-500 max-w-md">There are currently no active reward programs for your account. Check back later!</p>
+                            <h3 className="text-xl font-black mb-2" style={{ color: 'var(--color-text)' }}>No active programs</h3>
+                            <p className="max-w-md" style={{ color: 'var(--color-text-muted)' }}>There are currently no active reward programs for your account. Check back later!</p>
                         </div>
                     ) : (
                         <div className="space-y-12">
                             {events.map((event) => (
-                                <div key={event._id} className="bg-white rounded-xl p-6 md:p-10 border border-slate-200 shadow-sm relative overflow-hidden">
+                                <div key={event._id} className="rounded-2xl p-6 md:p-10 border relative overflow-hidden" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
 
                                     {/* Event Header */}
                                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 relative z-10">
                                         <div className="text-center md:text-left">
                                             <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
-                                                <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-wider border border-emerald-100/50">
-                                                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></div>
+                                                <div className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
+                                                    <div className="w-1.5 h-1.5 rounded-full mr-2" style={{ backgroundColor: 'var(--color-text)' }}></div>
                                                     {event.status}
                                                 </div>
                                                 {orderedEventIds.includes(event._id) && (
-                                                    <div className="inline-flex items-center px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold uppercase tracking-wider border border-indigo-100/50">
+                                                    <div className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}>
                                                         <ShoppingCart size={11} className="mr-1.5" />
                                                         Selected
                                                     </div>
                                                 )}
                                             </div>
-                                            <h3 className="text-2xl font-bold text-slate-900 mb-2 tracking-tight">{event.name}</h3>
-                                            <p className="text-xs text-slate-400 font-semibold flex items-center justify-center md:justify-start uppercase tracking-wider">
+                                            <h3 className="text-2xl font-black mb-2 tracking-tight" style={{ color: 'var(--color-text)' }}>{event.name}</h3>
+                                            <p className="text-xs font-bold flex items-center justify-center md:justify-start uppercase tracking-wider" style={{ color: 'var(--color-text-muted)' }}>
                                                 <Calendar size={14} className="mr-2" />
                                                 Closes on <FormattedDate date={event.endDate} />
                                             </p>
                                         </div>
                                         <button
                                             onClick={() => router.push(orderedEventIds.includes(event._id) ? '/orders' : `/events/${event._id}`)}
-                                            className={`${orderedEventIds.includes(event._id) ? 'bg-slate-50 text-slate-400 border border-slate-200' : 'bg-indigo-600 text-white shadow-sm hover:bg-indigo-700'} px-6 py-3 rounded-lg font-bold transition-all flex items-center justify-center group/more active:scale-95 w-full md:w-auto text-sm`}
+                                            className="px-6 py-3 rounded-xl font-black transition-all flex items-center justify-center active:scale-95 w-full md:w-auto text-sm"
+                                            style={orderedEventIds.includes(event._id) ? { backgroundColor: 'var(--color-bg)', color: 'var(--color-text-muted)', border: '1px solid var(--color-border)' } : { backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                                         >
-                                            {orderedEventIds.includes(event._id) ? 'View Request' : 'Select Reward'} <ArrowRight size={16} className="ml-2 transition-transform group-hover/more:translate-x-1" />
+                                            {orderedEventIds.includes(event._id) ? 'View Request' : 'Select Reward'} <ArrowRight size={16} className="ml-2" />
                                         </button>
                                     </div>
 
                                     {/* Products Grid */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
-                                        {event.products?.slice(0, 4).map((product) => (
-                                            <div key={product._id} className="group bg-white border border-slate-200 hover:border-indigo-200 hover:shadow-md rounded-xl flex flex-col overflow-hidden transition-all duration-300">
-                                                {/* Image Area */}
-                                                <div className="h-100 bg-slate-50 overflow-hidden relative border-b border-slate-100">
+                                        {event.products?.slice(0, 3).map((product) => (
+                                            <div key={product._id} className="group rounded-xl flex flex-col overflow-hidden transition-all duration-300 border hover:shadow-md" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                                                <div className="h-100 overflow-hidden relative" style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
                                                     <Link href={`/events/${event._id}/products/${product._id}`} className="block h-full">
                                                         <ProductImageSlider
                                                             images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                                             showFullscreen={false}
                                                         />
                                                     </Link>
-                                                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm border border-slate-200 px-2 py-1 rounded text-[10px] font-bold text-slate-600 uppercase tracking-widest shadow-sm">
-                                                        {product.category}
-                                                    </div>
+                                                    {product.category && <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>{product.category}</div>}
                                                 </div>
 
-                                                {/* Content Area */}
-                                                <Link href={`/events/${event._id}/products/${product._id}`} className="p-5 flex-1 flex flex-col group/link">
+                                                <Link href={`/events/${event._id}/products/${product._id}`} className="p-5 flex-1 flex flex-col">
                                                     <div className="mb-4">
-                                                        <h5 className="font-bold text-slate-900 leading-snug mb-1 line-clamp-2 group-hover/link:text-indigo-600 transition-colors">{product.name}</h5>
+                                                        <h5 className="font-black leading-snug mb-1 line-clamp-2" style={{ color: 'var(--color-text)' }}>{product.name}</h5>
                                                         {product.description && (
-                                                            <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{product.description}</p>
+                                                            <p className="text-[11px] line-clamp-2 leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>{product.description}</p>
                                                         )}
                                                     </div>
                                                 </Link>
@@ -319,48 +315,26 @@ export default function CompanyLandingPage() {
 
                                                         if (isOrdered) {
                                                             return (
-                                                                <button
-                                                                    disabled
-                                                                    className="w-full bg-slate-50 text-slate-400 text-xs font-bold py-3 rounded-lg flex items-center justify-center space-x-2 border border-slate-100 cursor-not-allowed"
-                                                                >
-                                                                    <ShoppingCart size={14} />
-                                                                    <span>Selected</span>
+                                                                <button disabled className="w-full text-xs font-black py-3 rounded-lg flex items-center justify-center space-x-2 border cursor-not-allowed" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}>
+                                                                    <ShoppingCart size={14} /><span>Selected</span>
                                                                 </button>
                                                             );
                                                         }
 
                                                         return quantity === 0 ? (
                                                             <div className="space-y-2">
-                                                                <Link
-                                                                    href={`/events/${event._id}/products/${product._id}`}
-                                                                    className="w-full bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 border border-slate-200"
-                                                                >
-                                                                    {/* <Eye size={14} /> */}
+                                                                <Link href={`/events/${event._id}/products/${product._id}`} className="w-full text-xs font-black py-3 rounded-lg transition-colors flex items-center justify-center border" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}>
                                                                     <span>View Details</span>
                                                                 </Link>
-                                                                <button
-                                                                    onClick={() => handleAddToCart(product, event._id)}
-                                                                    className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn"
-                                                                >
-                                                                    <ShoppingCart size={14} />
-                                                                    <span>Add For Sample</span>
+                                                                <button onClick={() => handleAddToCart(product, event._id)} className="w-full text-xs font-black py-3 rounded-lg transition-all flex items-center justify-center space-x-2 active:scale-95" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
+                                                                    <ShoppingCart size={14} /><span>Add For Sample</span>
                                                                 </button>
                                                             </div>
                                                         ) : (
-                                                            <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
-                                                                <button
-                                                                    onClick={() => updateQuantity(product._id, event._id, quantity - 1)}
-                                                                    className="px-3 py-2.5 hover:bg-indigo-700 transition-colors"
-                                                                >
-                                                                    <Minus size={14} />
-                                                                </button>
-                                                                <span className="font-bold text-xs flex-1 text-center">{quantity}</span>
-                                                                <button
-                                                                    onClick={() => handleAddToCart(product, event._id)}
-                                                                    className={`px-3 py-2.5 transition-colors hover:bg-indigo-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                                                >
-                                                                    <Plus size={14} />
-                                                                </button>
+                                                            <div className="flex items-center rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
+                                                                <button onClick={() => updateQuantity(product._id, event._id, quantity - 1)} className="px-3 py-2.5 hover:opacity-80 transition-opacity"><Minus size={14} /></button>
+                                                                <span className="font-black text-xs flex-1 text-center">{quantity}</span>
+                                                                <button onClick={() => handleAddToCart(product, event._id)} className={`px-3 py-2.5 transition-opacity ${quantity >= 1 ? 'opacity-30 cursor-not-allowed' : 'hover:opacity-80'}`}><Plus size={14} /></button>
                                                             </div>
                                                         );
                                                     })()}
@@ -398,7 +372,7 @@ export default function CompanyLandingPage() {
             {/* <FaqSection /> */}
 
             {/* Subtle Footer */}
-            <footer className="py-12 text-center text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em]">
+            <footer className="py-12 text-center text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--color-text-muted)' }}>
                 <p>&copy; {new Date().getFullYear()} {company?.name || subdomain} &bull; Corporate Gifting Operations</p>
             </footer>
         </div>

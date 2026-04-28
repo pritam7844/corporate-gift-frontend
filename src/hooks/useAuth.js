@@ -31,9 +31,12 @@ export const useAuth = () => {
     try {
       const data = await loginEmployeeAPI(email, password, subdomain);
       setAuth(data.accessToken, data.refreshToken, data.user);
-      router.push('/');
+      // Use hard navigation so the browser stays in the correct subdomain context.
+      // router.push('/') can misroute on subdomain-based Next.js middleware setups.
+      window.location.href = '/';
     } catch (err) {
-      setError(err.response?.data?.message || 'Employee login failed.');
+      const message = err.response?.data?.message || 'Invalid email or password. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }

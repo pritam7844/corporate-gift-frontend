@@ -94,20 +94,20 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
-            <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-gray-100 animate-in fade-in zoom-in duration-200">
+            <div className="bg-[var(--color-surface)] rounded-[1.5rem] sm:rounded-[2.5rem] w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-[var(--color-border)] animate-in fade-in zoom-in duration-200">
 
                 {/* Header */}
-                <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-50 flex items-center justify-between bg-[var(--color-surface)] sticky top-0 z-10">
                     <div className="pr-8">
-                        <h2 className="text-xl sm:text-2xl font-black text-gray-900 flex items-center gap-2">
+                        <h2 className="text-xl sm:text-2xl font-black text-[var(--color-text)] flex items-center gap-2">
                             <Calculator className="text-blue-600 shrink-0" size={20} />
                             Bulk Order Estimation
                         </h2>
-                        <p className="text-[10px] sm:text-sm text-gray-500 font-medium mt-0.5 sm:mt-1">Check tiered discounts based on your total quantity</p>
+                        <p className="text-[10px] sm:text-sm text-[var(--color-text-muted)] font-medium mt-0.5 sm:mt-1">Check tiered discounts based on your total quantity</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-400 hover:text-gray-900"
+                        className="p-2 hover:bg-[var(--color-bg)] rounded-full transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
                     >
                         <X size={24} />
                     </button>
@@ -116,22 +116,22 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                 {/* Content */}
                 <div
                     ref={modalContentRef}
-                    className="flex-grow overflow-y-auto p-4 sm:p-8 bg-gray-50/50"
+                    className="flex-grow overflow-y-auto p-4 sm:p-8 bg-[var(--color-bg)]/50"
                 >
 
                     {/* Bulk Input */}
-                    {/* <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    {/* <div className="bg-[var(--color-surface)] p-4 sm:p-6 rounded-2xl sm:rounded-3xl border border-[var(--color-border)] shadow-sm mb-6 sm:mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
-                            <label className="block text-xs sm:text-sm font-black text-gray-700 mb-2">Apply Quantity to All Products</label>
+                            <label className="block text-xs sm:text-sm font-black text-[var(--color-text)] mb-2">Apply Quantity to All Products</label>
                             <div className="flex items-center gap-3">
                                 <input
                                     type="number"
                                     value={baseQuantity}
                                     onChange={(e) => handleBaseQuantityChange(e.target.value)}
                                     placeholder="e.g. 100"
-                                    className="w-40 sm:w-50 px-3 sm:px-4 py-2 sm:py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-bold transition-all text-sm sm:text-base"
+                                    className="w-40 sm:w-50 px-3 sm:px-4 py-2 sm:py-3 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none font-bold transition-all text-sm sm:text-base"
                                 />
-                                <span className="text-xs sm:text-sm font-bold text-gray-700">units each</span>
+                                <span className="text-xs sm:text-sm font-bold text-[var(--color-text)]">units each</span>
                             </div>
                         </div>
                        
@@ -139,10 +139,10 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
 
                     {/* Product List */}
                     <div className="space-y-3 sm:space-y-4">
-                        <h3 className="text-xs sm:text-sm font-black text-gray-900 px-2 uppercase tracking-wider">Individual Product Quantities</h3>
+                        <h3 className="text-xs sm:text-sm font-black text-[var(--color-text)] px-2 uppercase tracking-wider">Individual Product Quantities</h3>
                         {products.map((product) => (
-                            <div key={product._id} className="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-gray-100 shadow-sm flex items-center gap-3 sm:gap-4 hover:border-blue-100 transition-colors">
-                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0">
+                            <div key={product._id} className="bg-[var(--color-surface)] p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-[var(--color-border)] shadow-sm flex items-center gap-3 sm:gap-4 hover:border-blue-100 transition-colors">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-[var(--color-bg)] rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0">
                                     <img
                                         src={product.images?.[0] || product.image || '/placeholder.png'}
                                         alt={product.name}
@@ -150,14 +150,14 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                     />
                                 </div>
                                 <div className="flex-grow min-w-0">
-                                    <h4 className="font-bold text-gray-900 truncate text-sm sm:text-base">{product.name}</h4>
-                                    <p className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">{product.category}</p>
-                                    <p className="text-xs sm:text-sm font-black text-blue-600 mt-0.5">₹{product.actualPrice} <span className="text-[8px] sm:text-[10px] text-gray-400 font-medium uppercase">(MRP)</span></p>
+                                    <h4 className="font-bold text-[var(--color-text)] truncate text-sm sm:text-base">{product.name}</h4>
+                                    <p className="text-[10px] sm:text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-wider">{product.category}</p>
+                                    <p className="text-xs sm:text-sm font-black text-blue-600 mt-0.5">₹{product.actualPrice} <span className="text-[8px] sm:text-[10px] text-[var(--color-text-muted)] font-medium uppercase">(MRP)</span></p>
                                 </div>
                                 <div className="flex items-center gap-1 sm:gap-2">
                                     <button
                                         onClick={() => updateIndividualQuantity(product._id, (Number(quantities[product._id]) || 0) - 1)}
-                                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg sm:rounded-xl text-gray-400 hover:text-blue-600 transition-colors border border-gray-100"
+                                        className="p-1.5 sm:p-2 hover:bg-[var(--color-bg)] rounded-lg sm:rounded-xl text-[var(--color-text-muted)] hover:text-blue-600 transition-colors border border-[var(--color-border)]"
                                     >
                                         <Minus size={14} className="sm:w-4 sm:h-4" />
                                     </button>
@@ -165,12 +165,12 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                         type="number"
                                         value={quantities[product._id]}
                                         onChange={(e) => updateIndividualQuantity(product._id, e.target.value)}
-                                        className="w-10 sm:w-16 text-center font-black text-gray-900 outline-none text-xs sm:text-sm"
+                                        className="w-10 sm:w-16 text-center font-black text-[var(--color-text)] outline-none text-xs sm:text-sm"
                                         placeholder="0"
                                     />
                                     <button
                                         onClick={() => updateIndividualQuantity(product._id, (Number(quantities[product._id]) || 0) + 1)}
-                                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg sm:rounded-xl text-gray-400 hover:text-blue-600 transition-colors border border-gray-100"
+                                        className="p-1.5 sm:p-2 hover:bg-[var(--color-bg)] rounded-lg sm:rounded-xl text-[var(--color-text-muted)] hover:text-blue-600 transition-colors border border-[var(--color-border)]"
                                     >
                                         <Plus size={14} className="sm:w-4 sm:h-4" />
                                     </button>
@@ -208,7 +208,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                             </div>
 
                             {/* Individual Detail Breakdown */}
-                            <div className="mt-6 bg-white/10 rounded-xl overflow-hidden relative">
+                            <div className="mt-6 bg-[var(--color-surface)]/10 rounded-xl overflow-hidden relative">
                                 <div className="flex items-center justify-between mb-2 sm:hidden px-3 pt-3">
                                     <p className="text-[10px] text-blue-200 font-bold flex items-center gap-1 uppercase tracking-tighter">
                                         <ArrowRightLeft size={10} /> Swipe horizontal for more details
@@ -217,7 +217,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                 <div className="overflow-x-auto custom-scrollbar">
                                     <table className="w-full text-[10px] sm:text-xs text-left min-w-[500px] sm:min-w-0">
                                         <thead>
-                                            <tr className="border-b border-white/20 bg-white/5">
+                                            <tr className="border-b border-white/20 bg-[var(--color-surface)]/5">
                                                 <th className="p-3 font-black">Product</th>
                                                 <th className="p-3 font-black text-center">Qty</th>
                                                 <th className="p-3 font-black text-right">MRP</th>
@@ -228,7 +228,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                         </thead>
                                         <tbody>
                                             {calculatedResults.items.filter(i => i.quantity > 0).map(item => (
-                                                <tr key={item._id} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                                                <tr key={item._id} className="border-b border-white/5 last:border-0 hover:bg-[var(--color-surface)]/5 transition-colors">
                                                     <td className="p-3 truncate max-w-[120px] sm:max-w-[150px]">{item.name}</td>
                                                     <td className="p-3 text-center">{item.quantity}</td>
                                                     <td className="p-3 text-right">₹{item.mrp}</td>
@@ -246,10 +246,10 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                 </div>
 
                 {/* Footer */}
-                <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-50 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 bg-white sticky bottom-0 z-10">
+                <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-50 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 bg-[var(--color-surface)] sticky bottom-0 z-10">
                     <button
                         onClick={onClose}
-                        className="w-full sm:w-auto px-8 py-3 sm:py-4 text-gray-500 font-black hover:text-gray-900 transition-colors text-sm sm:text-base"
+                        className="w-full sm:w-auto px-8 py-3 sm:py-4 text-[var(--color-text-muted)] font-black hover:text-[var(--color-text)] transition-colors text-sm sm:text-base"
                     >
                         Close
                     </button>

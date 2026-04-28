@@ -194,28 +194,28 @@ export default function NewArrivalsAdmin() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Elite Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-8 rounded-xl border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-xl shadow-blue-600/20">
+                        <div className="p-2.5 rounded-xl" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
                             <Sparkles size={24} />
                         </div>
-                        <h1 className="text-2xl font-black text-gray-900 tracking-tight">Showcase Management</h1>
+                        <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>Showcase Management</h1>
                     </div>
-                    <p className="text-gray-500 font-medium">Curate the future collection and build employee anticipation.</p>
+                    <p className="font-medium" style={{ color: 'var(--color-text-muted)' }}>Curate the future collection and build employee anticipation.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <button
                         onClick={() => setFilterStatus(filterStatus === 'all' ? 'coming-soon' : filterStatus === 'coming-soon' ? 'live' : 'all')}
-                        className="p-3 bg-gray-50 text-gray-600 rounded-2xl hover:bg-gray-100 transition-all flex items-center gap-2 text-sm font-bold"
+                        className="p-3 rounded-xl transition-all flex items-center gap-2 text-sm font-bold border" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
                     >
                         <Filter size={18} />
                         <span className="capitalize">{filterStatus.replace('-', ' ')}</span>
                     </button>
-                    <div className="h-10 w-px bg-gray-200 mx-2 hidden lg:block"></div>
+                    <div className="h-10 w-px mx-2 hidden lg:block" style={{ backgroundColor: 'var(--color-border)' }}></div>
                     <button
                         onClick={openCreateModal}
-                        className="bg-gray-900 hover:bg-black text-white px-8 py-3.5 rounded-2xl flex items-center space-x-2 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)] transition-all active:scale-95 text-sm font-black"
+                        className="px-8 py-3.5 rounded-xl flex items-center space-x-2 transition-all active:scale-95 text-sm font-black" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                     >
                         <Plus size={20} />
                         <span>Curate New Item</span>
@@ -225,11 +225,11 @@ export default function NewArrivalsAdmin() {
 
             {/* Search Bar */}
             <div className="relative max-w-xl group">
-                <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 transition-colors" style={{ color: 'var(--color-text-muted)' }} />
                 <input
                     type="text"
                     placeholder="Search showcase collection..."
-                    className="w-full bg-white border border-gray-100 pl-16 pr-8 py-4 rounded-[2rem] shadow-sm focus:ring-4 focus:ring-blue-600/5 outline-none font-medium placeholder:text-gray-300 transition-all"
+                    className="w-full pl-16 pr-8 py-4 rounded-xl outline-none placeholder:text-sm font-medium transition-all border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -237,26 +237,26 @@ export default function NewArrivalsAdmin() {
 
             {/* Content Stage */}
             {loading && arrivals.length === 0 ? (
-                <div className="bg-white rounded-3xl p-32 text-center border border-gray-100 shadow-sm">
-                    <div className="w-16 h-16 border-4 border-gray-100 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
-                    <p className="text-gray-400 font-black uppercase tracking-[0.2em] text-[10px]">Accessing Vault...</p>
+                <div className="rounded-xl p-32 text-center border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-6" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-text)' }}></div>
+                    <p className="font-black uppercase tracking-[0.2em] text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Accessing Vault...</p>
                 </div>
             ) : filteredArrivals.length === 0 ? (
-                <div className="bg-white rounded-3xl p-32 text-center border border-gray-100 shadow-sm flex flex-col items-center">
-                    <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mb-8 border border-gray-100 rotate-12 transition-transform hover:rotate-0 duration-500">
-                        <Package size={40} className="text-gray-300" />
+                <div className="rounded-xl p-32 text-center border flex flex-col items-center" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="w-24 h-24 rounded-xl flex items-center justify-center mb-8 border rotate-12 transition-transform hover:rotate-0 duration-500" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-border)' }}>
+                        <Package size={40} />
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 mb-3">No matching items found</h3>
-                    <p className="text-gray-500 max-w-sm mb-8 font-medium">Adjust your search or filters to see the curated collection.</p>
+                    <h3 className="text-2xl font-black mb-3" style={{ color: 'var(--color-text)' }}>No matching items found</h3>
+                    <p className="max-w-sm mb-8 font-medium" style={{ color: 'var(--color-text-muted)' }}>Adjust your search or filters to see the curated collection.</p>
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="text-blue-600 font-black text-sm p-4 hover:bg-blue-50 rounded-2xl transition-all">Clear All Search</button>
+                        <button onClick={() => setSearchTerm('')} className="font-black text-sm p-4 rounded-xl transition-all" style={{ color: 'var(--color-text)' }}>Clear Search</button>
                     )}
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
                     {filteredArrivals.map((arrival) => (
-                        <div key={arrival._id} className="group bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 flex flex-col">
-                            <div className="h-64 bg-[#FBFBFC] relative overflow-hidden m-3 rounded-[2rem] border border-gray-50">
+                        <div key={arrival._id} className="group rounded-xl border overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                            <div className="h-74 relative overflow-hidden m-3 rounded-xl border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                                 <ProductImageSlider
                                     images={arrival.images}
                                     onOpenModal={(idx) => setSliderModal({ isOpen: true, images: arrival.images, index: idx })}
@@ -266,13 +266,13 @@ export default function NewArrivalsAdmin() {
                                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); openEditModal(arrival); }}
-                                        className="p-3 bg-white text-gray-900 rounded-2xl shadow-xl hover:bg-blue-600 hover:text-white transition-all transform hover:scale-110"
+                                        className="p-3 rounded-xl shadow-md transition-all transform hover:scale-110" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)' }}
                                     >
                                         <Edit size={18} />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(arrival._id); }}
-                                        className="p-3 bg-white text-gray-400 rounded-2xl shadow-xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                                        className="p-3 bg-[var(--color-surface)] text-[var(--color-text-muted)] rounded-xl shadow-xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
                                     >
                                         <Trash2 size={18} />
                                     </button>
@@ -281,12 +281,12 @@ export default function NewArrivalsAdmin() {
                                 {/* Status Pills */}
                                 <div className="absolute bottom-4 left-4 flex flex-col gap-2">
                                     {arrival.isComingSoon ? (
-                                        <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] font-black text-blue-600 uppercase tracking-widest shadow-xl border border-white flex items-center gap-1.5">
-                                            <div className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></div>
+                                        <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
+                                            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-text)' }}></div>
                                             Coming Soon
                                         </div>
                                     ) : (
-                                        <div className="bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-xl text-[9px] font-black text-green-600 uppercase tracking-widest shadow-xl border border-white flex items-center gap-1.5">
+                                        <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
                                             <CheckCircle2 size={10} />
                                             Live Now
                                         </div>
@@ -300,15 +300,15 @@ export default function NewArrivalsAdmin() {
                             </div>
 
                             <div className="px-8 pb-8 pt-4">
-                                <h3 className="font-black text-gray-900 text-lg mb-2 truncate group-hover:text-blue-600 transition-colors">{arrival.productName}</h3>
-                                <p className="text-xs text-gray-400 font-medium line-clamp-2 leading-relaxed h-10 italic">
+                                <h3 className="font-black text-lg mb-2 truncate" style={{ color: 'var(--color-text)' }}>{arrival.productName}</h3>
+                                <p className="text-xs font-medium line-clamp-2 leading-relaxed h-10 italic" style={{ color: 'var(--color-text-muted)' }}>
                                     "{arrival.description || 'No curated description set.'}"
                                 </p>
-                                <div className="mt-6 pt-6 border-t border-gray-50 flex items-center justify-between">
-                                    <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">{arrival.images?.length || 0} Assets</span>
+                                <div className="mt-6 pt-6 flex items-center justify-between" style={{ borderTop: '1px solid var(--color-border)' }}>
+                                    <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--color-text-muted)' }}>{arrival.images?.length || 0} Assets</span>
                                     <button
                                         onClick={() => openEditModal(arrival)}
-                                        className="text-[10px] font-black text-gray-900 uppercase tracking-widest hover:text-blue-600 flex items-center gap-2"
+                                        className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2" style={{ color: 'var(--color-text)' }}
                                     >
                                         Management <Maximize2 size={10} />
                                     </button>
@@ -321,56 +321,53 @@ export default function NewArrivalsAdmin() {
 
             {/* Elite Modal */}
             {showModal && (
-                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-md z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[3rem] w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh] scale-in overflow-hidden border border-white/20">
-                        <div className="p-10 border-b flex justify-between items-center bg-[#FBFBFC]">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
+                    <div className="rounded-2xl w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                        <div className="p-8 border-b flex justify-between items-center" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-gray-900 rounded-2xl text-white">
-                                    {isEditing ? <Edit size={24} /> : <Plus size={24} />}
+                                <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
+                                    {isEditing ? <Edit size={22} /> : <Plus size={22} />}
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black text-gray-900 tracking-tight">{isEditing ? 'Curate Item' : 'Assemble Item'}</h2>
-                                    <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Product Details & Assets</p>
+                                    <h2 className="text-xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>{isEditing ? 'Curate Item' : 'Assemble Item'}</h2>
+                                    <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: 'var(--color-text-muted)' }}>Product Details & Assets</p>
                                 </div>
                             </div>
-                            <button onClick={closeModal} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-sm text-gray-400 hover:text-gray-900 hover:rotate-90 transition-all duration-300">
-                                <X size={24} />
+                            <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center rounded-xl transition-all hover:rotate-90 duration-300" style={{ color: 'var(--color-text-muted)' }}>
+                                <X size={22} />
                             </button>
                         </div>
 
                         <form onSubmit={handleSubmit} className="p-10 space-y-8 overflow-y-auto flex-1 custom-scrollbar">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="col-span-full md:col-span-1">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Item Descriptor</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Item Descriptor</label>
                                     <input
                                         type="text" required
                                         placeholder="e.g. Obsidian Series Watch"
-                                        className="w-full bg-gray-50 border-none px-6 py-4 rounded-[1.5rem] focus:ring-4 focus:ring-blue-600/5 text-gray-900 font-black placeholder:text-gray-300"
+                                        className="w-full px-6 py-4 rounded-xl outline-none font-black text-sm border transition-all"
+                                        style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                         value={formData.productName}
                                         onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
                                     />
                                 </div>
                                 <div className="col-span-full md:col-span-1">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Launch Configuration</label>
-                                    <div className="flex items-center justify-between bg-gray-50 px-6 py-4 rounded-[1.5rem]">
-                                        <span className="text-sm font-black text-gray-900">Show Coming Soon</span>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Launch Configuration</label>
+                                    <div className="flex items-center justify-between px-6 py-4 rounded-xl border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                        <span className="text-sm font-black" style={{ color: 'var(--color-text)' }}>Show Coming Soon</span>
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="sr-only peer"
-                                                checked={formData.isComingSoon}
-                                                onChange={(e) => setFormData({ ...formData, isComingSoon: e.target.checked })}
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                            <input type="checkbox" className="sr-only peer" checked={formData.isComingSoon} onChange={(e) => setFormData({ ...formData, isComingSoon: e.target.checked })} />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--color-surface)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all" style={{ '--tw-peer-checked-bg': 'var(--color-text)' }}></div>
                                         </label>
                                     </div>
                                 </div>
                                 <div className="col-span-full">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Collection Notes</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Collection Notes</label>
                                     <textarea
                                         rows={4}
                                         placeholder="Describe the exclusivity of this product..."
-                                        className="w-full bg-gray-50 border-none px-6 py-4 rounded-[1.5rem] focus:ring-4 focus:ring-blue-600/5 text-gray-900 font-bold placeholder:text-gray-300 resize-none"
+                                        className="w-full px-6 py-4 rounded-xl outline-none font-bold resize-none text-sm border transition-all"
+                                        style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     />
@@ -378,12 +375,12 @@ export default function NewArrivalsAdmin() {
 
                                 {formData.isComingSoon && (
                                     <div className="col-span-full animate-in slide-in-from-top-4 duration-500">
-                                        <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Strategic Launch Date</label>
+                                        <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest mb-3">Strategic Launch Date</label>
                                         <div className="relative">
-                                            <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                                            <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={20} />
                                             <input
                                                 type="date"
-                                                className="w-full bg-gray-50 border-none pl-14 pr-6 py-4 rounded-[1.5rem] focus:ring-4 focus:ring-blue-600/5 text-gray-900 font-black"
+                                                className="w-full pl-14 pr-6 py-4 rounded-xl outline-none font-black text-sm border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                                 value={formData.comingSoonDate}
                                                 onChange={(e) => setFormData({ ...formData, comingSoonDate: e.target.value })}
                                             />
@@ -392,10 +389,10 @@ export default function NewArrivalsAdmin() {
                                 )}
 
                                 <div className="col-span-full">
-                                    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">High-Resolution Assets (Max 5)</label>
+                                    <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest mb-3">High-Resolution Assets (Max 5)</label>
                                     <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                                         {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative aspect-square bg-gray-50 rounded-[1.25rem] border border-gray-100 overflow-hidden group/thumb shadow-sm">
+                                            <div key={index} className="relative aspect-square bg-[var(--color-bg)] rounded-[1.25rem] border border-[var(--color-border)] overflow-hidden group/thumb shadow-sm">
                                                 <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
                                                 <button
                                                     type="button"
@@ -407,9 +404,9 @@ export default function NewArrivalsAdmin() {
                                             </div>
                                         ))}
                                         {imagePreviews.length < 5 && (
-                                            <label className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 rounded-[1.25rem] flex flex-col items-center justify-center cursor-pointer hover:bg-gray-100 hover:border-blue-600 transition-all group/upload">
-                                                <Upload size={24} className="text-gray-400 group-hover/upload:text-blue-600 transition-colors" />
-                                                <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2 group-hover/upload:text-blue-600">Add Asset</span>
+                                            <label className="aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:opacity-70 transition-all" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                                <Upload size={24} style={{ color: 'var(--color-text-muted)' }} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest mt-2" style={{ color: 'var(--color-text-muted)' }}>Add Asset</span>
                                                 <input
                                                     type="file"
                                                     multiple
@@ -424,18 +421,16 @@ export default function NewArrivalsAdmin() {
                             </div>
                         </form>
 
-                        <div className="p-10 bg-gray-50 border-t">
+                        <div className="p-8 border-t" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                             <button
                                 type="submit"
                                 disabled={submitting}
                                 onClick={handleSubmit}
-                                className="w-full bg-gray-900 text-white py-5 rounded-[2rem] font-black hover:bg-black transition-all shadow-2xl shadow-gray-900/40 disabled:bg-gray-200 group relative overflow-hidden"
+                                className="w-full py-4 rounded-xl font-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-sm"
+                                style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                             >
-                                <span className="relative z-10 flex items-center justify-center gap-3 text-lg">
-                                    {submitting ? 'Authenticating Assets...' : isEditing ? 'Update Selection' : 'Finalize Showcase'}
-                                    {!submitting && <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />}
-                                </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                {submitting ? 'Saving...' : isEditing ? 'Update Selection' : 'Finalize Showcase'}
+                                {!submitting && <ArrowRight size={18} />}
                             </button>
                         </div>
                     </div>

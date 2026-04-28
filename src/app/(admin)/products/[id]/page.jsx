@@ -149,7 +149,7 @@ export default function AdminProductDetailPage() {
     );
 
     if (error || !product) return (
-        <div className="p-8 text-center bg-white rounded-2xl border border-red-100">
+        <div className="p-8 text-center bg-[var(--color-surface)] rounded-2xl border border-red-100">
             <p className="text-red-500 font-bold mb-4">{error || 'Product not found'}</p>
             <Link href="/products" className="text-blue-600 font-bold hover:underline">Back to Catalog</Link>
         </div>
@@ -163,21 +163,21 @@ export default function AdminProductDetailPage() {
             <div className="flex items-center justify-between">
                 <button
                     onClick={() => router.back()}
-                    className="flex items-center text-gray-500 hover:text-blue-600 font-bold transition-colors text-sm uppercase tracking-widest"
+                    className="flex items-center text-[var(--color-text-muted)] hover:text-blue-600 font-bold transition-colors text-sm uppercase tracking-widest"
                 >
                     <ArrowLeft size={18} className="mr-2" /> Back to Catalog
                 </button>
                 <div className="flex space-x-3">
                     <button
                         onClick={handleOpenEdit}
-                        className="p-2.5 bg-white text-blue-600 rounded-xl border border-blue-100 shadow-sm hover:bg-blue-50 transition-all flex items-center space-x-2 px-4"
+                        className="p-2.5 bg-[var(--color-surface)] text-blue-600 rounded-xl border border-blue-100 shadow-sm hover:bg-blue-50 transition-all flex items-center space-x-2 px-4"
                     >
                         <Edit size={18} />
                         <span className="font-bold text-xs uppercase">Edit</span>
                     </button>
                     <button
                         onClick={handleDelete}
-                        className="p-2.5 bg-white text-red-600 rounded-xl border border-red-100 shadow-sm hover:bg-red-50 transition-all flex items-center space-x-2 px-4"
+                        className="p-2.5 bg-[var(--color-surface)] text-red-600 rounded-xl border border-red-100 shadow-sm hover:bg-red-50 transition-all flex items-center space-x-2 px-4"
                     >
                         <Trash2 size={18} />
                         <span className="font-bold text-xs uppercase">Delete</span>
@@ -185,10 +185,10 @@ export default function AdminProductDetailPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white p-8 md:p-12 rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-[var(--color-surface)] p-8 md:p-12 rounded-3xl border border-[var(--color-border)] shadow-sm overflow-hidden">
                 {/* Image Section */}
                 <div className="space-y-6 min-w-0">
-                    <div className="aspect-square bg-gray-50 rounded-[2rem] overflow-hidden relative border border-gray-100 group">
+                    <div className="aspect-square bg-[var(--color-bg)] rounded-[2rem] overflow-hidden relative border border-[var(--color-border)] group">
                         <ProductImageSlider
                             images={images}
                             onOpenModal={(idx) => setSliderModal({ isOpen: true, images, index: idx })}
@@ -201,7 +201,7 @@ export default function AdminProductDetailPage() {
                             <div
                                 key={idx}
                                 onClick={() => setSliderModal({ isOpen: true, images, index: idx })}
-                                className="aspect-square rounded-xl overflow-hidden border border-gray-100 cursor-pointer hover:border-blue-500 transition-all"
+                                className="aspect-square rounded-xl overflow-hidden border border-[var(--color-border)] cursor-pointer hover:border-blue-500 transition-all"
                             >
                                 <img src={img} className="w-full h-full object-cover" alt={`Thumb ${idx}`} />
                             </div>
@@ -216,9 +216,9 @@ export default function AdminProductDetailPage() {
                             <Tag size={12} />
                             <span>Global Catalog Item</span>
                         </div>
-                        <h1 className="text-4xl font-black text-gray-900 leading-tight mb-4">{product.name}</h1>
+                        <h1 className="text-4xl font-black text-[var(--color-text)] leading-tight mb-4">{product.name}</h1>
                         <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 mb-6 overflow-hidden">
-                            <p className="text-gray-600 text-base leading-relaxed whitespace-pre-line break-words">
+                            <p className="text-[var(--color-text-muted)] text-base leading-relaxed whitespace-pre-line break-words">
                                 {product.description || 'No description available for this premium reward selection.'}
                             </p>
                         </div>
@@ -236,22 +236,22 @@ export default function AdminProductDetailPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-center space-x-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="flex items-center space-x-4 p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm">
                             <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
                                 <ShieldCheck size={20} />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-gray-900">Quality Assured</p>
-                                <p className="text-[10px] text-gray-500 font-medium">Hand-selected for corporate standards</p>
+                                <p className="text-xs font-bold text-[var(--color-text)]">Quality Assured</p>
+                                <p className="text-[10px] text-[var(--color-text-muted)] font-medium">Hand-selected for corporate standards</p>
                             </div>
                         </div>
-                        <div className="flex items-center space-x-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm">
+                        <div className="flex items-center space-x-4 p-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl shadow-sm">
                             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
                                 <Calendar size={20} />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-gray-900">Immediate Availability</p>
-                                <p className="text-[10px] text-gray-500 font-medium">Available for all active gifting cycles</p>
+                                <p className="text-xs font-bold text-[var(--color-text)]">Immediate Availability</p>
+                                <p className="text-[10px] text-[var(--color-text-muted)] font-medium">Available for all active gifting cycles</p>
                             </div>
                         </div>
                     </div>
@@ -268,17 +268,17 @@ export default function AdminProductDetailPage() {
             {/* Edit Modal */}
             {showEditModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
-                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
-                            <h2 className="text-xl font-bold text-gray-800">Edit Product</h2>
-                            <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600">
+                    <div className="bg-[var(--color-surface)] rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b flex justify-between items-center bg-[var(--color-bg)]">
+                            <h2 className="text-xl font-bold text-[var(--color-text)]">Edit Product</h2>
+                            <button onClick={() => setShowEditModal(false)} className="text-[var(--color-text-muted)] hover:text-[var(--color-text-muted)]">
                                 <X size={24} />
                             </button>
                         </div>
 
                         <form onSubmit={handleUpdate} className="p-6 space-y-4 overflow-y-auto flex-1">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Product Name</label>
+                                <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Product Name</label>
                                 <input
                                     type="text" required
                                     className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -287,7 +287,7 @@ export default function AdminProductDetailPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                                <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Description</label>
                                 <textarea
                                     rows={3}
                                     className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none text-sm"
@@ -298,7 +298,7 @@ export default function AdminProductDetailPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">MRP</label>
+                                    <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">MRP</label>
                                     <input
                                         type="number" required
                                         className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -307,7 +307,7 @@ export default function AdminProductDetailPage() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Offer Price</label>
+                                    <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Offer Price</label>
                                     <input
                                         type="number" required
                                         className="w-full border p-2.5 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -318,7 +318,7 @@ export default function AdminProductDetailPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Images (Max 5)</label>
+                                <label className="block text-sm font-semibold text-[var(--color-text)] mb-2">Images (Max 5)</label>
                                 <div className="flex flex-wrap gap-2">
                                     {imagePreviews.map((preview, index) => (
                                         <div key={index} className="relative w-16 h-16 border rounded-lg overflow-hidden group">
@@ -333,8 +333,8 @@ export default function AdminProductDetailPage() {
                                         </div>
                                     ))}
                                     {imagePreviews.length < 5 && (
-                                        <label className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50">
-                                            <Upload size={16} className="text-gray-400" />
+                                        <label className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-[var(--color-bg)]">
+                                            <Upload size={16} className="text-[var(--color-text-muted)]" />
                                             <input type="file" multiple className="hidden" accept="image/*" onChange={handleImageChange} />
                                         </label>
                                     )}

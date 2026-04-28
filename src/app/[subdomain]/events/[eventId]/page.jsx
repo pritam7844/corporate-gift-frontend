@@ -5,8 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
-import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator, Maximize, Eye } from 'lucide-react';
-import Link from 'next/link';
+import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator, Maximize, Eye, Loader2 } from 'lucide-react';
 import FormattedDate from '../../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../../components/common/ProductImageSlider';
@@ -20,18 +19,16 @@ export default function EventProductsPage() {
     const { items, addToCart, removeFromCart, updateQuantity } = useCartStore();
 
     const [event, setEvent] = useState(null);
-    const [isOrdered, setIsOrdered] = useState(false); // New state to track participation
+    const [isOrdered, setIsOrdered] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // Image Popup State
     const [sliderModal, setSliderModal] = useState({
         isOpen: false,
         images: [],
         index: 0
     });
 
-    // Confirmation Modal State
     const [confirmState, setConfirmState] = useState({
         isOpen: false,
         title: '',
@@ -55,11 +52,9 @@ export default function EventProductsPage() {
     useEffect(() => {
         const fetchEventDetails = async () => {
             try {
-                // Fetch Event Details
                 const data = await getEventByIdAPI(eventId);
                 setEvent(data);
 
-                // Check if user has already ordered for this event in the current cycle
                 const requestsRes = await import('../../../../lib/api').then(m => m.default.get('/gift-requests/my-requests'));
                 const userRequests = requestsRes.data.data || [];
                 const alreadyOrdered = userRequests.some(req =>
@@ -77,13 +72,11 @@ export default function EventProductsPage() {
         fetchEventDetails();
     }, [eventId]);
 
-    // Derived state for the specific event's cart items
     const getProductCartQuantity = (productId) => {
         const item = items.find(i => i.product._id === productId && i.eventId === eventId);
         return item ? item.quantity : 0;
     };
     const handleAddToCart = (product) => {
-        // Check for event conflict (only one event's products allowed in cart at once)
         if (items.length > 0 && items[0].eventId !== eventId) {
             openConfirm(
                 'Event Conflict',
@@ -121,20 +114,18 @@ export default function EventProductsPage() {
 
     if (!isHydrated) {
         return (
-            <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="min-h-[60vh] flex items-center justify-center bg-[var(--color-bg)]">
+                <Loader2 className="w-8 h-8 text-[var(--color-text)] animate-spin" />
             </div>
         );
     }
 
-    if (!user) {
-        return null;
-    }
+    if (!user) return null;
 
     if (loading) {
         return (
-            <div className="min-h-[60vh] flex items-center justify-center">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+            <div className="min-h-[60vh] flex items-center justify-center bg-[var(--color-bg)]">
+                <Loader2 className="w-8 h-8 text-[var(--color-text)] animate-spin" />
             </div>
         );
     }
@@ -144,11 +135,11 @@ export default function EventProductsPage() {
             <div className="max-w-7xl mx-auto px-6 py-12">
                 <button
                     onClick={() => router.push(`/events`)}
-                    className="flex items-center text-slate-500 hover:text-indigo-600 mb-6 transition-colors text-sm font-semibold"
+                    className="flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-8 transition-colors text-[10px] font-black uppercase tracking-[0.2em]"
                 >
-                    <ChevronLeft size={18} className="mr-1" /> Back to Programs
+                    <ChevronLeft size={16} className="mr-2" /> Back to Programs
                 </button>
-                <div className="bg-red-50 text-red-600 p-4 rounded-lg font-medium border border-red-100/50">
+                <div className="bg-red-50 text-red-600 p-6 rounded-2xl font-bold border border-red-100 shadow-sm">
                     {error || 'Program not found.'}
                 </div>
             </div>
@@ -159,47 +150,51 @@ export default function EventProductsPage() {
 
     return (
         <main className="max-w-7xl mx-auto px-6 py-12">
-
             {/* Header Content */}
-            <div className="mb-12 border-b border-slate-200 pb-8">
-                <button
-                    onClick={() => router.push(`/events`)}
-                    className="flex items-center text-slate-500 hover:text-indigo-600 mb-6 font-bold transition-colors text-xs uppercase tracking-wider"
-                >
-                    <ChevronLeft size={16} className="mr-1" /> Back to Programs
-                </button>
+            <div className="mb-16 border-b border-[var(--color-border)] pb-12">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                    <div className="flex-1">
+                        <button
+                            onClick={() => router.push(`/events`)}
+                            className="flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] mb-8 font-black transition-colors text-[10px] uppercase tracking-[0.2em]"
+                        >
+                            <ChevronLeft size={16} className="mr-2" /> Back to Programs
+                        </button>
 
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-4">{event.name}</h1>
-                <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-500">
-                    <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-md border border-indigo-100/50 uppercase tracking-wider">
-                        {products.length} Options
-                    </span>
-                    {event.endDate && (
-                        <span className="flex items-center text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200/50 uppercase tracking-wider">
-                            <Clock size={14} className="mr-1.5" />
-                            Ends <FormattedDate date={event.endDate} />
-                        </span>
-                    )}
-                    {isOrdered && (
-                        <div className="flex items-center gap-3">
-                            <span className="flex items-center text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100/50 uppercase tracking-wider">
-                                <ShoppingCart size={14} className="mr-1.5" />
-                                Selection Submitted
+                        <h1 className="text-4xl md:text-5xl font-black text-[var(--color-text)] tracking-tight mb-6">{event.name}</h1>
+
+                        <div className="flex flex-wrap items-center gap-4">
+                            <span className="px-4 py-1.5 bg-[var(--color-accent)] text-[var(--color-text)] rounded-lg border border-[var(--color-border)] text-[10px] font-black uppercase tracking-[0.2em]">
+                                {products.length} Curated Options
                             </span>
-                            <button
-                                onClick={() => router.push('/orders')}
-                                className="text-indigo-600 hover:text-indigo-800 text-xs font-bold underline flex items-center uppercase tracking-wider"
-                            >
-                                History <ChevronRight size={12} className="ml-0.5" />
-                            </button>
+                            {event.endDate && (
+                                <span className="flex items-center text-[var(--color-text-muted)] bg-[var(--color-bg)] px-4 py-1.5 rounded-lg border border-[var(--color-border)] text-[10px] font-black uppercase tracking-[0.2em]">
+                                    <Clock size={14} className="mr-2" />
+                                    Ends <FormattedDate date={event.endDate} />
+                                </span>
+                            )}
+                            {isOrdered && (
+                                <div className="flex items-center gap-4">
+                                    <span className="flex items-center text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-lg border border-emerald-100 text-[10px] font-black uppercase tracking-[0.2em]">
+                                        <ShoppingCart size={14} className="mr-2" />
+                                        Selection Submitted
+                                    </span>
+                                    <button
+                                        onClick={() => router.push('/orders')}
+                                        className="text-[var(--color-text)] hover:opacity-70 text-[10px] font-black underline flex items-center uppercase tracking-[0.2em] transition-all"
+                                    >
+                                        History <ChevronRight size={14} className="ml-1" />
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     <button
                         onClick={() => setIsBulkModalOpen(true)}
-                        className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-indigo-600 transition-all shadow-sm uppercase tracking-wider"
+                        className="flex-shrink-0 flex items-center gap-3 bg-[var(--color-text)] text-[var(--color-surface)] px-8 py-4 rounded-xl text-[10px] font-black hover:opacity-90 transition-all shadow-xl uppercase tracking-[0.2em]"
                     >
-                        <Calculator size={14} />
+                        <Calculator size={16} />
                         Bulk Estimate
                     </button>
                 </div>
@@ -207,100 +202,104 @@ export default function EventProductsPage() {
 
             {/* Product Grid */}
             {products.length === 0 ? (
-                <div className="text-center py-20 bg-white rounded-xl border border-slate-200 shadow-sm">
-                    <div className="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div className="text-center py-32 bg-[var(--color-surface)] rounded-3xl border border-[var(--color-border)] shadow-xl">
+                    <div className="w-20 h-20 bg-[var(--color-bg)] text-[var(--color-text-muted)] rounded-2xl flex items-center justify-center mx-auto mb-8 border border-[var(--color-border)] opacity-30">
                         <Tag size={32} />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">No Rewards Available</h2>
-                    <p className="text-slate-500 text-sm font-medium">There are currently no items assigned to this program.</p>
+                    <h2 className="text-2xl font-black text-[var(--color-text)] mb-3">No Rewards Available</h2>
+                    <p className="text-[var(--color-text-muted)] font-bold opacity-70">There are currently no items assigned to this program.</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
                     {products.map((product) => {
                         const quantity = getProductCartQuantity(product._id);
                         const hasDiscount = product.discountedPrice && product.discountedPrice < product.actualPrice;
 
                         return (
-                            <div key={product._id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden group hover:shadow-md transition-all duration-300 flex flex-col">
+
+                            <div 
+                                key={product._id} 
+                                onClick={() => router.push(`/events/${eventId}/products/${product._id}`)}
+                                className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-sm overflow-hidden group hover:shadow-2xl transition-all duration-500 flex flex-col cursor-pointer relative"
+                            >
                                 {/* Image Box */}
-                                <div className="h-100 bg-slate-50 relative overflow-hidden flex items-center justify-center border-b border-slate-100">
-                                    <Link href={`/events/${eventId}/products/${product._id}`} className="block h-full w-full">
-                                        <ProductImageSlider
-                                            images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
-                                            showFullscreen={false}
-                                        />
-                                    </Link>
+                                <div className="h-[24rem] bg-[var(--color-bg)] relative overflow-hidden flex items-center justify-center border-b border-[var(--color-border)]">
+                                    <ProductImageSlider
+                                        images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
+                                        showFullscreen={false}
+                                    />
                                     {/* Category Badge */}
-                                    <div className="absolute top-3 left-3 bg-white border border-slate-200 px-2 py-0.5 rounded text-[9px] font-bold text-slate-500 uppercase tracking-widest shadow-sm">
+                                    <div className="absolute top-4 left-4 bg-[var(--color-surface)] border border-[var(--color-border)] px-3 py-1 rounded-lg text-[9px] font-black text-[var(--color-text)] uppercase tracking-[0.2em] shadow-md z-10">
                                         {product.category}
                                     </div>
 
                                     {/* Discount Badge */}
                                     {hasDiscount && (
-                                        <div className="absolute top-3 right-3 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wider">
-                                            {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% OFF
+                                        <div className="absolute top-4 right-4 bg-emerald-600 text-white text-[9px] font-black px-3 py-1 rounded-lg shadow-md uppercase tracking-[0.2em] z-10">
+                                            {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% Advantage
                                         </div>
                                     )}
                                 </div>
 
                                 {/* Content Box */}
-                                <Link href={`/events/${eventId}/products/${product._id}`} className="p-5 flex-grow flex flex-col group/link">
-                                    <h3 className="text-base font-bold text-slate-900 mb-2 leading-snug line-clamp-2 min-h-[2.5rem] group-hover/link:text-indigo-600 transition-colors">{product.name}</h3>
-                                    {product.description && (
-                                        <p className="text-[11px] text-slate-500 mb-4 line-clamp-2 leading-relaxed">{product.description}</p>
-                                    )}
-                                </Link>
-                                <div className="px-5 pb-5">
+                                <div className="p-6 flex-grow flex flex-col">
+                                    <h3 className="text-lg font-black text-[var(--color-text)] leading-tight line-clamp-2 group-hover:opacity-70 transition-opacity mb-2">{product.name}</h3>
 
-                                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100">
-                                        <div>
+                                    {product.description && (
+                                        <p className="text-xs text-[var(--color-text-muted)] mb-4 line-clamp-2 leading-relaxed font-bold opacity-70">{product.description}</p>
+                                    )}
+
+                                    <div className="mt-auto pt-4 flex items-center justify-between border-t border-[var(--color-border)]">
+                                        <div className="flex flex-col">
                                             {hasDiscount ? (
-                                                <div className="flex flex-col">
-                                                    <span className="text-slate-400 text-[10px] line-through font-semibold">₹{product.actualPrice}</span>
-                                                    <span className="text-indigo-600 font-bold text-lg">₹{product.discountedPrice}</span>
-                                                </div>
+                                                <>
+                                                    <span className="text-[var(--color-text-muted)] text-[10px] line-through font-black opacity-40">₹{product.actualPrice}</span>
+                                                    <span className="text-[var(--color-text)] font-black text-xl tracking-tight">₹{product.discountedPrice}</span>
+                                                </>
                                             ) : (
-                                                <span className="text-slate-900 font-bold text-lg">₹{product.actualPrice}</span>
+                                                <span className="text-[var(--color-text)] font-black text-xl tracking-tight">₹{product.actualPrice}</span>
                                             )}
                                         </div>
 
-                                        {/* Add to Cart Controls */}
-                                        <div className="relative">
+                                        {/* Actions */}
+                                        <div className="relative" onClick={(e) => e.stopPropagation()}>
                                             {isOrdered ? (
-                                                <div className="bg-slate-50 text-slate-400 font-bold px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider border border-slate-100">
-                                                    Selected
+                                                <div className="bg-[var(--color-bg)] text-[var(--color-text-muted)] font-black px-4 py-2 rounded-xl text-[10px] uppercase tracking-[0.2em] border border-[var(--color-border)] shadow-inner">
+                                                    Locked
                                                 </div>
                                             ) : quantity === 0 ? (
-                                                <div className="space-y-2">
-                                                    <Link
-                                                        href={`/events/${eventId}/products/${product._id}`}
-                                                        className="w-full bg-slate-50 text-slate-600 hover:bg-slate-100 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 border border-slate-200"
-                                                    >
-                                                        {/* <Eye size={14} /> */}
-                                                        <span>View Details</span>
-                                                    </Link>
+                                                <div className="flex gap-2">
                                                     <button
-                                                        onClick={() => handleAddToCart(product)}
-                                                        className="w-full bg-slate-900 text-white hover:bg-indigo-600 text-xs font-bold py-3 rounded-lg transition-colors duration-300 flex items-center justify-center space-x-2 group/btn shadow-md p-5"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleAddToCart(product);
+                                                        }}
+                                                        className="bg-[var(--color-text)] text-[var(--color-surface)] hover:opacity-90 px-6 py-3 rounded-xl transition-all shadow-lg flex items-center gap-3 group/btn"
                                                     >
-                                                        <ShoppingCart size={14} />
-                                                        <span>Add For Sample</span>
+                                                        <ShoppingCart size={16} />
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Add Sample</span>
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="flex items-center bg-indigo-600 text-white rounded-lg overflow-hidden shadow-sm">
+                                                <div className="flex items-center bg-[var(--color-text)] text-[var(--color-surface)] rounded-xl overflow-hidden shadow-lg border border-[var(--color-text)]">
                                                     <button
-                                                        onClick={() => updateQuantity(product._id, eventId, quantity - 1)}
-                                                        className="px-2.5 py-1.5 hover:bg-indigo-700 transition-colors"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            updateQuantity(product._id, eventId, quantity - 1);
+                                                        }}
+                                                        className="px-4 py-3 hover:bg-white/10 transition-colors"
                                                     >
-                                                        <Minus size={14} />
+                                                        <Minus size={16} />
                                                     </button>
-                                                    <span className="font-bold text-xs px-2 min-w-[24px] text-center">{quantity}</span>
+                                                    <span className="font-black text-xs px-2 min-w-[2.5rem] text-center">{quantity}</span>
                                                     <button
-                                                        onClick={() => handleAddToCart(product)}
-                                                        className={`px-2.5 py-1.5 transition-colors hover:bg-indigo-700 ${quantity >= 1 ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleAddToCart(product);
+                                                        }}
+                                                        className={`px-4 py-3 transition-colors ${quantity >= 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/10'}`}
                                                     >
-                                                        <Plus size={14} />
+                                                        <Plus size={16} />
                                                     </button>
                                                 </div>
                                             )}
@@ -313,7 +312,6 @@ export default function EventProductsPage() {
                 </div>
             )}
 
-            {/* Image Slider Modal */}
             <ImageSliderModal
                 isOpen={sliderModal.isOpen}
                 onClose={() => setSliderModal({ ...sliderModal, isOpen: false })}
@@ -321,7 +319,6 @@ export default function EventProductsPage() {
                 initialIndex={sliderModal.index}
             />
 
-            {/* Confirmation Modal */}
             <ConfirmModal
                 isOpen={confirmState.isOpen}
                 onClose={() => setConfirmState({ ...confirmState, isOpen: false })}

@@ -30,10 +30,10 @@ export default function AdminRoot() {
     }, [isAuthenticated, isHydrated, router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)]">
             <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600 font-medium font-sans">Authenticating...</p>
+                <p className="text-[var(--color-text-muted)] font-medium font-sans">Authenticating...</p>
             </div>
         </div>
     );

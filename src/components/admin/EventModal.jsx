@@ -46,12 +46,12 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+      <div className="bg-[var(--color-surface)] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
         {/* Header */}
-        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+        <div className="p-6 border-b flex justify-between items-center bg-[var(--color-bg)]">
           <div>
-            <h2 className="text-xl font-bold text-gray-800">Create New Event</h2>
-            <p className="text-sm text-gray-500">Define the period and select available gifts.</p>
+            <h2 className="text-xl font-bold text-[var(--color-text)]">Create New Event</h2>
+            <p className="text-sm text-[var(--color-text-muted)]">Define the period and select available gifts.</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors">
             <X size={24} />
@@ -62,7 +62,7 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
           {/* Left Side: Event Details */}
           <div className="space-y-5">
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Event Name</label>
+              <label className="block text-sm font-bold text-[var(--color-text)] mb-2">Event Name</label>
               <input
                 type="text" placeholder="e.g. New Year 2026"
                 className="w-full border-2 p-3 rounded-xl focus:border-blue-500 outline-none transition-all"
@@ -73,7 +73,7 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-blue-600 flex items-center">
+                <label className="block text-sm font-bold text-[var(--color-text)] mb-2 text-blue-600 flex items-center">
                   <Calendar size={14} className="mr-1" /> Start Date
                 </label>
                 <input type="date" className="w-full border-2 p-3 rounded-xl outline-none"
@@ -81,7 +81,7 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 text-red-600 flex items-center">
+                <label className="block text-sm font-bold text-[var(--color-text)] mb-2 text-red-600 flex items-center">
                   <Calendar size={14} className="mr-1" /> End Date
                 </label>
                 <input type="date" className="w-full border-2 p-3 rounded-xl outline-none"
@@ -91,9 +91,9 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Assign to Company</label>
+              <label className="block text-sm font-bold text-[var(--color-text)] mb-2">Assign to Company</label>
               <select
-                className="w-full border-2 p-3 rounded-xl outline-none bg-white"
+                className="w-full border-2 p-3 rounded-xl outline-none bg-[var(--color-surface)]"
                 onChange={(e) => setEventData({
                   ...eventData,
                   companyId: e.target.value,
@@ -105,7 +105,7 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
                   <option key={c._id} value={c._id}>{c.name}</option>
                 ))}
               </select>
-              <p className="text-xs text-gray-400 mt-2 italic">
+              <p className="text-xs text-[var(--color-text-muted)] mt-2 italic">
                 *Global events are available for any company to copy later.
               </p>
             </div>
@@ -114,9 +114,9 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
           {/* Right Side: Product Selection */}
           <div className="flex flex-col h-full border-l lg:pl-8">
             <div className="flex justify-between items-center mb-4">
-              <label className="text-sm font-bold text-gray-700">Select Products ({selectedProducts.length})</label>
+              <label className="text-sm font-bold text-[var(--color-text)]">Select Products ({selectedProducts.length})</label>
               <div className="relative">
-                <Search className="absolute left-2 top-2 text-gray-400" size={16} />
+                <Search className="absolute left-2 top-2 text-[var(--color-text-muted)]" size={16} />
                 <input type="text" placeholder="Search..." className="pl-8 p-1.5 border rounded-lg text-sm outline-none" />
               </div>
             </div>
@@ -128,14 +128,14 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
                   onClick={() => toggleProduct(product._id)}
                   className={`flex items-center p-3 rounded-xl border-2 cursor-pointer transition-all ${selectedProducts.includes(product._id)
                     ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-100 hover:border-gray-300'
+                    : 'border-[var(--color-border)] hover:border-gray-300'
                     }`}
                 >
                   <div className="w-12 h-12 bg-gray-200 rounded-lg mr-3 flex-shrink-0">
                     <img src={product.images?.[0] || product.image} alt="" className="w-full h-full object-cover rounded-lg" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-sm font-bold text-gray-800">{product.name}</p>
+                    <p className="text-sm font-bold text-[var(--color-text)]">{product.name}</p>
                     <p className="text-xs text-blue-600 font-medium">₹{product.price || product.actualPrice}</p>
                   </div>
                   {selectedProducts.includes(product._id) && (
@@ -148,11 +148,11 @@ export default function EventModal({ isOpen, onClose, globalProducts, companies 
         </div>
 
         {/* Footer - Only One Copy Now */}
-        <div className="p-6 border-t bg-gray-50 flex justify-end space-x-4">
+        <div className="p-6 border-t bg-[var(--color-bg)] flex justify-end space-x-4">
           <button
             onClick={onClose}
             disabled={loading}
-            className="px-6 py-2.5 font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-all"
+            className="px-6 py-2.5 font-bold text-[var(--color-text-muted)] hover:bg-gray-200 rounded-xl transition-all"
           >
             Cancel
           </button>

@@ -66,7 +66,11 @@ api.interceptors.response.use((response) => {
   }
 
   // Handle 401 Unauthorized errors and attempt refresh
-  if (error.response?.status === 401 && !originalRequest._retry) {
+  // IMPORTANT: Skip the refresh logic for login requests — a 401 on /auth/login
+  // means wrong credentials, NOT an expired session. We must let it bubble up
+  // so the login form can display the error message to the user.
+  const isLoginRequest = originalRequest.url?.includes('/auth/login');
+  if (error.response?.status === 401 && !originalRequest._retry && !isLoginRequest) {
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
@@ -87,7 +91,12 @@ api.interceptors.response.use((response) => {
 
     if (!refreshToken) {
       logout();
-      if (typeof window !== 'undefined') window.location.href = '/admin-login';
+      if (typeof window !== 'undefined') {
+        // Detect context: if on a subdomain (employee portal), go to /login; else /admin-login
+        const hostname = window.location.hostname;
+        const isAdminContext = hostname === 'localhost' || hostname.startsWith('admin.');
+        window.location.href = isAdminContext ? '/admin-login' : '/login';
+      }
       return Promise.reject(error);
     }
 
@@ -105,8 +114,9 @@ api.interceptors.response.use((response) => {
       processQueue(refreshError, null);
       logout();
       if (typeof window !== 'undefined') {
-        const isAdmin = window.location.pathname.startsWith('/admin') || window.location.pathname.includes('/dashboard');
-        window.location.href = isAdmin ? '/admin-login' : '/';
+        const hostname = window.location.hostname;
+        const isAdminContext = hostname === 'localhost' || hostname.startsWith('admin.');
+        window.location.href = isAdminContext ? '/admin-login' : '/login';
       }
       return Promise.reject(refreshError);
     } finally {

@@ -1,20 +1,63 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.bunny.net/css?family=satoshi:300,400,500,700,900&display=swap');
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
+/* =============================================
+   DESIGN SYSTEM — Warm Minimal Editorial Theme
+   Inspired by: Satoshi x Minimal E-commerce
+   ============================================= */
+
 :root {
-  --foreground-rgb: 15, 23, 42; /* Slate-900 */
-  --background-start-rgb: 248, 250, 252; /* Slate-50 */
-  --background-end-rgb: 255, 255, 255;
+  /* Core Palette */
+  --color-bg: #E8E6E0;
+  /* warm light gray — page background */
+  --color-surface: #F2F0EA;
+  /* warm off-white/cream — cards, panels */
+  --color-surface-2: #EDEAE3;
+  /* slightly deeper for nested cards */
+  --color-border: #D8D6CE;
+  /* subtle warm border */
+
+  /* Typography */
+  --color-text: #010101;
+  /* near-black — primary text */
+  --color-text-muted: #474747;
+  /* darker gray for better visibility — secondary text */
+
+  /* Accent */
+  --color-accent: #EDCF5D;
+  /* golden yellow — badges, active states */
+  --color-accent-dark: #D4B84E;
+  /* slightly darker yellow for hover */
+
+  /* Status (kept standard) */
+  --color-success: #059669;
+  --color-error: #DC2626;
+
+  /* Legacy overrides (for backward-compat) */
+  --foreground-rgb: 1, 1, 1;
+  --background-start-rgb: 232, 230, 224;
+  --background-end-rgb: 242, 240, 234;
+}
+
+/* Base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: rgb(var(--background-start-rgb));
+  color: var(--color-text);
+  font-family: 'Satoshi', 'DM Sans', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-
+/* =============================================
+   Scrollbar — Light Warm Theme
+   ============================================= */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -25,15 +68,27 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-border);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-text-muted);
 }
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* =============================================
+   Utility — Hide Scrollbar
+   ============================================= */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

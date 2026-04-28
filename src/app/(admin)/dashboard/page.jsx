@@ -8,7 +8,6 @@ import {
   Users,
   TrendingUp,
   ArrowUpRight,
-  Clock
 } from 'lucide-react';
 import FormattedDate from '../../../components/common/FormattedDate';
 
@@ -21,28 +20,21 @@ export default function AdminDashboard() {
       label: 'Total Companies',
       value: stats.totalCompanies,
       icon: Building2,
-      color: 'bg-blue-500',
-      // change: '+12%'
     },
     {
       label: 'Total Products',
       value: stats.totalProducts,
       icon: Package,
-      color: 'bg-purple-500',
-      // change: '+5'
     },
     {
       label: 'Total Employees',
       value: stats.totalEmployees.toLocaleString(),
       icon: Users,
-      color: 'bg-orange-500',
-      // change: '+18%'
     },
     {
       label: 'Active Events',
       value: stats.activeEvents,
       icon: TrendingUp,
-      color: 'bg-green-500',
       change: 'Active'
     },
   ];
@@ -51,25 +43,37 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">System Overview</h1>
-        <p className="text-gray-500 text-sm">Welcome back! Here is what's happening today.</p>
+        <h1 className="text-2xl font-black" style={{ color: 'var(--color-text)' }}>System Overview</h1>
+        <p className="text-sm mt-1 font-medium" style={{ color: 'var(--color-text-muted)' }}>Welcome back! Here is what's happening today.</p>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statsList.map((stat) => (
-          <div key={stat.label} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div
+            key={stat.label}
+            className="p-6 rounded-2xl border transition-all hover:shadow-sm"
+            style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+          >
             <div className="flex justify-between items-start">
-              <div className={`p-3 rounded-lg ${stat.color} text-white`}>
-                <stat.icon size={24} />
+              <div
+                className="p-3 rounded-xl"
+                style={{ backgroundColor: 'var(--color-text)' }}
+              >
+                <stat.icon size={22} color="#ffffff" />
               </div>
-              <span className="flex items-center text-xs font-medium text-green-600 bg-green-50 px-2 py-1 rounded">
-                {stat.change} <ArrowUpRight size={12} className="ml-1" />
-              </span>
+              {stat.change && (
+                <span
+                  className="flex items-center text-xs font-bold px-2.5 py-1 rounded-lg"
+                  style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}
+                >
+                  {stat.change} <ArrowUpRight size={12} className="ml-1" />
+                </span>
+              )}
             </div>
             <div className="mt-4">
-              <h3 className="text-gray-500 text-sm font-medium">{stat.label}</h3>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+              <h3 className="text-sm font-bold" style={{ color: 'var(--color-text-muted)' }}>{stat.label}</h3>
+              <p className="text-2xl font-black mt-1" style={{ color: 'var(--color-text)' }}>{stat.value}</p>
             </div>
           </div>
         ))}
@@ -77,52 +81,47 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Companies Section */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div
+          className="rounded-2xl border p-6"
+          style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
+        >
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-bold text-gray-800">Recently Onboarded</h2>
-            <button className="text-blue-600 text-sm font-medium hover:underline">View All</button>
+            <h2 className="text-lg font-black" style={{ color: 'var(--color-text)' }}>Recently Onboarded</h2>
+            <button className="text-sm font-bold hover:underline" style={{ color: 'var(--color-text)' }}>View All</button>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {companies.slice(0, 5).map((company) => (
-              <div key={company._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+              <div
+                key={company._id}
+                className="flex items-center justify-between p-3 rounded-xl transition-all"
+                style={{ color: 'var(--color-text)' }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--color-bg)'}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = ''}
+              >
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 font-bold">
-                    {company.name.charAt(0)}
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black border overflow-hidden"
+                    style={{ backgroundColor: 'var(--color-accent)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                  >
+                    {company.logo ? (
+                      <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
+                    ) : company.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">{company.name}</p>
-                    <p className="text-xs text-gray-500">{company.subdomain}.{process.env.NEXT_PUBLIC_PORTAL_DOMAIN}</p>
+                    <p className="text-sm font-black" style={{ color: 'var(--color-text)' }}>{company.name}</p>
+                    <p className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>{company.subdomain}.{process.env.NEXT_PUBLIC_PORTAL_DOMAIN}</p>
                   </div>
                 </div>
-                <span className="text-xs text-gray-400">
-                  <FormattedDate date={company.createdAt} className="text-gray-400 font-medium" />
+                <span className="text-xs font-medium" style={{ color: 'var(--color-text-muted)' }}>
+                  <FormattedDate date={company.createdAt} />
                 </span>
               </div>
             ))}
             {companies.length === 0 && (
-              <p className="text-center text-gray-400 py-4">No companies registered yet.</p>
+              <p className="text-center py-4 text-sm font-medium" style={{ color: 'var(--color-text-muted)' }}>No companies registered yet.</p>
             )}
           </div>
         </div>
-
-        {/* System Activity Section */}
-        {/* <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-gray-800 mb-6 flex items-center">
-            <Clock size={20} className="mr-2 text-blue-500" /> System Activity
-          </h2>
-          <div className="relative border-l-2 border-gray-100 ml-3 pl-6 space-y-6">
-            <div className="relative">
-              <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-white shadow-sm"></span>
-              <p className="text-sm font-medium text-gray-800">Admin Login</p>
-              <p className="text-xs text-gray-500">System admin logged in from IP 127.0.0.1</p>
-            </div>
-            <div className="relative">
-              <span className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-green-500 border-4 border-white shadow-sm"></span>
-              <p className="text-sm font-medium text-gray-800">New Company Created</p>
-              <p className="text-xs text-gray-500">"Tesla" was successfully added to the platform.</p>
-            </div>
-          </div>
-        </div> */}
       </div>
     </div>
   );

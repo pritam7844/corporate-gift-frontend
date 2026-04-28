@@ -71,35 +71,32 @@ export default function ContactSection({ companyId }) {
     };
 
     return (
-        <section id="contact" className="bg-slate-50 py-20 relative overflow-hidden">
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-50 rounded-full blur-[100px] -z-10 -translate-y-1/2 translate-x-1/3 opacity-40"></div>
-
+        <section id="contact" className="bg-[var(--color-bg)] py-20 relative overflow-hidden">
             <div className="max-w-xl mx-auto px-6 relative z-10">
                 <div className="text-center mb-12">
-                    <div className="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest mb-6 border border-indigo-100/50">
+                    <div className="inline-flex items-center space-x-2 bg-[var(--color-accent)] text-[var(--color-text)] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] mb-6 border border-[var(--color-border)]">
                         <MessageSquare size={14} />
                         <span>Support Center</span>
                     </div>
-                    <h2 className="text-4xl font-bold tracking-tight text-slate-900 mb-4">
-                        How can we <span className="text-indigo-600">help?</span>
+                    <h2 className="text-4xl font-black tracking-tight text-[var(--color-text)] mb-4">
+                        How can we <span className="opacity-50">help?</span>
                     </h2>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed">
+                    <p className="text-[var(--color-text-muted)] font-bold text-lg leading-relaxed">
                         Submit a support request or track your existing tickets.
                     </p>
                 </div>
 
                 {isAuthenticated && (
-                    <div className="flex bg-slate-200/50 p-1 rounded-xl mb-10 border border-slate-200/50">
+                    <div className="flex bg-[var(--color-bg)] p-1 rounded-xl mb-10 border border-[var(--color-border)]">
                         <button
                             onClick={() => setViewMode('form')}
-                            className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all uppercase tracking-widest ${viewMode === 'form' ? 'bg-white text-indigo-600 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`flex-1 py-3 text-[10px] font-black rounded-lg transition-all uppercase tracking-[0.2em] ${viewMode === 'form' ? 'bg-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                         >
                             New Ticket
                         </button>
                         <button
                             onClick={() => setViewMode('tickets')}
-                            className={`flex-1 py-3 text-xs font-bold rounded-lg transition-all uppercase tracking-widest ${viewMode === 'tickets' ? 'bg-white text-indigo-600 shadow-sm border border-slate-100' : 'text-slate-500 hover:text-slate-700'}`}
+                            className={`flex-1 py-3 text-[10px] font-black rounded-lg transition-all uppercase tracking-[0.2em] ${viewMode === 'tickets' ? 'bg-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                         >
                             My History
                         </button>
@@ -108,20 +105,20 @@ export default function ContactSection({ companyId }) {
 
                 {/* Form View */}
                 {(!isAuthenticated || viewMode === 'form') && (
-                    <form className="space-y-5 bg-white p-8 md:p-10 rounded-2xl border border-slate-200 shadow-sm animate-in fade-in slide-in-from-bottom-2" onSubmit={handleSubmit}>
+                    <form className="space-y-6 bg-[var(--color-surface)] p-8 md:p-10 rounded-2xl border border-[var(--color-border)] shadow-xl animate-in fade-in slide-in-from-bottom-4" onSubmit={handleSubmit}>
                         <div>
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
-                            <input type="text" name="name" defaultValue={user?.name || ''} required className="w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition font-medium text-slate-900 text-sm" placeholder="John Doe" />
+                            <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] mb-2 ml-1">Full Name</label>
+                            <input type="text" name="name" defaultValue={user?.name || ''} required className="w-full px-5 py-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--color-text)] transition-all font-bold text-[var(--color-text)] text-sm" placeholder="John Doe" />
                         </div>
                         <div>
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Work Email</label>
-                            <input type="email" name="email" defaultValue={user?.email || ''} readOnly={!!user?.email} required className={`w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition font-medium text-sm ${user?.email ? 'text-slate-500 grayscale' : 'text-slate-900'}`} placeholder="john@company.com" />
+                            <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] mb-2 ml-1">Work Email</label>
+                            <input type="email" name="email" defaultValue={user?.email || ''} readOnly={!!user?.email} required className={`w-full px-5 py-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--color-text)] transition-all font-bold text-sm ${user?.email ? 'text-[var(--color-text-muted)] opacity-70' : 'text-[var(--color-text)]'}`} placeholder="john@company.com" />
                         </div>
                         <div>
-                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Your Message</label>
-                            <textarea name="message" required rows="5" className="w-full px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl focus:outline-none focus:border-indigo-500 focus:bg-white transition font-medium text-slate-900 text-sm resize-none" placeholder="Describe your inquiry in detail..."></textarea>
+                            <label className="block text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] mb-2 ml-1">Your Message</label>
+                            <textarea name="message" required rows="5" className="w-full px-5 py-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl focus:outline-none focus:border-[var(--color-text)] transition-all font-bold text-[var(--color-text)] text-sm resize-none" placeholder="Describe your inquiry in detail..."></textarea>
                         </div>
-                        <button type="submit" className="w-full bg-indigo-600 text-white font-bold py-4 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-[0.98] disabled:opacity-70 mt-2 text-sm uppercase tracking-widest">
+                        <button type="submit" className="w-full bg-[var(--color-text)] text-[var(--color-surface)] font-black py-5 rounded-xl hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-70 mt-2 text-xs uppercase tracking-[0.2em]">
                             Submit Inquiry
                         </button>
                     </form>
@@ -129,35 +126,37 @@ export default function ContactSection({ companyId }) {
 
                 {/* Tickets History View */}
                 {(isAuthenticated && viewMode === 'tickets') && (
-                    <div className="animate-in fade-in slide-in-from-bottom-2">
+                    <div className="animate-in fade-in slide-in-from-bottom-4">
                         {loading ? (
-                            <div className="text-sm text-gray-500 text-center py-12 bg-white rounded-2xl border border-gray-200">Loading your tickets...</div>
+                            <div className="text-sm font-bold text-[var(--color-text-muted)] text-center py-16 bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)]">Loading your tickets...</div>
                         ) : tickets.length === 0 ? (
-                            <div className="text-sm text-gray-500 bg-white p-12 rounded-2xl border border-gray-200 text-center flex flex-col items-center">
-                                <MessageSquare className="w-8 h-8 text-gray-300 mb-3" />
-                                You haven&apos;t submitted any support tickets yet.
+                            <div className="text-sm font-bold text-[var(--color-text-muted)] bg-[var(--color-surface)] p-16 rounded-2xl border border-[var(--color-border)] text-center flex flex-col items-center">
+                                <div className="w-16 h-16 bg-[var(--color-bg)] rounded-full flex items-center justify-center mb-6">
+                                    <MessageSquare className="w-8 h-8 text-[var(--color-text-muted)] opacity-30" />
+                                </div>
+                                <p>You haven&apos;t submitted any support tickets yet.</p>
                             </div>
                         ) : (
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 {tickets.map(ticket => (
-                                    <div key={ticket._id} className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-indigo-100 transition-all">
-                                        <div className="flex justify-between items-start mb-4">
+                                    <div key={ticket._id} className="bg-[var(--color-surface)] p-8 rounded-2xl border border-[var(--color-border)] shadow-md group hover:border-[var(--color-text)]/30 transition-all">
+                                        <div className="flex justify-between items-start mb-6">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ticket ID</span>
-                                                <span className="text-xs font-mono font-bold text-slate-900 mt-0.5">#{ticket._id?.slice(-8).toUpperCase()}</span>
+                                                <span className="text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em]">Ticket Reference</span>
+                                                <span className="text-xs font-black text-[var(--color-text)] mt-1 tracking-wider">#{ticket._id?.slice(-8).toUpperCase()}</span>
                                             </div>
-                                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest border ${
+                                            <span className={`inline-flex items-center px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-[0.2em] border ${
                                                 ticket.status === 'Resolved' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
-                                                ticket.status === 'In Progress' ? 'bg-indigo-50 text-indigo-700 border-indigo-100' : 
-                                                'bg-amber-50 text-amber-700 border-amber-100'
+                                                ticket.status === 'In Progress' ? 'bg-[var(--color-accent)] text-[var(--color-text)] border-[var(--color-border)]' : 
+                                                'bg-[var(--color-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]'
                                             }`}>
                                                 {ticket.status === 'Resolved' && <CheckCircle2 className="w-3 h-3 mr-1.5" />}
                                                 {ticket.status || 'Pending'}
                                             </span>
                                         </div>
-                                        <p className="text-slate-600 text-sm font-medium leading-relaxed mb-4">{ticket.message}</p>
-                                        <div className="flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest pt-4 border-t border-slate-50">
-                                            <Clock className="w-3 h-3 mr-1.5" />
+                                        <p className="text-[var(--color-text)] font-bold text-sm leading-relaxed mb-6">{ticket.message}</p>
+                                        <div className="flex items-center text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] pt-6 border-t border-[var(--color-border)]">
+                                            <Clock className="w-3 h-3 mr-1.5 opacity-50" />
                                             <FormattedDate date={ticket.createdAt} />
                                         </div>
                                     </div>

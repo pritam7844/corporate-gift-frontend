@@ -23,8 +23,8 @@ export default function CartPage() {
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [logoUploading, setLogoUploading] = useState(false);
-    const [isAlreadyOrdered, setIsAlreadyOrdered] = useState(false); // New state
-    const [participatingEvent, setParticipatingEvent] = useState(null); // Store event info for warning
+    const [isAlreadyOrdered, setIsAlreadyOrdered] = useState(false);
+    const [participatingEvent, setParticipatingEvent] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -33,11 +33,10 @@ export default function CartPage() {
         address: '',
         employeeId: '',
         additionalRequirements: '',
-        // New Fields
         customization: {
             isBrandingRequired: false,
             brandingLogo: '',
-            productCustomizations: {} // Map of productID -> { brandingType, brandingPositions, etc. }
+            productCustomizations: {}
         },
         shippingDetails: {
             deliveryType: 'Single Location'
@@ -81,18 +80,15 @@ export default function CartPage() {
                 employeeId: user.employeeId || ''
             }));
 
-            // Check for participation constraint
             const checkParticipation = async () => {
                 const eventId = items[0]?.eventId;
                 if (!eventId) return;
 
                 try {
-                    // Fetch Event to get startDate
                     const eventRes = await api.get(`/events/${eventId}`);
                     const event = eventRes.data.data;
                     setParticipatingEvent(event);
 
-                    // Fetch User Requests
                     const requestsRes = await api.get('/gift-requests/my-requests');
                     const userRequests = requestsRes.data.data || [];
 
@@ -109,7 +105,6 @@ export default function CartPage() {
         }
     }, [user, items]);
 
-    // Sync productCustomizations with items in cart
     useEffect(() => {
         if (items.length > 0) {
             setFormData(prev => {
@@ -146,7 +141,6 @@ export default function CartPage() {
 
     if (!mounted) return null;
 
-    // Calculate subtotal (without discounts) to show savings
     const subtotal = items.reduce((total, item) => total + ((item.product.actualPrice || item.product.price) * item.quantity), 0);
     const total = getCartTotal();
     const savings = subtotal > total ? subtotal - total : 0;
@@ -179,23 +173,16 @@ export default function CartPage() {
         }
     };
 
-    const handleShippingChange = (field, value) => {
-        setFormData(prev => ({
-            ...prev,
-            shippingDetails: { ...prev.shippingDetails, [field]: value }
-        }));
-    };
-
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        const formData = new FormData();
-        formData.append('logo', file);
+        const uploadData = new FormData();
+        uploadData.append('logo', file);
 
         setLogoUploading(true);
         try {
-            const { data } = await api.post('/upload', formData, {
+            const { data } = await api.post('/upload', uploadData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -215,11 +202,10 @@ export default function CartPage() {
     const handlePlaceOrder = async (e) => {
         e.preventDefault();
 
-        if (!formData.name || !formData.email || !formData.phone || !formData.employeeId || (formData.shippingDetails.deliveryType === 'Single Location' && !formData.address)) {
-            openConfirm('Information Required', 'Please fill in all required fields (including Employee ID) before placing your order.', () => { }, 'warning');
+        if (!formData.name || !formData.email || !formData.phone || !formData.employeeId || !formData.address) {
+            openConfirm('Information Required', 'Please fill in all required fields before placing your order.', () => { }, 'warning');
             return;
         }
-
 
         setIsSubmitting(true);
         try {
@@ -263,51 +249,47 @@ export default function CartPage() {
             await api.post('/gift-requests', orderData);
 
             clearCart();
-            setCurrentStep(4); // Go to success screen (previously 3)
-
-            // Scroll to top
+            setCurrentStep(4);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
             console.error('Error placing order:', error);
-            openConfirm('Order Failed', 'We couldn\'t process your request. Please check your connection and try again.', () => { }, 'danger');
+            openConfirm('Order Failed', 'We couldn\'t process your request. Please try again.', () => { }, 'danger');
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Trackbar Component
     const TrackBar = () => (
-        <div className="w-full mb-12 border-b border-slate-100 pb-8">
-            <div className="flex items-center justify-between max-w-lg mx-auto relative px-4 text-[10px] font-bold uppercase tracking-widest">
-                {/* Connecting Line */}
-                <div className="absolute left-10 right-10 top-[14px] h-[1px] bg-slate-100 -z-10"></div>
+        <div className="w-full mb-12 border-b border-[var(--color-border)] pb-10">
+            <div className="flex items-center justify-between max-w-lg mx-auto relative px-4 text-[9px] font-black uppercase tracking-[0.2em]">
+                <div className="absolute left-10 right-10 top-[14px] h-[1px] bg-[var(--color-border)] -z-10"></div>
                 <div
-                    className="absolute left-10 top-[14px] h-[1px] bg-indigo-600 -z-10 transition-all duration-500"
+                    className="absolute left-10 top-[14px] h-[1px] bg-[var(--color-text)] -z-10 transition-all duration-500"
                     style={{ width: currentStep === 1 ? '0%' : currentStep === 2 ? '50%' : '100%' }}
                 ></div>
 
                 {/* Step 1 */}
                 <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 1 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-300 ${currentStep >= 1 ? 'bg-[var(--color-text)] text-[var(--color-surface)] border-[var(--color-text)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)]'}`}>
                         {currentStep > 1 ? <Check size={14} /> : '1'}
                     </div>
-                    <span className={`mt-3 ${currentStep >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>Cart</span>
+                    <span className={`mt-4 ${currentStep >= 1 ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]'}`}>Cart</span>
                 </div>
 
                 {/* Step 2 */}
                 <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 2 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-300 ${currentStep >= 2 ? 'bg-[var(--color-text)] text-[var(--color-surface)] border-[var(--color-text)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)]'}`}>
                         {currentStep > 2 ? <Check size={14} /> : '2'}
                     </div>
-                    <span className={`mt-3 ${currentStep >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>Design</span>
+                    <span className={`mt-4 ${currentStep >= 2 ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]'}`}>Design</span>
                 </div>
 
                 {/* Step 3 */}
                 <div className="flex flex-col items-center">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 ${currentStep >= 3 ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white border-slate-200 text-slate-400'}`}>
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all duration-300 ${currentStep >= 3 ? 'bg-[var(--color-text)] text-[var(--color-surface)] border-[var(--color-text)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text-muted)]'}`}>
                         3
                     </div>
-                    <span className={`mt-3 ${currentStep >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>Shipping</span>
+                    <span className={`mt-4 ${currentStep >= 3 ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)]'}`}>Shipping</span>
                 </div>
             </div>
         </div>
@@ -315,24 +297,24 @@ export default function CartPage() {
 
     if (currentStep === 4) {
         return (
-            <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 animate-in fade-in zoom-in-95 duration-500">
-                <div className="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mb-8 border border-emerald-100 shadow-sm">
-                    <Check size={40} className="stroke-[3]" />
+            <div className="min-h-[80vh] flex flex-col items-center justify-center p-8 animate-in fade-in zoom-in-95 duration-500">
+                <div className="w-24 h-24 bg-emerald-50 text-emerald-600 rounded-[2rem] flex items-center justify-center mb-10 border border-emerald-100 shadow-xl">
+                    <Check size={48} className="stroke-[3]" />
                 </div>
-                <h1 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight text-center">Selection Submitted!</h1>
-                <p className="text-slate-500 font-medium text-base mb-10 max-w-sm text-center">
+                <h1 className="text-4xl font-black text-[var(--color-text)] mb-4 tracking-tight text-center">Selection Submitted</h1>
+                <p className="text-[var(--color-text-muted)] font-bold text-lg mb-12 max-w-sm text-center opacity-80">
                     Your reward selection has been recorded. Our team will begin processing your corporate tokens shortly.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md">
+                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
                     <button
                         onClick={() => router.push(`/`)}
-                        className="flex-1 px-8 py-3.5 border border-slate-200 text-slate-700 font-bold rounded-lg hover:bg-slate-50 transition-all active:scale-[0.98] text-sm"
+                        className="flex-1 px-10 py-4 border border-[var(--color-border)] text-[var(--color-text)] font-black rounded-xl hover:bg-[var(--color-bg)] transition-all active:scale-[0.98] text-[10px] uppercase tracking-[0.2em]"
                     >
                         Back to Home
                     </button>
                     <button
                         onClick={() => router.push(`/orders`)}
-                        className="flex-1 px-8 py-3.5 bg-slate-900 text-white font-bold rounded-lg hover:bg-indigo-600 transition-all active:scale-[0.98] shadow-sm text-sm"
+                        className="flex-1 px-10 py-4 bg-[var(--color-text)] text-[var(--color-surface)] font-black rounded-xl hover:opacity-90 transition-all active:scale-[0.98] shadow-lg text-[10px] uppercase tracking-[0.2em]"
                     >
                         View Requests
                     </button>
@@ -342,58 +324,54 @@ export default function CartPage() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen bg-[var(--color-bg)] py-12 px-6 sm:px-10 lg:px-12">
             <div className="max-w-6xl mx-auto">
-
-                {/* Header / Back */}
-                <div className="mb-8">
+                <div className="mb-10">
                     <button
                         onClick={() => {
                             if (currentStep === 1) router.back();
                             else setCurrentStep(currentStep - 1);
                         }}
-                        className="flex items-center text-slate-500 hover:text-slate-900 font-bold transition-all group text-xs uppercase tracking-widest"
+                        className="flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] font-black transition-all group text-[10px] uppercase tracking-[0.2em]"
                     >
-                        <div className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center mr-3 group-hover:bg-slate-50 transition-all">
-                            <ChevronLeft size={14} />
+                        <div className="w-10 h-10 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] flex items-center justify-center mr-4 group-hover:bg-[var(--color-bg)] transition-all shadow-sm">
+                            <ChevronLeft size={16} />
                         </div>
                         {currentStep === 1 ? 'Back to Portal' : 'Previous Step'}
                     </button>
                 </div>
 
-                <div className="flex flex-col lg:flex-row gap-8 items-start">
-
-                    {/* Main Content Area */}
-                    <div className="flex-grow w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-10">
+                <div className="flex flex-col lg:flex-row gap-10 items-start">
+                    <div className="flex-grow w-full lg:w-2/3 bg-[var(--color-surface)] rounded-[2rem] shadow-xl border border-[var(--color-border)] p-8 sm:p-12">
                         <TrackBar />
 
                         <div className="relative">
                             {/* Step 1: Cart Items */}
                             {currentStep === 1 && (
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    <div className="flex items-center justify-between mb-8 border-b border-slate-50 pb-6">
-                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Your Selection</h2>
-                                        <span className="bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-md text-[10px] uppercase tracking-wider border border-indigo-100/50">
+                                    <div className="flex items-center justify-between mb-10 border-b border-[var(--color-border)]/50 pb-8">
+                                        <h2 className="text-3xl font-black text-[var(--color-text)] tracking-tight">Your Selection</h2>
+                                        <span className="bg-[var(--color-accent)] text-[var(--color-text)] font-black px-4 py-1.5 rounded-lg text-[9px] uppercase tracking-[0.2em] border border-[var(--color-border)]">
                                             {items.length} {items.length === 1 ? 'Item' : 'Items'}
                                         </span>
                                     </div>
 
                                     {items.length === 0 ? (
-                                        <div className="py-20 flex flex-col items-center justify-center text-center">
-                                            <div className="w-16 h-16 bg-slate-50 rounded-xl flex items-center justify-center mb-6 border border-slate-100">
-                                                <ShoppingBag size={32} className="text-slate-300" />
+                                        <div className="py-24 flex flex-col items-center justify-center text-center">
+                                            <div className="w-20 h-20 bg-[var(--color-bg)] rounded-[1rem] flex items-center justify-center mb-8 border border-[var(--color-border)]">
+                                                <ShoppingBag size={32} className="text-[var(--color-text-muted)] opacity-30" />
                                             </div>
-                                            <h3 className="text-xl font-bold text-slate-900 mb-2">Selection is empty</h3>
-                                            <p className="text-slate-500 text-sm mb-8">Looks like you haven't added any premium gifts yet.</p>
+                                            <h3 className="text-2xl font-black text-[var(--color-text)] mb-3">Selection is empty</h3>
+                                            <p className="text-[var(--color-text-muted)] font-bold text-sm mb-10 opacity-70">Looks like you haven't added any premium gifts yet.</p>
                                             <button
                                                 onClick={() => router.push(`/`)}
-                                                className="px-8 py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-indigo-600 transition-all shadow-sm"
+                                                className="px-10 py-4 bg-[var(--color-text)] text-[var(--color-surface)] font-black rounded-xl hover:opacity-90 transition-all shadow-lg text-[10px] uppercase tracking-[0.2em]"
                                             >
                                                 Start Browsing
                                             </button>
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
+                                        <div className="space-y-6">
                                             {items.map((item) => {
                                                 const hasDiscount = item.product.discountedPrice && item.product.discountedPrice < item.product.actualPrice;
                                                 const price = hasDiscount ? item.product.discountedPrice : (item.product.actualPrice || item.product.price);
@@ -401,7 +379,7 @@ export default function CartPage() {
                                                 return (
                                                     <div
                                                         key={`${item.product._id}-${item.eventId}`}
-                                                        className="flex gap-6 p-5 rounded-xl border border-slate-100 hover:border-indigo-100 hover:bg-slate-50/30 transition-all group relative"
+                                                        className="flex gap-8 p-6 rounded-2xl border border-[var(--color-border)] hover:border-[var(--color-text)]/30 hover:bg-[var(--color-bg)]/30 transition-all group relative"
                                                     >
                                                         <button
                                                             onClick={() => {
@@ -412,21 +390,21 @@ export default function CartPage() {
                                                                     'warning'
                                                                 );
                                                             }}
-                                                            className="absolute top-4 right-4 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                                            className="absolute top-6 right-6 p-2.5 text-[var(--color-text-muted)] hover:text-red-500 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100"
                                                         >
-                                                            <X size={16} />
+                                                            <X size={18} />
                                                         </button>
 
-                                                        <div className="w-28 h-28 rounded-xl overflow-hidden flex-shrink-0 bg-white border border-slate-200 p-1 cursor-pointer"
+                                                        <div className="w-32 h-32 rounded-2xl overflow-hidden flex-shrink-0 bg-[var(--color-surface)] border border-[var(--color-border)] p-1.5 cursor-pointer"
                                                             onClick={() => setSliderModal({ isOpen: true, images: item.product.images && item.product.images.length > 0 ? item.product.images : (item.product.image ? [item.product.image] : []), index: 0 })}
                                                         >
-                                                            <div className="w-full h-full rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center relative group/img">
+                                                            <div className="w-full h-full rounded-xl overflow-hidden bg-[var(--color-bg)] flex items-center justify-center relative group/img">
                                                                 {item.product.images?.[0] || item.product.image ? (
                                                                     <img src={item.product.images?.[0] || item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                                                 ) : (
-                                                                    <Tag size={32} className="text-slate-200" />
+                                                                    <Tag size={32} className="text-[var(--color-text-muted)] opacity-20" />
                                                                 )}
-                                                                <div className="absolute inset-0 bg-slate-900/10 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
+                                                                <div className="absolute inset-0 bg-[var(--color-text)]/10 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
                                                                     <Maximize2 size={24} className="text-white scale-90" />
                                                                 </div>
                                                             </div>
@@ -434,41 +412,41 @@ export default function CartPage() {
 
                                                         <div className="flex-grow flex flex-col justify-center">
                                                             <div>
-                                                                <p className="text-[10px] font-bold tracking-widest text-indigo-600 uppercase mb-1.5 flex items-center">
-                                                                    <Tag size={10} className="mr-1.5" /> {item.product.category || 'Gift Selection'}
+                                                                <p className="text-[9px] font-black tracking-[0.2em] text-[var(--color-text)] opacity-50 uppercase mb-2 flex items-center">
+                                                                    <Tag size={10} className="mr-2" /> {item.product.category || 'Gift Selection'}
                                                                 </p>
-                                                                <h4 className="text-base font-bold text-slate-900 leading-snug mb-3 pr-8">{item.product.name}</h4>
+                                                                <h4 className="text-lg font-black text-[var(--color-text)] leading-tight mb-4 pr-10">{item.product.name}</h4>
                                                             </div>
 
-                                                            <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-50">
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="font-bold text-lg text-slate-900 leading-none">
+                                                            <div className="flex items-center justify-between mt-auto pt-6 border-t border-[var(--color-border)]/50">
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="font-black text-xl text-[var(--color-text)] leading-none">
                                                                         ₹{(price * item.quantity).toLocaleString('en-IN')}
                                                                     </span>
                                                                     {hasDiscount && (
-                                                                        <span className="text-[10px] font-bold text-slate-400 line-through">
+                                                                        <span className="text-[10px] font-black text-[var(--color-text-muted)] line-through opacity-50">
                                                                             ₹{(item.product.actualPrice * item.quantity).toLocaleString('en-IN')}
                                                                         </span>
                                                                     )}
                                                                 </div>
 
-                                                                <div className="flex items-center bg-white rounded-lg border border-slate-200 p-0.5">
+                                                                <div className="flex items-center bg-[var(--color-bg)] rounded-xl border border-[var(--color-border)] p-1">
                                                                     <button
                                                                         onClick={() => updateQuantity(item.product._id, item.eventId, item.quantity - 1)}
-                                                                        className="w-7 h-7 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-indigo-600 rounded transition-all"
+                                                                        className="w-8 h-8 flex items-center justify-center text-[var(--color-text)] hover:bg-[var(--color-surface)] rounded-lg transition-all"
                                                                     >
                                                                         <Minus size={14} />
                                                                     </button>
-                                                                    <span className="text-sm font-bold w-8 text-center text-slate-900">{item.quantity}</span>
+                                                                    <span className="text-sm font-black w-10 text-center text-[var(--color-text)]">{item.quantity}</span>
                                                                     <button
                                                                         onClick={() => {
                                                                             if (item.quantity >= 1) {
-                                                                                openConfirm('Limit Reached', 'Only 1 unit per product is allowed.', () => { }, 'warning');
+                                                                                openConfirm('Limit Reached', 'Only 1 unit per product is allowed for samples.', () => { }, 'warning');
                                                                                 return;
                                                                             }
                                                                             updateQuantity(item.product._id, item.eventId, item.quantity + 1);
                                                                         }}
-                                                                        className={`w-7 h-7 flex items-center justify-center rounded transition-all text-slate-400 ${item.quantity >= 1 ? 'opacity-30 cursor-not-allowed' : 'hover:bg-slate-50 hover:text-indigo-600'}`}
+                                                                        className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${item.quantity >= 1 ? 'text-[var(--color-text-muted)] opacity-30 cursor-not-allowed' : 'text-[var(--color-text)] hover:bg-[var(--color-surface)]'}`}
                                                                     >
                                                                         <Plus size={14} />
                                                                     </button>
@@ -483,63 +461,61 @@ export default function CartPage() {
                                 </div>
                             )}
 
-                            {/* Step 2: Customization / Branding */}
+                            {/* Step 2: Customization */}
                             {currentStep === 2 && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                    <div className="mb-8 border-b border-slate-50 pb-6">
-                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Design & Branding</h2>
-                                        <p className="text-slate-500 font-medium mt-1.5 text-sm">Configure how your organization's logo should appear.</p>
+                                    <div className="mb-10 border-b border-[var(--color-border)]/50 pb-8">
+                                        <h2 className="text-3xl font-black text-[var(--color-text)] tracking-tight">Design & Branding</h2>
+                                        <p className="text-[var(--color-text-muted)] font-bold mt-2 text-base opacity-70">Configure how your organization's logo should appear.</p>
                                     </div>
 
-                                    <div className="space-y-10">
-                                        {/* Branding Toggle */}
-                                        <div className="flex p-1 bg-slate-100 rounded-lg w-fit">
+                                    <div className="space-y-12">
+                                        <div className="flex p-1.5 bg-[var(--color-bg)] rounded-2xl w-fit border border-[var(--color-border)]">
                                             <button
                                                 onClick={() => handleCustomizationChange('isBrandingRequired', false)}
-                                                className={`px-6 py-2 rounded-md font-bold text-xs uppercase tracking-wider transition-all ${!formData.customization.isBrandingRequired ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'}`}
+                                                className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${!formData.customization.isBrandingRequired ? 'bg-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'text-[var(--color-text-muted)]'}`}
                                             >
                                                 Standard
                                             </button>
                                             <button
                                                 onClick={() => handleCustomizationChange('isBrandingRequired', true)}
-                                                className={`px-6 py-2 rounded-md font-bold text-xs uppercase tracking-wider transition-all ${formData.customization.isBrandingRequired ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500'}`}
+                                                className={`px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all ${formData.customization.isBrandingRequired ? 'bg-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'text-[var(--color-text-muted)]'}`}
                                             >
                                                 Custom Logo
                                             </button>
                                         </div>
 
                                         {formData.customization.isBrandingRequired && (
-                                            <div className="space-y-10">
-                                                {/* Global Branding Logo Section */}
-                                                <div className="p-8 bg-slate-50 rounded-xl border border-slate-200 border-dashed">
-                                                    <div className="flex flex-col md:flex-row md:items-center gap-8">
+                                            <div className="space-y-12">
+                                                <div className="p-10 bg-[var(--color-bg)]/50 rounded-2xl border border-[var(--color-border)] border-dashed">
+                                                    <div className="flex flex-col md:flex-row md:items-center gap-10">
                                                         <div className="flex-1">
-                                                            <div className="flex items-center gap-3 mb-2">
-                                                                <div className="w-6 h-6 bg-indigo-100 text-indigo-700 rounded flex items-center justify-center font-bold text-[10px] uppercase">A</div>
-                                                                <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Organization Logo</h3>
+                                                            <div className="flex items-center gap-3 mb-3">
+                                                                <div className="w-8 h-8 bg-[var(--color-text)] text-[var(--color-surface)] rounded-xl flex items-center justify-center font-black text-[10px]">A</div>
+                                                                <h3 className="text-lg font-black text-[var(--color-text)] uppercase tracking-tight">Organization Logo</h3>
                                                             </div>
-                                                            <p className="text-xs text-slate-500 font-medium">Upload the primary logo for branding application.</p>
+                                                            <p className="text-xs text-[var(--color-text-muted)] font-bold opacity-70 leading-relaxed">Upload the primary high-resolution logo for branding application.</p>
                                                         </div>
 
                                                         <div className="flex-shrink-0">
-                                                            <div className="flex items-center gap-4">
-                                                                <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-xl px-6 py-4 bg-white hover:border-indigo-300 cursor-pointer transition-all group min-w-[180px]">
-                                                                    <div className="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-2">
-                                                                        {logoUploading ? <Loader2 size={16} className="animate-spin" /> : <FileUp size={16} />}
+                                                            <div className="flex items-center gap-6">
+                                                                <label className="flex flex-col items-center justify-center border-2 border-dashed border-[var(--color-border)] rounded-2xl px-10 py-6 bg-[var(--color-surface)] hover:border-[var(--color-text)] cursor-pointer transition-all group min-w-[200px] shadow-sm">
+                                                                    <div className="w-10 h-10 bg-[var(--color-bg)] text-[var(--color-text)] rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                                                                        {logoUploading ? <Loader2 size={20} className="animate-spin" /> : <FileUp size={20} />}
                                                                     </div>
-                                                                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">{logoUploading ? 'Uploading...' : 'Browse Files'}</span>
+                                                                    <span className="text-[10px] font-black text-[var(--color-text)] uppercase tracking-[0.2em]">{logoUploading ? 'Uploading' : 'Browse Files'}</span>
                                                                     <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
                                                                 </label>
                                                                 {formData.customization.brandingLogo && (
-                                                                    <div className="w-20 h-20 rounded-xl border border-slate-200 bg-white p-2 relative shadow-sm group">
-                                                                        <div className="w-full h-full rounded-lg overflow-hidden bg-slate-100 flex items-center justify-center">
+                                                                    <div className="w-24 h-24 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-3 relative shadow-md group animate-in zoom-in-95">
+                                                                        <div className="w-full h-full rounded-xl overflow-hidden bg-[var(--color-bg)] flex items-center justify-center">
                                                                             <img src={formData.customization.brandingLogo} alt="Logo" className="max-w-full max-h-full object-contain" />
                                                                         </div>
                                                                         <button
                                                                             onClick={() => handleCustomizationChange('brandingLogo', '')}
-                                                                            className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow-md border-2 border-white"
+                                                                            className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:scale-110 transition-transform"
                                                                         >
-                                                                            <X size={10} />
+                                                                            <X size={14} />
                                                                         </button>
                                                                     </div>
                                                                 )}
@@ -548,11 +524,10 @@ export default function CartPage() {
                                                     </div>
                                                 </div>
 
-                                                {/* Individual Product Customization */}
-                                                <div className="space-y-6">
+                                                <div className="space-y-8">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-6 h-6 bg-slate-100 text-slate-700 rounded flex items-center justify-center font-bold text-[10px] uppercase">B</div>
-                                                        <h3 className="text-base font-bold text-slate-900 uppercase tracking-tight">Product Specifications</h3>
+                                                        <div className="w-8 h-8 bg-[var(--color-bg)] text-[var(--color-text)] rounded-xl flex items-center justify-center font-black text-[10px] border border-[var(--color-border)] shadow-sm">B</div>
+                                                        <h3 className="text-lg font-black text-[var(--color-text)] uppercase tracking-tight">Product Specifications</h3>
                                                     </div>
 
                                                     {items.map((item, idx) => {
@@ -560,29 +535,26 @@ export default function CartPage() {
                                                         const cust = formData.customization.productCustomizations[pId] || {};
 
                                                         return (
-                                                            <div key={pId} className="p-6 bg-slate-50 rounded-xl border border-slate-200 animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
-                                                                <div className="flex items-center gap-4 mb-6 pb-4 border-b border-slate-200/50">
-                                                                    <div className="w-12 h-12 bg-white rounded-lg border border-slate-200 p-0.5 flex-shrink-0">
-                                                                        <img src={item.product.images?.[0] || item.product.image} className="w-full h-full object-cover rounded-md" />
+                                                            <div key={pId} className="p-8 bg-[var(--color-bg)]/30 rounded-2xl border border-[var(--color-border)] animate-in slide-in-from-bottom-4 duration-500 shadow-sm" style={{ animationDelay: `${idx * 100}ms` }}>
+                                                                <div className="flex items-center gap-6 mb-8 pb-6 border-b border-[var(--color-border)]/50">
+                                                                    <div className="w-14 h-14 bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-1.5 flex-shrink-0 shadow-sm">
+                                                                        <img src={item.product.images?.[0] || item.product.image} className="w-full h-full object-cover rounded-lg" />
                                                                     </div>
                                                                     <div className="min-w-0">
-                                                                        <h4 className="text-sm font-bold text-slate-900 leading-none truncate mb-1.5">{item.product.name}</h4>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <span className="text-[10px] font-bold text-slate-400">Qty: {item.quantity}</span>
-                                                                        </div>
+                                                                        <h4 className="text-base font-black text-[var(--color-text)] leading-none truncate mb-2">{item.product.name}</h4>
+                                                                        <span className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">Qty: {item.quantity}</span>
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                                    {/* Branding Type */}
-                                                                    <div className="space-y-4">
-                                                                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">1. Style</label>
-                                                                        <div className="grid grid-cols-2 gap-2">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                                    <div className="space-y-6">
+                                                                        <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] block ml-1">1. Branding Style</label>
+                                                                        <div className="grid grid-cols-2 gap-3">
                                                                             {['Digital Print', 'Screen Print', 'Embroidery', 'Embossing', 'Engraving', 'UV Stickers'].map(type => (
                                                                                 <button
                                                                                     key={type}
                                                                                     onClick={() => handleCustomizationChange('brandingType', type, pId)}
-                                                                                    className={`px-3 py-2 rounded-lg text-[10px] font-bold border transition-all ${cust.brandingType === type ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                                                    className={`px-4 py-3 rounded-xl text-[10px] font-black border transition-all uppercase tracking-wider ${cust.brandingType === type ? 'bg-[var(--color-text)] border-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-text)]/30'}`}
                                                                                 >
                                                                                     {type}
                                                                                 </button>
@@ -590,11 +562,10 @@ export default function CartPage() {
                                                                         </div>
                                                                     </div>
 
-                                                                    <div className="space-y-6">
-                                                                        {/* Positions */}
-                                                                        <div className="space-y-4">
-                                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">2. Placement</label>
-                                                                            <div className="flex flex-wrap gap-2">
+                                                                    <div className="space-y-8">
+                                                                        <div className="space-y-5">
+                                                                            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] block ml-1">2. Placement</label>
+                                                                            <div className="flex flex-wrap gap-3">
                                                                                 {[1, 2, 3].map(pos => (
                                                                                     <button
                                                                                         key={pos}
@@ -602,14 +573,14 @@ export default function CartPage() {
                                                                                             handleCustomizationChange('brandingPositions', pos, pId);
                                                                                             handleCustomizationChange('customBrandingPositions', '', pId);
                                                                                         }}
-                                                                                        className={`w-9 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingPositions === pos ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                                                        className={`w-11 h-11 rounded-xl font-black text-xs border transition-all ${cust.brandingPositions === pos ? 'bg-[var(--color-text)] border-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-text)]/30'}`}
                                                                                     >
                                                                                         {pos}
                                                                                     </button>
                                                                                 ))}
                                                                                 <button
                                                                                     onClick={() => handleCustomizationChange('brandingPositions', 'Custom', pId)}
-                                                                                    className={`px-4 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingPositions === 'Custom' ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                                                    className={`px-5 h-11 rounded-xl font-black text-[10px] uppercase tracking-wider border transition-all ${cust.brandingPositions === 'Custom' ? 'bg-[var(--color-text)] border-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-text)]/30'}`}
                                                                                 >
                                                                                     Other
                                                                                 </button>
@@ -620,15 +591,14 @@ export default function CartPage() {
                                                                                     placeholder="Describe placement..."
                                                                                     value={cust.customBrandingPositions || ''}
                                                                                     onChange={(e) => handleCustomizationChange('customBrandingPositions', e.target.value, pId)}
-                                                                                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none font-medium text-xs text-slate-900 placeholder:text-slate-300"
+                                                                                    className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none font-bold text-sm text-[var(--color-text)] placeholder:opacity-30"
                                                                                 />
                                                                             )}
                                                                         </div>
 
-                                                                        {/* Size */}
-                                                                        <div className="space-y-4">
-                                                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">3. Dimensions</label>
-                                                                            <div className="flex flex-wrap gap-2">
+                                                                        <div className="space-y-5">
+                                                                            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] block ml-1">3. Dimensions</label>
+                                                                            <div className="flex flex-wrap gap-3">
                                                                                 {['1" to 3"', '3" to 5"', '5" to 10"'].map(size => (
                                                                                     <button
                                                                                         key={size}
@@ -636,14 +606,14 @@ export default function CartPage() {
                                                                                             handleCustomizationChange('brandingSize', size, pId);
                                                                                             handleCustomizationChange('customBrandingSize', '', pId);
                                                                                         }}
-                                                                                        className={`px-3 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingSize === size ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                                                        className={`px-5 h-11 rounded-xl font-black text-[10px] uppercase tracking-wider border transition-all ${cust.brandingSize === size ? 'bg-[var(--color-text)] border-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-text)]/30'}`}
                                                                                     >
                                                                                         {size}
                                                                                     </button>
                                                                                 ))}
                                                                                 <button
                                                                                     onClick={() => handleCustomizationChange('brandingSize', 'Custom', pId)}
-                                                                                    className={`px-4 h-9 rounded-lg font-bold text-xs border transition-all ${cust.brandingSize === 'Custom' ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}
+                                                                                    className={`px-5 h-11 rounded-xl font-black text-[10px] uppercase tracking-wider border transition-all ${cust.brandingSize === 'Custom' ? 'bg-[var(--color-text)] border-[var(--color-text)] text-[var(--color-surface)] shadow-md' : 'bg-[var(--color-surface)] border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-text)]/30'}`}
                                                                                 >
                                                                                     Specs
                                                                                 </button>
@@ -654,7 +624,7 @@ export default function CartPage() {
                                                                                     placeholder="e.g. 2x2 inch"
                                                                                     value={cust.customBrandingSize || ''}
                                                                                     onChange={(e) => handleCustomizationChange('customBrandingSize', e.target.value, pId)}
-                                                                                    className="w-full px-4 py-2 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none font-medium text-xs text-slate-900 placeholder:text-slate-300"
+                                                                                    className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none font-bold text-sm text-[var(--color-text)] placeholder:opacity-30"
                                                                                 />
                                                                             )}
                                                                         </div>
@@ -668,158 +638,154 @@ export default function CartPage() {
                                         )}
 
                                         {!formData.customization.isBrandingRequired && (
-                                            <div className="p-12 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
-                                                <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center mx-auto mb-4 border border-slate-100">
-                                                    <Info size={24} className="text-slate-300" />
+                                            <div className="p-16 bg-[var(--color-bg)]/50 rounded-2xl border border-dashed border-[var(--color-border)] text-center">
+                                                <div className="w-16 h-16 bg-[var(--color-surface)] rounded-2xl flex items-center justify-center mx-auto mb-6 border border-[var(--color-border)] shadow-sm">
+                                                    <Info size={28} className="text-[var(--color-text-muted)] opacity-30" />
                                                 </div>
-                                                <h4 className="text-base font-bold text-slate-900 mb-1">Standard Selection</h4>
-                                                <p className="text-slate-500 text-sm max-w-xs mx-auto">Your rewards will be delivered as standard catalog products without additional personalization.</p>
+                                                <h4 className="text-xl font-black text-[var(--color-text)] mb-2">Standard Selection</h4>
+                                                <p className="text-[var(--color-text-muted)] font-bold text-sm max-w-sm mx-auto opacity-70">Your rewards will be delivered as standard catalog products without additional personalization.</p>
                                             </div>
                                         )}
                                     </div>
                                 </div>
                             )}
 
-                            {/* Step 3: Shipping Form */}
+                            {/* Step 3: Shipping */}
                             {currentStep === 3 && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-500">
-                                    <div className="mb-8 border-b border-slate-50 pb-6">
-                                        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Delivery Details</h2>
-                                        <p className="text-slate-500 font-medium mt-1.5 text-sm">Where should we deliver your selected rewards?</p>
+                                    <div className="mb-10 border-b border-[var(--color-border)]/50 pb-8">
+                                        <h2 className="text-3xl font-black text-[var(--color-text)] tracking-tight">Delivery Details</h2>
+                                        <p className="text-[var(--color-text-muted)] font-bold mt-2 text-base opacity-70">Where should we deliver your selected rewards?</p>
                                     </div>
 
-                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6">
-                                        {/* Contact Section */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                            <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                                                <input readOnly required type="text" name="name" value={formData.name} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-500 cursor-not-allowed text-sm" placeholder="Full Name" />
+                                    <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-8">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="space-y-2.5">
+                                                <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Full Name</label>
+                                                <input readOnly required type="text" name="name" value={formData.name} className="w-full px-5 py-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl outline-none font-bold text-[var(--color-text-muted)] opacity-60 cursor-not-allowed text-sm" />
                                             </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                                                <input readOnly required type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none font-semibold text-slate-500 cursor-not-allowed text-sm" placeholder="Email Address" />
+                                            <div className="space-y-2.5">
+                                                <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Email</label>
+                                                <input readOnly required type="email" name="email" value={formData.email} className="w-full px-5 py-4 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-xl outline-none font-bold text-[var(--color-text-muted)] opacity-60 cursor-not-allowed text-sm" />
                                             </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Phone</label>
-                                                <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 text-sm" placeholder="+91 00000 00000" />
+                                            <div className="space-y-2.5">
+                                                <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Phone</label>
+                                                <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none transition-all font-bold text-[var(--color-text)] text-sm shadow-sm" placeholder="+91 00000 00000" />
                                             </div>
-                                            <div className="space-y-1.5">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Employee ID</label>
-                                                <input required type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 text-sm" placeholder="ID Number" />
+                                            <div className="space-y-2.5">
+                                                <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Employee ID</label>
+                                                <input required type="text" name="employeeId" value={formData.employeeId} onChange={handleInputChange} className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none transition-all font-bold text-[var(--color-text)] text-sm shadow-sm" placeholder="ID Number" />
                                             </div>
                                         </div>
 
-                                        {/* Address Area */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Delivery Address</label>
+                                        <div className="space-y-2.5">
+                                            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Delivery Address</label>
                                             <textarea
                                                 required
                                                 name="address"
                                                 value={formData.address}
                                                 onChange={handleInputChange}
-                                                rows="3"
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 resize-none text-sm"
+                                                rows="4"
+                                                className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none transition-all font-bold text-[var(--color-text)] resize-none text-sm shadow-sm"
                                                 placeholder="Enter your complete delivery address..."
                                             ></textarea>
                                         </div>
 
-                                        {/* Additional Requirements Area */}
-                                        <div className="space-y-1.5">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Notes (Optional)</label>
+                                        <div className="space-y-2.5">
+                                            <label className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] ml-1">Notes (Optional)</label>
                                             <textarea
                                                 name="additionalRequirements"
                                                 value={formData.additionalRequirements}
                                                 onChange={handleInputChange}
-                                                rows="2"
-                                                className="w-full px-4 py-3 bg-white border border-slate-200 focus:border-indigo-500 rounded-lg outline-none transition-all font-semibold text-slate-900 resize-none text-sm"
+                                                rows="3"
+                                                className="w-full px-5 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] focus:border-[var(--color-text)] rounded-xl outline-none transition-all font-bold text-[var(--color-text)] resize-none text-sm shadow-sm"
                                                 placeholder="Any additional instructions..."
                                             ></textarea>
                                         </div>
                                     </form>
                                 </div>
                             )}
-
                         </div>
                     </div>
 
                     {/* Order Summary Sidebar */}
-                    <aside className="w-full lg:w-1/3 space-y-6">
-                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8 sticky top-28">
-                            <h3 className="text-lg font-bold text-slate-900 mb-6 flex items-center">
-                                <CreditCard className="mr-3 text-indigo-600" size={20} />
+                    <aside className="w-full lg:w-1/3 space-y-8">
+                        <div className="bg-[var(--color-surface)] rounded-[2rem] shadow-xl border border-[var(--color-border)] p-8 sm:p-10 sticky top-28">
+                            <h3 className="text-xl font-black text-[var(--color-text)] mb-8 flex items-center">
+                                <CreditCard className="mr-4 opacity-50" size={24} />
                                 Order Summary
                             </h3>
 
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-6 mb-10">
                                 {currentStep === 1 ? (
                                     <>
-                                        <div className="flex justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                                        <div className="flex justify-between text-[var(--color-text-muted)] text-[10px] font-black uppercase tracking-[0.2em]">
                                             <span>Subtotal</span>
-                                            <span className="text-slate-900">₹{subtotal.toLocaleString('en-IN')}</span>
+                                            <span className="text-[var(--color-text)]">₹{subtotal.toLocaleString('en-IN')}</span>
                                         </div>
                                         {savings > 0 && (
-                                            <div className="flex justify-between text-emerald-600 text-[10px] font-bold uppercase tracking-wider">
+                                            <div className="flex justify-between text-emerald-600 text-[10px] font-black uppercase tracking-[0.2em]">
                                                 <span>Savings</span>
                                                 <span>- ₹{savings.toLocaleString('en-IN')}</span>
                                             </div>
                                         )}
-                                        <div className="flex justify-between text-slate-500 text-[10px] font-bold uppercase tracking-wider pb-4 border-b border-slate-100">
+                                        <div className="flex justify-between text-[var(--color-text-muted)] text-[10px] font-black uppercase tracking-[0.2em] pb-6 border-b border-[var(--color-border)]/50">
                                             <span>Shipping</span>
                                             <span className="text-emerald-600">Included</span>
                                         </div>
 
-                                        <div className="flex justify-between items-center pt-2">
-                                            <span className="font-bold text-base text-slate-900">Total</span>
-                                            <span className="font-bold text-xl text-slate-900">₹{total.toLocaleString('en-IN')}</span>
+                                        <div className="flex justify-between items-center pt-4">
+                                            <span className="font-black text-lg text-[var(--color-text)]">Total</span>
+                                            <span className="font-black text-2xl text-[var(--color-text)] tracking-tight">₹{total.toLocaleString('en-IN')}</span>
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="space-y-3 max-h-[200px] overflow-y-auto pr-2 pb-4 border-b border-slate-100">
-                                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Item Overview</h4>
+                                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 pb-6 border-b border-[var(--color-border)]/50">
+                                        <h4 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] mb-4">Item Overview</h4>
                                         {items.map(item => (
-                                            <div key={`${item.product._id}-${item.eventId}`} className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 overflow-hidden flex-shrink-0">
-                                                    <img src={item.product.images?.[0] || item.product.image} alt="" className="w-full h-full object-cover" />
+                                            <div key={`${item.product._id}-${item.eventId}`} className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] overflow-hidden flex-shrink-0 p-1">
+                                                    <img src={item.product.images?.[0] || item.product.image} alt="" className="w-full h-full object-cover rounded-lg" />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-xs font-bold text-slate-900 truncate">{item.product.name}</p>
-                                                    <p className="text-[10px] text-slate-500 font-medium">Qty: {item.quantity}</p>
+                                                    <p className="text-xs font-black text-[var(--color-text)] truncate">{item.product.name}</p>
+                                                    <p className="text-[10px] text-[var(--color-text-muted)] font-black uppercase tracking-wider">Qty: {item.quantity}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-between text-[10px] font-bold text-indigo-600 bg-indigo-50/50 px-4 py-3 rounded-lg border border-indigo-100/50 mt-4">
-                                    <div className="flex items-center gap-2 uppercase tracking-widest">
-                                        <Truck size={14} />
+                                <div className="flex items-center justify-between text-[10px] font-black text-[var(--color-text)] bg-[var(--color-bg)] px-5 py-4 rounded-xl border border-[var(--color-border)] mt-6">
+                                    <div className="flex items-center gap-3 uppercase tracking-[0.2em]">
+                                        <Truck size={16} className="opacity-50" />
                                         <span>Delivery</span>
                                     </div>
-                                    <span>5-7 Days</span>
+                                    <span className="opacity-50"> 4-5 working days</span>
                                 </div>
                             </div>
 
                             {/* Actions */}
                             {isAlreadyOrdered ? (
-                                <div className="bg-red-50 border border-red-100 rounded-lg p-4 text-center">
-                                    <Info className="text-red-500 mx-auto mb-2" size={20} />
-                                    <p className="text-red-700 font-bold text-xs uppercase tracking-wider">Limit Reached</p>
-                                    <p className="text-red-600 text-[10px] mt-1">Order already submitted for this event.</p>
+                                <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center animate-in shake duration-500">
+                                    <Info className="text-red-500 mx-auto mb-3" size={24} />
+                                    <p className="text-red-700 font-black text-[10px] uppercase tracking-[0.2em]">Limit Reached</p>
+                                    <p className="text-red-600 font-bold text-xs mt-2 leading-relaxed">Order already submitted for this event.</p>
                                     <button
                                         onClick={() => router.push('/')}
-                                        className="mt-4 text-slate-900 font-bold text-[10px] uppercase tracking-widest border-b border-slate-900"
+                                        className="mt-6 text-[var(--color-text)] font-black text-[10px] uppercase tracking-[0.2em] border-b-2 border-[var(--color-text)] hover:opacity-70 transition-all pb-1"
                                     >
-                                        Home
+                                        Return Home
                                     </button>
                                 </div>
                             ) : currentStep === 1 ? (
                                 <button
                                     onClick={() => setCurrentStep(2)}
                                     disabled={items.length === 0}
-                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+                                    className="w-full bg-[var(--color-text)] text-[var(--color-surface)] font-black text-[10px] uppercase tracking-[0.2em] py-5 px-6 rounded-xl flex items-center justify-center group hover:opacity-90 transition-all shadow-lg active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none"
                                 >
                                     Proceed to Design
-                                    <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight size={16} className="ml-3 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ) : currentStep === 2 ? (
                                 <button
@@ -841,22 +807,22 @@ export default function CartPage() {
                                         }
                                         setCurrentStep(3);
                                     }}
-                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98]"
+                                    className="w-full bg-[var(--color-text)] text-[var(--color-surface)] font-black text-[10px] uppercase tracking-[0.2em] py-5 px-6 rounded-xl flex items-center justify-center group hover:opacity-90 transition-all shadow-lg active:scale-[0.98]"
                                 >
                                     Shipping Details
-                                    <ArrowRight size={14} className="ml-2 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight size={16} className="ml-3 group-hover:translate-x-1 transition-transform" />
                                 </button>
                             ) : (
                                 <button
                                     form="checkout-form"
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full bg-slate-900 text-white font-bold text-[10px] uppercase tracking-widest py-4 px-6 rounded-lg flex items-center justify-center group hover:bg-indigo-600 transition-all shadow-sm active:scale-[0.98] disabled:opacity-70"
+                                    className="w-full bg-[var(--color-text)] text-[var(--color-surface)] font-black text-[10px] uppercase tracking-[0.2em] py-5 px-6 rounded-xl flex items-center justify-center group hover:opacity-90 transition-all shadow-lg active:scale-[0.98] disabled:opacity-50"
                                 >
                                     {isSubmitting ? (
-                                        <div className="flex items-center space-x-2">
-                                            <Loader2 size={14} className="animate-spin" />
-                                            <span>Processing...</span>
+                                        <div className="flex items-center space-x-3">
+                                            <Loader2 size={16} className="animate-spin" />
+                                            <span>Processing</span>
                                         </div>
                                     ) : (
                                         <span>Confirm Selection</span>
@@ -864,8 +830,7 @@ export default function CartPage() {
                                 </button>
                             )}
 
-                            {/* Trust Elements */}
-                            <div className="mt-6 flex items-center justify-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <div className="mt-8 flex items-center justify-center text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-[0.2em] opacity-50">
                                 <ShieldCheck size={14} className="mr-2 text-emerald-500" />
                                 Secure Verification
                             </div>
@@ -874,7 +839,6 @@ export default function CartPage() {
                 </div>
             </div>
 
-            {/* Modals */}
             <ConfirmModal
                 isOpen={confirmState.isOpen}
                 onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}

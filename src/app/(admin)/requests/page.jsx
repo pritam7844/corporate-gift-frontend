@@ -103,10 +103,10 @@ export default function AdminOrdersPage() {
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending': return 'bg-yellow-50 text-yellow-700 border-yellow-200';
-            case 'Approved': return 'bg-blue-50 text-blue-700 border-blue-200';
-            case 'Shipped': return 'bg-purple-50 text-purple-700 border-purple-200';
+            case 'Approved': return 'bg-[var(--color-accent)] text-[var(--color-text)] border-[var(--color-border)]';
+            case 'Shipped': return 'bg-[var(--color-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]';
             case 'Delivered': return 'bg-green-50 text-green-700 border-green-200';
-            default: return 'bg-gray-50 text-gray-700 border-gray-200';
+            default: return 'bg-[var(--color-bg)] text-[var(--color-text-muted)] border-[var(--color-border)]';
         }
     };
 
@@ -114,15 +114,15 @@ export default function AdminOrdersPage() {
         <>
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Orders Management</h1>
-                    <p className="text-gray-500 mt-1">Review and manage employee requests</p>
+                    <h1 className="text-2xl font-bold text-[var(--color-text)]">Orders Management</h1>
+                    <p className="text-[var(--color-text-muted)] mt-1">Review and manage employee requests</p>
                 </div>
                 <div className="flex items-center space-x-3">
                     <div className="relative">
                         <select
                             value={selectedCompanyId}
                             onChange={handleCompanyChange}
-                            className="appearance-none pl-10 pr-10 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all cursor-pointer shadow-sm min-w-[200px]"
+                            className="appearance-none pl-10 pr-10 py-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-lg text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all cursor-pointer shadow-sm min-w-[200px]"
                         >
                             <option value="">All Companies</option>
                             {companies.map((company) => (
@@ -131,16 +131,16 @@ export default function AdminOrdersPage() {
                                 </option>
                             ))}
                         </select>
-                        <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                        <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none" />
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                            <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="h-4 w-4 text-[var(--color-text-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>
                         </div>
                     </div>
                     <button
                         onClick={() => fetchOrders()}
-                        className="flex items-center px-4 py-2 border border-gray-200 bg-white text-gray-600 rounded-lg hover:bg-gray-50 transition shadow-sm"
+                        className="flex items-center px-4 py-2 border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] rounded-lg hover:bg-[var(--color-bg)] transition shadow-sm"
                         disabled={loading}
                     >
                         <RefreshCw size={16} className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -151,49 +151,49 @@ export default function AdminOrdersPage() {
 
             {loading && orders.length === 0 ? (
                 <div className="flex justify-center p-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--color-accent)]"></div>
                 </div>
             ) : orders.length === 0 ? (
-                <div className="bg-white border text-center border-gray-200 rounded-xl p-12 shadow-sm">
-                    <Package size={48} className="mx-auto text-gray-300 mb-4" />
-                    <h3 className="text-xl font-medium text-gray-900">No orders found</h3>
-                    <p className="text-gray-500 mt-1">There are no gift orders yet.</p>
+                <div className="bg-[var(--color-surface)] border text-center border-[var(--color-border)] rounded-xl p-12 shadow-sm">
+                    <Package size={48} className="mx-auto text-[var(--color-text-muted)] mb-4" />
+                    <h3 className="text-xl font-medium text-[var(--color-text)]">No orders found</h3>
+                    <p className="text-[var(--color-text-muted)] mt-1">There are no gift orders yet.</p>
                 </div>
             ) : (
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-xl shadow-sm overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
+                        <table className="min-w-full divide-y divide-[var(--color-border)]">
+                            <thead className="bg-[var(--color-bg)]">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">Order Details</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">Employee Info</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">Items</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase">Status</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-gray-500 uppercase">Actions</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--color-text-muted)] uppercase">Order Details</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--color-text-muted)] uppercase">Employee Info</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--color-text-muted)] uppercase">Items</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-[var(--color-text-muted)] uppercase">Status</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-[var(--color-text-muted)] uppercase">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
                                 {orders.map((order) => (
-                                    <tr key={order._id} className="hover:bg-gray-50/50 transition duration-150 cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}>
+                                    <tr key={order._id} className="hover:bg-[var(--color-bg)]/50 transition duration-150 cursor-pointer" onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
-                                            <div className="text-xs text-gray-500 mt-1"><FormattedDate date={order.createdAt} /></div>
+                                            <div className="text-sm font-medium text-[var(--color-text)] group-hover:text-[var(--color-text)] transition-colors">#{order.orderId || order._id.slice(-6).toUpperCase()}</div>
+                                            <div className="text-xs text-[var(--color-text-muted)] mt-1"><FormattedDate date={order.createdAt} /></div>
                                             {order.companyId && (
-                                                <div className="text-[10px] font-semibold text-blue-600 uppercase tracking-wider mt-2 border border-blue-100 bg-blue-50 px-2 py-0.5 rounded inline-block">
+                                                <div className="text-[10px] font-black uppercase tracking-wider mt-2 px-2 py-0.5 rounded inline-block" style={{backgroundColor:'var(--color-text)',color:'var(--color-surface)'}}>
                                                     {order.companyId.name}
                                                 </div>
                                             )}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-900">{order.employeeDetails?.name}</div>
-                                            <div className="text-sm text-gray-500">{order.employeeDetails?.email}</div>
-                                            <div className="text-xs text-gray-400 mt-1 truncate max-w-[200px]">
+                                            <div className="text-sm font-medium text-[var(--color-text)]">{order.employeeDetails?.name}</div>
+                                            <div className="text-sm text-[var(--color-text-muted)]">{order.employeeDetails?.email}</div>
+                                            <div className="text-xs text-[var(--color-text-muted)] mt-1 truncate max-w-[200px]">
                                                 {order.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-sm text-gray-900">{order.selectedProducts.length} items</div>
-                                            <div className="text-xs text-gray-500 mt-1 max-w-[150px] truncate">
+                                            <div className="text-sm text-[var(--color-text)]">{order.selectedProducts.length} items</div>
+                                            <div className="text-xs text-[var(--color-text-muted)] mt-1 max-w-[150px] truncate">
                                                 {order.selectedProducts.map(p => p.productId?.name).join(', ')}
                                             </div>
                                         </td>
@@ -206,12 +206,12 @@ export default function AdminOrdersPage() {
                                             <div className="flex items-center justify-end space-x-3">
                                                 <button
                                                     onClick={() => { setSelectedOrder(order); setShowDetailModal(true); }}
-                                                    className="text-[10px] font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest py-2 px-4 rounded-xl bg-blue-50 hover:bg-blue-100 transition-all"
+                                                    className="text-[10px] font-black uppercase tracking-widest py-2 px-4 rounded-xl border transition-all" style={{backgroundColor:'var(--color-bg)',color:'var(--color-text)',borderColor:'var(--color-border)'}}
                                                 >
                                                     Analyze
                                                 </button>
                                                 <select
-                                                    className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 outline-none w-32"
+                                                    className="bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] text-sm rounded-lg focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] block p-2 outline-none w-32"
                                                     value={order.status}
                                                     onChange={(e) => updateStatus(order._id, e.target.value)}
                                                 >
@@ -233,17 +233,17 @@ export default function AdminOrdersPage() {
             {/* Order Detail Modal */}
             {showDetailModal && selectedOrder && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300">
+                    <div className="rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border" style={{backgroundColor:'var(--color-surface)',borderColor:'var(--color-border)'}}>
                         {/* Modal Header */}
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
+                        <div className="p-6 border-b border-[var(--color-border)] flex justify-between items-start bg-[var(--color-bg)]/50">
                             <div>
                                 <div className="flex items-center space-x-2 mb-1">
-                                    <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Order Review</span>
-                                    <span className="text-gray-400 font-bold text-xs">#{selectedOrder.orderId || selectedOrder._id.toString().slice(-6).toUpperCase()}</span>
+                                    <span className="bg-[var(--color-text)] text-[var(--color-surface)] text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">Order Review</span>
+                                    <span className="text-[var(--color-text-muted)] font-bold text-xs">#{selectedOrder.orderId || selectedOrder._id.toString().slice(-6).toUpperCase()}</span>
                                 </div>
-                                <h2 className="text-xl font-black text-gray-900">Order Analysis</h2>
+                                <h2 className="text-xl font-black text-[var(--color-text)]">Order Analysis</h2>
                             </div>
-                            <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-white rounded-full transition-colors text-gray-400 hover:text-gray-900 border border-transparent hover:border-gray-100">
+                            <button onClick={() => setShowDetailModal(false)} className="p-2 hover:bg-[var(--color-surface)] rounded-full transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent hover:border-[var(--color-border)]">
                                 <X size={20} />
                             </button>
                         </div>
@@ -251,35 +251,35 @@ export default function AdminOrdersPage() {
                         <div className="p-6 overflow-y-auto max-h-[60vh] space-y-6">
                             {/* Summary Cards */}
                             <div className="grid grid-cols-2 gap-3">
-                                <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <div className="p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-border)]">
+                                    <div className="flex items-center text-[var(--color-text-muted)] text-[10px] font-bold uppercase tracking-wider mb-1">
                                         <Building2 size={12} className="mr-2" /> Company
                                     </div>
-                                    <p className="font-bold text-sm text-gray-900">{selectedOrder.companyId?.name || 'Global'}</p>
+                                    <p className="font-bold text-sm text-[var(--color-text)]">{selectedOrder.companyId?.name || 'Global'}</p>
                                 </div>
-                                <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <div className="flex items-center text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1">
+                                <div className="p-3 bg-[var(--color-bg)] rounded-xl border border-[var(--color-border)]">
+                                    <div className="flex items-center text-[var(--color-text-muted)] text-[10px] font-bold uppercase tracking-wider mb-1">
                                         <Calendar size={12} className="mr-2" /> Order Date
                                     </div>
-                                    <p className="font-bold text-sm text-gray-900"><FormattedDate date={selectedOrder.createdAt} /></p>
+                                    <p className="font-bold text-sm text-[var(--color-text)]"><FormattedDate date={selectedOrder.createdAt} /></p>
                                 </div>
                             </div>
 
                             {/* Recipient Info */}
                             <div className="space-y-3">
-                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recipient Info</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border border-gray-100 p-4 rounded-xl shadow-sm">
+                                <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">Recipient Info</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-[var(--color-surface)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm">
                                     <div className="space-y-2">
-                                        <div className="flex items-center text-xs font-semibold text-gray-700">
-                                            <User size={14} className="mr-2.5 text-blue-500" /> {selectedOrder.employeeDetails?.name}
+                                        <div className="flex items-center text-xs font-semibold text-[var(--color-text)]">
+                                            <User size={14} className="mr-2.5 text-[var(--color-accent)]" /> {selectedOrder.employeeDetails?.name}
                                         </div>
-                                        <div className="flex items-center text-xs font-semibold text-gray-700">
-                                            <Mail size={14} className="mr-2.5 text-blue-500" /> {selectedOrder.employeeDetails?.email}
+                                        <div className="flex items-center text-xs font-semibold text-[var(--color-text)]">
+                                            <Mail size={14} className="mr-2.5 text-[var(--color-accent)]" /> {selectedOrder.employeeDetails?.email}
                                         </div>
                                     </div>
                                     <div>
-                                        <div className="flex items-start text-xs font-semibold text-gray-700">
-                                            <MapPin size={14} className="mr-2.5 text-blue-500 mt-0.5 flex-shrink-0" />
+                                        <div className="flex items-start text-xs font-semibold text-[var(--color-text)]">
+                                            <MapPin size={14} className="mr-2.5 text-[var(--color-accent)] mt-0.5 flex-shrink-0" />
                                             <div className="leading-snug space-y-1">
                                                 {selectedOrder.employeeDetails?.address || 'N/A'}
                                             </div>
@@ -290,40 +290,40 @@ export default function AdminOrdersPage() {
 
                             {/* Personalization Section */}
                             <div className="space-y-3">
-                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Branding Requirements</h3>
+                                <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">Branding Requirements</h3>
                                 {selectedOrder.customization?.isBrandingRequired ? (
-                                    <div className="bg-orange-50/50 border border-orange-100 rounded-2xl p-4">
+                                    <div className="bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 rounded-2xl p-4">
                                         <div className="flex flex-col md:flex-row items-center gap-4">
                                             {selectedOrder.customization.brandingLogo && (
-                                                <div className="flex flex-col items-center justify-center p-2 bg-white rounded-xl border border-orange-100 flex-shrink-0">
+                                                <div className="flex flex-col items-center justify-center p-2 bg-[var(--color-surface)] rounded-xl border border-[var(--color-accent)]/20 flex-shrink-0">
                                                     <a href={selectedOrder.customization.brandingLogo} target="_blank" rel="noreferrer" className="block">
                                                         <img src={selectedOrder.customization.brandingLogo} alt="Logo" className="max-h-12 max-w-[80px] object-contain mb-1" />
-                                                        <p className="text-[7px] font-black text-blue-600 text-center uppercase tracking-tighter">Logo</p>
+                                                        <p className="text-[7px] font-black text-[var(--color-text)] text-center uppercase tracking-tighter">Logo</p>
                                                     </a>
                                                 </div>
                                             )}
                                             <div className="flex-1">
-                                                <p className="text-xs font-black text-orange-900 leading-tight">Per-Product Customization Enabled</p>
-                                                <p className="text-[10px] text-orange-700/70 mt-1">Specific branding details for each item are listed in the breakdown below.</p>
+                                                <p className="text-xs font-black text-[var(--color-accent)] leading-tight">Per-Product Customization Enabled</p>
+                                                <p className="text-[10px] text-[var(--color-text-muted)] mt-1">Specific branding details for each item are listed in the breakdown below.</p>
                                             </div>
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-                                        <p className="text-xs font-bold text-gray-500 italic text-center uppercase tracking-widest opacity-50">Standard Order - No Branding</p>
+                                    <div className="bg-[var(--color-bg)] border border-[var(--color-border)] rounded-2xl p-4">
+                                        <p className="text-xs font-bold text-[var(--color-text-muted)] italic text-center uppercase tracking-widest opacity-50">Standard Order - No Branding</p>
                                     </div>
                                 )}
                             </div>
 
                             {/* Shipping Section */}
                             <div className="space-y-3">
-                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Shipping & Timeline</h3>
-                                <div className="bg-green-50/50 border border-green-100 p-4 rounded-xl">
-                                    <div className="flex items-start gap-4 mb-3 pb-3 border-b border-green-100">
-                                        <Truck size={16} className="text-green-600 mt-0.5" />
+                                <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest">Shipping & Timeline</h3>
+                                <div className="bg-[var(--color-bg)] border border-[var(--color-border)] p-4 rounded-xl">
+                                    <div className="flex items-start gap-4 mb-3 pb-3 border-b border-[var(--color-border)]">
+                                        <Truck size={16} className="text-[var(--color-accent)] mt-0.5" />
                                         <div className="flex-1">
-                                            <p className="text-xs font-bold text-gray-900 leading-tight">Delivery Address</p>
-                                            <div className="text-[11px] text-gray-600 mt-1 leading-relaxed">
+                                            <p className="text-xs font-bold text-[var(--color-text)] leading-tight">Delivery Address</p>
+                                            <div className="text-[11px] text-[var(--color-text-muted)] mt-1 leading-relaxed">
                                                 {selectedOrder.employeeDetails?.address || 'N/A'}
                                             </div>
                                         </div>
@@ -334,9 +334,9 @@ export default function AdminOrdersPage() {
                             {/* Additional Requirements Section */}
                             {selectedOrder.employeeDetails?.additionalRequirements && (
                                 <div className="space-y-3">
-                                    <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-blue-600">Additional Requirements / Notes</h3>
-                                    <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm">
-                                        <div className="text-[11px] text-gray-700 font-bold leading-relaxed whitespace-pre-wrap">
+                                    <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest text-[var(--color-text)]">Additional Requirements / Notes</h3>
+                                    <div className="bg-[var(--color-bg)] border border-[var(--color-border)] p-4 rounded-xl shadow-sm">
+                                        <div className="text-[11px] text-[var(--color-text)] font-bold leading-relaxed whitespace-pre-wrap">
                                             {selectedOrder.employeeDetails.additionalRequirements}
                                         </div>
                                     </div>
@@ -345,55 +345,55 @@ export default function AdminOrdersPage() {
 
                             {/* Product Items Table */}
                             <div className="space-y-3">
-                                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex justify-between items-center">
+                                <h3 className="text-[10px] font-black text-[var(--color-text-muted)] uppercase tracking-widest flex justify-between items-center">
                                     Item Breakdown
-                                    <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px]">{selectedOrder.selectedProducts.length} Items</span>
+                                    <span className="bg-[var(--color-bg)] text-[var(--color-text-muted)] px-2 py-0.5 rounded text-[10px]">{selectedOrder.selectedProducts.length} Items</span>
                                 </h3>
-                                <div className="border border-gray-100 rounded-xl overflow-hidden shadow-sm">
-                                    <table className="min-w-full divide-y divide-gray-100">
-                                        <thead className="bg-gray-50">
+                                <div className="border border-[var(--color-border)] rounded-xl overflow-hidden shadow-sm">
+                                    <table className="min-w-full divide-y divide-[var(--color-border)]">
+                                        <thead className="bg-[var(--color-bg)]">
                                             <tr>
-                                                <th className="px-4 py-2 text-left text-[9px] font-black text-gray-400 uppercase tracking-wider">Gift</th>
-                                                <th className="px-4 py-2 text-center text-[9px] font-black text-gray-400 uppercase tracking-wider">Qty</th>
-                                                <th className="px-4 py-2 text-right text-[9px] font-black text-gray-400 uppercase tracking-wider">Unit</th>
-                                                <th className="px-4 py-2 text-right text-[9px] font-black text-gray-400 uppercase tracking-wider">Total</th>
+                                                <th className="px-4 py-2 text-left text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">Gift</th>
+                                                <th className="px-4 py-2 text-center text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">Qty</th>
+                                                <th className="px-4 py-2 text-right text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">Unit</th>
+                                                <th className="px-4 py-2 text-right text-[9px] font-black text-[var(--color-text-muted)] uppercase tracking-wider">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="bg-white divide-y divide-gray-100">
+                                        <tbody className="bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
                                             {selectedOrder.selectedProducts.map((p, idx) => (
                                                 <tr key={idx}>
                                                     <td className="px-4 py-3">
                                                         <div className="flex items-center">
-                                                            <div className="w-12 h-12 rounded-lg bg-gray-50 border border-gray-100 overflow-hidden mr-3 flex flex-shrink-0 cursor-pointer"
+                                                            <div className="w-12 h-12 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] overflow-hidden mr-3 flex flex-shrink-0 cursor-pointer"
                                                                  onClick={() => setSliderModal({ isOpen: true, images: p.productId?.images && p.productId.images.length > 0 ? p.productId.images : (p.productId?.image ? [p.productId.image] : []), index: 0 })}
                                                             >
                                                                 {p.productId?.images && p.productId.images.length > 0 ? (
                                                                     <img src={p.productId.images[0]} className="w-full h-full object-cover" />
                                                                 ) : p.productId?.image ? (
                                                                     <img src={p.productId.image} className="w-full h-full object-cover" />
-                                                                ) : <Package size={20} className="m-auto text-gray-300" />}
+                                                                ) : <Package size={20} className="m-auto text-[var(--color-text-muted)]" />}
                                                             </div>
                                                             <div>
-                                                                <div className="text-xs font-bold text-gray-900 truncate max-w-[120px]">{p.productId?.name || 'Deleted Product'}</div>
+                                                                <div className="text-xs font-bold text-[var(--color-text)] truncate max-w-[120px]">{p.productId?.name || 'Deleted Product'}</div>
                                                                 {selectedOrder.customization?.isBrandingRequired && (
-                                                                    <div className="text-[9px] text-gray-500 font-medium mt-1">
+                                                                    <div className="text-[9px] text-[var(--color-text-muted)] font-medium mt-1">
                                                                         {p.brandingType || 'Standard'} | {p.brandingPositions === 'Custom' ? p.customBrandingPositions : p.brandingPositions || '1'} Pos | {p.brandingSize === 'Custom' ? p.customBrandingSize : p.brandingSize || 'Standard'}
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="px-4 py-3 text-center text-xs font-bold text-gray-600">x{p.quantity}</td>
+                                                    <td className="px-4 py-3 text-center text-xs font-bold text-[var(--color-text)]">x{p.quantity}</td>
                                                     <td className="px-4 py-3 text-right">
-                                                        <div className="text-xs font-black text-gray-900">₹{(p.discountedPrice || p.price || 0).toLocaleString('en-IN')}</div>
+                                                        <div className="text-xs font-black text-[var(--color-text)]">₹{(p.discountedPrice || p.price || 0).toLocaleString('en-IN')}</div>
                                                     </td>
-                                                    <td className="px-4 py-3 text-right text-xs font-black text-blue-600">
+                                                    <td className="px-4 py-3 text-right text-xs font-black text-[var(--color-text)]">
                                                         ₹{((p.discountedPrice || p.price || 0) * p.quantity).toLocaleString('en-IN')}
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
-                                        <tfoot className="bg-blue-600 text-white">
+                                        <tfoot style={{backgroundColor:'var(--color-text)',color:'#ffffff'}}>
                                             <tr>
                                                 <td colSpan="3" className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest">Grand Total (With GST*)</td>
                                                 <td className="px-4 py-3 text-right text-sm font-black italic">
@@ -407,7 +407,7 @@ export default function AdminOrdersPage() {
                         </div>
 
                         {/* Modal Footer */}
-                        <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <div className="p-4 bg-[var(--color-bg)] border-t border-[var(--color-border)] flex justify-end">
                             <button onClick={() => setShowDetailModal(false)} className="px-5 py-2 bg-gray-900 text-white text-xs font-black rounded-lg hover:bg-gray-800 transition-all shadow-lg active:scale-95">
                                 Close
                             </button>

@@ -77,7 +77,7 @@ export default function Toast({
         </div>
         <button 
           onClick={onClose}
-          className="ml-4 p-1 rounded-full hover:bg-black/5 transition-colors text-gray-400 hover:text-gray-900"
+          className="ml-4 p-1 rounded-full hover:bg-black/5 transition-colors text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
         >
           <X size={16} />
         </button>
