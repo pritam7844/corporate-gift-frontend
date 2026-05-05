@@ -8,6 +8,7 @@ import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
 import Link from 'next/link';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
+import ImageCropModal from '../../../components/common/ImageCropModal';
 
 export default function ProductCatalog() {
   const { products, loading, error, addProduct, updateProduct, removeProduct } = useProducts(true);
@@ -37,6 +38,11 @@ export default function ProductCatalog() {
     isOpen: false,
     images: [],
     index: 0
+  });
+
+  const [cropModal, setCropModal] = useState({
+    isOpen: false,
+    images: []
   });
 
   const openConfirm = (title, message, onConfirm, type = 'warning') => {
@@ -96,24 +102,31 @@ export default function ProductCatalog() {
       return;
     }
 
-    const currentTotal = imagePreviews.length;
-    const remainingSlots = 5 - currentTotal;
+    const remainingSlots = 5 - imagePreviews.length;
+    const selectedFiles = files.slice(0, remainingSlots);
 
-    if (remainingSlots <= 0) {
-      return;
+    if (selectedFiles.length > 0) {
+      const newImagesForCrop = selectedFiles.map(file => ({
+        url: URL.createObjectURL(file),
+        name: file.name
+      }));
+
+      setCropModal({
+        isOpen: true,
+        images: newImagesForCrop
+      });
     }
+    e.target.value = '';
+  };
 
-    const filesToUpload = files.slice(0, remainingSlots);
-
-    // Support appending one-by-one or in batch
-    filesToUpload.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result]);
-        setImageFiles(prev => [...prev, file]);
-      };
-      reader.readAsDataURL(file);
+  const handleCropComplete = (croppedResults) => {
+    const newFiles = croppedResults.map((res, idx) => {
+      return new File([res.blob], `product_${Date.now()}_${idx}.jpg`, { type: 'image/jpeg' });
     });
+
+    setImageFiles(prev => [...prev, ...newFiles]);
+    setImagePreviews(prev => [...prev, ...croppedResults.map(res => res.url)]);
+    setCropModal({ isOpen: false, images: [] });
   };
 
   const removeImagePreview = (index) => {
@@ -195,7 +208,7 @@ export default function ProductCatalog() {
         <div className="flex items-center space-x-3">
           <button
             onClick={openCreateModal}
-            className="px-5 py-2.5 rounded-xl flex items-center space-x-2 font-bold text-sm transition-all active:scale-95 hover:opacity-90"
+            className="px-5 py-2.5 rounded-[2px] flex items-center space-x-2 font-bold text-sm transition-all active:scale-95 hover:opacity-90"
             style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
           >
             <Plus size={18} />
@@ -207,11 +220,11 @@ export default function ProductCatalog() {
       {/* Create / Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="rounded-2xl w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+          <div className="rounded-[2px] w-full max-w-md shadow-2xl flex flex-col max-h-[90vh] border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
             <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: 'var(--color-border)', backgroundColor: 'var(--color-bg)' }}>
               <h2 className="text-xl font-black" style={{ color: 'var(--color-text)' }}>{isEditing ? 'Edit Product' : 'New Product'}</h2>
-              <button onClick={closeModal} style={{ color: 'var(--color-text-muted)' }}>
-                <X size={24} />
+              <button onClick={closeModal} className="p-2 hover:bg-[var(--color-bg)] rounded-[2px] transition-all" style={{ color: 'var(--color-text-muted)' }}>
+                <X size={20} />
               </button>
             </div>
 
@@ -327,10 +340,11 @@ export default function ProductCatalog() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 rounded-xl font-black text-sm transition-all active:scale-95 disabled:opacity-50 mt-2"
+                className="w-full py-4 rounded-[2px] font-black text-xs uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 mt-2 flex items-center justify-center gap-3"
                 style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
               >
                 {submitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Global Product'}
+                {!submitting && <ArrowRight size={18} />}
               </button>
             </form>
           </div>
@@ -343,7 +357,7 @@ export default function ProductCatalog() {
           <p className="mt-4 font-medium text-sm" style={{ color: 'var(--color-text-muted)' }}>Loading products...</p>
         </div>
       ) : products.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed py-20 text-center" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="rounded-[2px] border-2 border-dashed py-20 text-center" style={{ borderColor: 'var(--color-border)' }}>
           <Package size={48} className="mx-auto mb-4" style={{ color: 'var(--color-border)' }} />
           <p className="font-bold text-sm" style={{ color: 'var(--color-text-muted)' }}>No global products found.</p>
           <button onClick={openCreateModal} className="mt-4 font-black text-sm hover:underline" style={{ color: 'var(--color-text)' }}>
@@ -355,10 +369,10 @@ export default function ProductCatalog() {
           {products.map((product) => (
             <div
               key={product._id}
-              className="rounded-2xl border overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-full"
+              className="rounded-[2px] border overflow-hidden group hover:shadow-lg transition-all duration-300 flex flex-col h-full"
               style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}
             >
-              <div className="h-100 relative overflow-hidden" style={{ backgroundColor: 'var(--color-bg)' }}>
+              <div className="aspect-square relative overflow-hidden border-b" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                 <Link href={`/products/${product._id}`} className="block h-full">
                   <ProductImageSlider
                     images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
@@ -366,18 +380,18 @@ export default function ProductCatalog() {
                   />
                 </Link>
                 {/* Action buttons – visible on hover */}
-                <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0 z-30">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); openEditModal(product); }}
-                    className="p-2.5 rounded-xl shadow-lg transition-all active:scale-95 font-bold"
-                    style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}
+                    className="p-2.5 rounded-[2px] shadow-lg transition-all active:scale-95 font-bold border"
+                    style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
                     title="Edit Product"
                   >
                     <Edit size={18} />
                   </button>
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(product._id); }}
-                    className="p-2.5 bg-[var(--color-surface)] text-red-600 rounded-xl shadow-lg hover:bg-red-600 hover:text-white transition-all active:scale-95"
+                    className="p-2.5 bg-white text-red-600 rounded-[2px] shadow-lg hover:bg-red-600 hover:text-white transition-all active:scale-95 border border-red-100"
                     title="Delete Product"
                   >
                     <Trash2 size={18} />
@@ -413,6 +427,14 @@ export default function ProductCatalog() {
           ))}
         </div>
       )}
+
+      <ImageCropModal
+        isOpen={cropModal.isOpen}
+        images={cropModal.images}
+        onClose={() => setCropModal({ isOpen: false, images: [] })}
+        onComplete={handleCropComplete}
+        fixedAspect={1}
+      />
 
       {/* Image Slider Modal */}
       <ImageSliderModal

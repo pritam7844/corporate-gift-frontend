@@ -8,6 +8,7 @@ import ConfirmModal from '../../../components/common/ConfirmModal';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
+import ImageCropModal from '../../../components/common/ImageCropModal';
 
 export default function NewArrivalsAdmin() {
     const { arrivals, loading, error, addArrival, updateArrival, removeArrival } = useNewArrivals();
@@ -39,6 +40,11 @@ export default function NewArrivalsAdmin() {
         isOpen: false,
         images: [],
         index: 0
+    });
+
+    const [cropModal, setCropModal] = useState({
+        isOpen: false,
+        images: []
     });
 
     // Memoized filtered arrivals
@@ -109,19 +115,33 @@ export default function NewArrivalsAdmin() {
             return;
         }
 
-        if (files.length > 0) {
-            const selectedFiles = files.slice(0, 5 - imagePreviews.length);
-            const newFiles = [...imageFiles, ...selectedFiles];
-            setImageFiles(newFiles);
+        const remainingSlots = 5 - imagePreviews.length;
+        const selectedFiles = files.slice(0, remainingSlots);
 
-            selectedFiles.forEach(file => {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    setImagePreviews(prev => [...prev, reader.result]);
-                };
-                reader.readAsDataURL(file);
+        if (selectedFiles.length > 0) {
+            const newImagesForCrop = selectedFiles.map(file => ({
+                url: URL.createObjectURL(file),
+                name: file.name
+            }));
+
+            setCropModal({
+                isOpen: true,
+                images: newImagesForCrop
             });
         }
+        // Clear input so same file can be selected again
+        e.target.value = '';
+    };
+
+    const handleCropComplete = (croppedResults) => {
+        // Convert cropped blobs to Files for Cloudinary
+        const newFiles = croppedResults.map((res, idx) => {
+            return new File([res.blob], `product_${Date.now()}_${idx}.jpg`, { type: 'image/jpeg' });
+        });
+
+        setImageFiles(prev => [...prev, ...newFiles]);
+        setImagePreviews(prev => [...prev, ...croppedResults.map(res => res.url)]);
+        setCropModal({ isOpen: false, images: [] });
     };
 
     const removeImagePreview = (index) => {
@@ -194,20 +214,20 @@ export default function NewArrivalsAdmin() {
     return (
         <div className="space-y-8 animate-in fade-in duration-700">
             {/* Elite Header */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-8 rounded-xl border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-8 rounded-[2px] border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                 <div>
                     <div className="flex items-center gap-3 mb-2">
-                        <div className="p-2.5 rounded-xl" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
+                        <div className="p-2.5 rounded-[2px]" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
                             <Sparkles size={24} />
                         </div>
-                        <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>Showcase Management</h1>
+                        <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>Collection Management</h1>
                     </div>
-                    <p className="font-medium" style={{ color: 'var(--color-text-muted)' }}>Curate the future collection and build employee anticipation.</p>
+                    <p className="font-medium" style={{ color: 'var(--color-text-muted)' }}>Prepare the future collection and build employee anticipation.</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
                     <button
                         onClick={() => setFilterStatus(filterStatus === 'all' ? 'coming-soon' : filterStatus === 'coming-soon' ? 'live' : 'all')}
-                        className="p-3 rounded-xl transition-all flex items-center gap-2 text-sm font-bold border" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
+                        className="p-3 rounded-[2px] transition-all flex items-center gap-2 text-sm font-bold border" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
                     >
                         <Filter size={18} />
                         <span className="capitalize">{filterStatus.replace('-', ' ')}</span>
@@ -215,10 +235,10 @@ export default function NewArrivalsAdmin() {
                     <div className="h-10 w-px mx-2 hidden lg:block" style={{ backgroundColor: 'var(--color-border)' }}></div>
                     <button
                         onClick={openCreateModal}
-                        className="px-8 py-3.5 rounded-xl flex items-center space-x-2 transition-all active:scale-95 text-sm font-black" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
+                        className="px-8 py-3.5 rounded-[2px] flex items-center space-x-2 transition-all active:scale-95 text-sm font-black" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                     >
                         <Plus size={20} />
-                        <span>Curate New Item</span>
+                        <span>Create New Item</span>
                     </button>
                 </div>
             </div>
@@ -228,8 +248,8 @@ export default function NewArrivalsAdmin() {
                 <Search size={20} className="absolute left-6 top-1/2 -translate-y-1/2 transition-colors" style={{ color: 'var(--color-text-muted)' }} />
                 <input
                     type="text"
-                    placeholder="Search showcase collection..."
-                    className="w-full pl-16 pr-8 py-4 rounded-xl outline-none placeholder:text-sm font-medium transition-all border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                    placeholder="Search collection..."
+                    className="w-full pl-16 pr-8 py-4 rounded-[2px] outline-none placeholder:text-sm font-medium transition-all border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -237,65 +257,64 @@ export default function NewArrivalsAdmin() {
 
             {/* Content Stage */}
             {loading && arrivals.length === 0 ? (
-                <div className="rounded-xl p-32 text-center border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                <div className="rounded-[2px] p-32 text-center border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                     <div className="w-16 h-16 border-4 rounded-full animate-spin mx-auto mb-6" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-text)' }}></div>
                     <p className="font-black uppercase tracking-[0.2em] text-[10px]" style={{ color: 'var(--color-text-muted)' }}>Accessing Vault...</p>
                 </div>
             ) : filteredArrivals.length === 0 ? (
-                <div className="rounded-xl p-32 text-center border flex flex-col items-center" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-                    <div className="w-24 h-24 rounded-xl flex items-center justify-center mb-8 border rotate-12 transition-transform hover:rotate-0 duration-500" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-border)' }}>
+                <div className="rounded-[2px] p-32 text-center border flex flex-col items-center" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="w-24 h-24 rounded-[2px] flex items-center justify-center mb-8 border rotate-12 transition-transform hover:rotate-0 duration-500" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-border)' }}>
                         <Package size={40} />
                     </div>
-                    <h3 className="text-2xl font-black mb-3" style={{ color: 'var(--color-text)' }}>No matching items found</h3>
-                    <p className="max-w-sm mb-8 font-medium" style={{ color: 'var(--color-text-muted)' }}>Adjust your search or filters to see the curated collection.</p>
+                    <h2 className="text-2xl font-black text-[var(--color-text)] mb-3">No Items Added</h2>
+                    <p className="text-[var(--color-text-muted)] font-bold opacity-70">There are currently no items assigned to this program.</p>
+                    <p className="text-[var(--color-text-muted)] font-bold opacity-70 mb-8">Adjust your search or filters to see the collection.</p>
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="font-black text-sm p-4 rounded-xl transition-all" style={{ color: 'var(--color-text)' }}>Clear Search</button>
+                        <button onClick={() => setSearchTerm('')} className="font-black text-sm p-4 rounded-[2px] transition-all" style={{ color: 'var(--color-text)' }}>Clear Search</button>
                     )}
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
                     {filteredArrivals.map((arrival) => (
-                        <div key={arrival._id} className="group rounded-xl border overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-                            <div className="h-74 relative overflow-hidden m-3 rounded-xl border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                        <div key={arrival._id} className="group rounded-[2px] border overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                            <div className="aspect-square relative overflow-hidden border-b" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                                 <ProductImageSlider
                                     images={arrival.images}
                                     onOpenModal={(idx) => setSliderModal({ isOpen: true, images: arrival.images, index: idx })}
+                                    className="h-full w-full"
                                 />
 
-                                {/* Overlay Controls */}
-                                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-500">
+                                {/* Elite Overlay Controls */}
+                                <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0 transition-all duration-500 z-20">
                                     <button
                                         onClick={(e) => { e.stopPropagation(); openEditModal(arrival); }}
-                                        className="p-3 rounded-xl shadow-md transition-all transform hover:scale-110" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)' }}
+                                        className="p-2.5 rounded-[2px] shadow-lg transition-all transform hover:scale-110 border" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', borderColor: 'var(--color-border)' }}
                                     >
-                                        <Edit size={18} />
+                                        <Edit size={16} />
                                     </button>
                                     <button
                                         onClick={(e) => { e.stopPropagation(); handleDelete(arrival._id); }}
-                                        className="p-3 bg-[var(--color-surface)] text-[var(--color-text-muted)] rounded-xl shadow-xl hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
+                                        className="p-2.5 rounded-[2px] shadow-lg hover:bg-red-500 hover:text-white transition-all transform hover:scale-110 border" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text-muted)', borderColor: 'var(--color-border)' }}
                                     >
-                                        <Trash2 size={18} />
+                                        <Trash2 size={16} />
                                     </button>
                                 </div>
 
-                                {/* Status Pills */}
-                                <div className="absolute bottom-4 left-4 flex flex-col gap-2">
-                                    {arrival.isComingSoon ? (
-                                        <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
-                                            <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-text)' }}></div>
-                                            Coming Soon
-                                        </div>
-                                    ) : (
-                                        <div className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-md flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
-                                            <CheckCircle2 size={10} />
-                                            Live Now
-                                        </div>
-                                    )}
-                                    {arrival.comingSoonDate && (
-                                        <div className="bg-gray-900 text-white px-2 py-1 rounded-lg text-[8px] font-black tracking-widest">
-                                            <FormattedDate date={arrival.comingSoonDate} />
-                                        </div>
-                                    )}
+                                {/* Status & Date Footer */}
+                                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
+                                    <div className="flex items-center gap-2">
+                                        {arrival.isComingSoon && (
+                                            <div className="px-3 py-1.5 rounded-[2px] text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1.5" style={{ backgroundColor: 'var(--color-accent)', color: 'var(--color-text)' }}>
+                                                <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--color-text)' }}></div>
+                                                Coming Soon
+                                            </div>
+                                        )}
+                                        {arrival.comingSoonDate && (
+                                            <div className="bg-slate-900/90 text-white px-3 py-1.5 rounded-[2px] text-[9px] font-black tracking-widest shadow-lg backdrop-blur-sm">
+                                                <FormattedDate date={arrival.comingSoonDate} />
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -322,18 +341,18 @@ export default function NewArrivalsAdmin() {
             {/* Elite Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 flex items-center justify-center p-4">
-                    <div className="rounded-2xl w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="rounded-[2px] w-full max-w-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden border" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                         <div className="p-8 border-b flex justify-between items-center" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                             <div className="flex items-center gap-4">
-                                <div className="p-3 rounded-xl" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
+                                <div className="p-3 rounded-[2px]" style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}>
                                     {isEditing ? <Edit size={22} /> : <Plus size={22} />}
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>{isEditing ? 'Curate Item' : 'Assemble Item'}</h2>
+                                    <h2 className="text-xl font-black tracking-tight" style={{ color: 'var(--color-text)' }}>{isEditing ? 'Curate Selection' : 'Assemble Selection'}</h2>
                                     <p className="text-[10px] font-black uppercase tracking-widest mt-1" style={{ color: 'var(--color-text-muted)' }}>Product Details & Assets</p>
                                 </div>
                             </div>
-                            <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center rounded-xl transition-all hover:rotate-90 duration-300" style={{ color: 'var(--color-text-muted)' }}>
+                            <button onClick={closeModal} className="w-10 h-10 flex items-center justify-center rounded-[2px] transition-all hover:rotate-90 duration-300" style={{ color: 'var(--color-text-muted)' }}>
                                 <X size={22} />
                             </button>
                         </div>
@@ -345,7 +364,7 @@ export default function NewArrivalsAdmin() {
                                     <input
                                         type="text" required
                                         placeholder="e.g. Obsidian Series Watch"
-                                        className="w-full px-6 py-4 rounded-xl outline-none font-black text-sm border transition-all"
+                                        className="w-full px-6 py-4 rounded-[2px] outline-none font-black text-sm border transition-all"
                                         style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                         value={formData.productName}
                                         onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
@@ -353,11 +372,11 @@ export default function NewArrivalsAdmin() {
                                 </div>
                                 <div className="col-span-full md:col-span-1">
                                     <label className="block text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>Launch Configuration</label>
-                                    <div className="flex items-center justify-between px-6 py-4 rounded-xl border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                    <div className="flex items-center justify-between px-6 py-4 rounded-[2px] border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                                         <span className="text-sm font-black" style={{ color: 'var(--color-text)' }}>Show Coming Soon</span>
-                                        <label className="relative inline-flex items-center cursor-pointer">
+                                        <label className="relative inline-flex items-center cursor-pointer group">
                                             <input type="checkbox" className="sr-only peer" checked={formData.isComingSoon} onChange={(e) => setFormData({ ...formData, isComingSoon: e.target.checked })} />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--color-surface)] after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all" style={{ '--tw-peer-checked-bg': 'var(--color-text)' }}></div>
+                                            <div className="w-12 h-6 bg-slate-400 rounded-full peer peer-checked:bg-slate-900 peer-focus:ring-2 peer-focus:ring-slate-500 transition-all duration-300 border border-slate-500/20 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all after:shadow-lg peer-checked:after:translate-x-6"></div>
                                         </label>
                                     </div>
                                 </div>
@@ -366,7 +385,7 @@ export default function NewArrivalsAdmin() {
                                     <textarea
                                         rows={4}
                                         placeholder="Describe the exclusivity of this product..."
-                                        className="w-full px-6 py-4 rounded-xl outline-none font-bold resize-none text-sm border transition-all"
+                                        className="w-full px-6 py-4 rounded-[2px] outline-none font-bold resize-none text-sm border transition-all"
                                         style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                         value={formData.description}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -380,7 +399,7 @@ export default function NewArrivalsAdmin() {
                                             <Calendar className="absolute left-6 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]" size={20} />
                                             <input
                                                 type="date"
-                                                className="w-full pl-14 pr-6 py-4 rounded-xl outline-none font-black text-sm border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
+                                                className="w-full pl-14 pr-6 py-4 rounded-[2px] outline-none font-black text-sm border" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)', color: 'var(--color-text)' }}
                                                 value={formData.comingSoonDate}
                                                 onChange={(e) => setFormData({ ...formData, comingSoonDate: e.target.value })}
                                             />
@@ -404,7 +423,7 @@ export default function NewArrivalsAdmin() {
                                             </div>
                                         ))}
                                         {imagePreviews.length < 5 && (
-                                            <label className="aspect-square border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer hover:opacity-70 transition-all" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
+                                            <label className="aspect-square border-2 border-dashed rounded-[2px] flex flex-col items-center justify-center cursor-pointer hover:opacity-70 transition-all" style={{ backgroundColor: 'var(--color-bg)', borderColor: 'var(--color-border)' }}>
                                                 <Upload size={24} style={{ color: 'var(--color-text-muted)' }} />
                                                 <span className="text-[8px] font-black uppercase tracking-widest mt-2" style={{ color: 'var(--color-text-muted)' }}>Add Asset</span>
                                                 <input
@@ -426,10 +445,10 @@ export default function NewArrivalsAdmin() {
                                 type="submit"
                                 disabled={submitting}
                                 onClick={handleSubmit}
-                                className="w-full py-4 rounded-xl font-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-sm"
+                                className="w-full py-4 rounded-[2px] font-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3 text-sm"
                                 style={{ backgroundColor: 'var(--color-text)', color: '#ffffff' }}
                             >
-                                {submitting ? 'Saving...' : isEditing ? 'Update Selection' : 'Finalize Showcase'}
+                                {submitting ? 'Saving...' : isEditing ? 'Update Selection' : 'Finalize Selection'}
                                 {!submitting && <ArrowRight size={18} />}
                             </button>
                         </div>
@@ -452,6 +471,14 @@ export default function NewArrivalsAdmin() {
                 message={confirmState.message}
                 type={confirmState.type}
                 confirmText={confirmState.type === 'danger' ? 'Remove Forever' : 'Yes, Confirm'}
+            />
+
+            <ImageCropModal
+                isOpen={cropModal.isOpen}
+                images={cropModal.images}
+                onClose={() => setCropModal({ isOpen: false, images: [] })}
+                onComplete={handleCropComplete}
+                fixedAspect={1}
             />
 
             <style jsx global>{`

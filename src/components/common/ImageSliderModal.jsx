@@ -92,7 +92,7 @@ export default function ImageSliderModal({ isOpen, onClose, images, initialIndex
               <img 
                 src={img} 
                 alt={`Product Image ${idx + 1}`}
-                className="max-w-full max-h-full object-contain shadow-2xl rounded-2xl"
+                className="w-full h-full object-contain shadow-2xl rounded-[2px]"
               />
             </div>
           ))}

@@ -12,6 +12,7 @@ import ProductImageSlider from '../../../../../../components/common/ProductImage
 import { getEventByIdAPI, updateEventProductsAPI } from '../../../../../../services/event.service';
 import { getProductsAPI, createProductAPI, updateProductAPI, deleteProductAPI } from '../../../../../../services/product.service';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
+import ImageCropModal from '../../../../../../components/common/ImageCropModal';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../../../../lib/cloudinaryUpload';
 
 export default function EventManagement() {
@@ -51,6 +52,11 @@ export default function EventManagement() {
         type: 'warning'
     });
 
+    const [cropModal, setCropModal] = useState({
+        isOpen: false,
+        images: []
+    });
+
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
         if (files.length === 0) return;
@@ -63,16 +69,30 @@ export default function EventManagement() {
         }
 
         const remainingSlots = 5 - imagePreviews.length;
-        const filesToProcess = files.slice(0, remainingSlots);
+        const selectedFiles = files.slice(0, remainingSlots);
 
-        filesToProcess.forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreviews(prev => [...prev, reader.result]);
-                setImageFiles(prev => [...prev, file]);
-            };
-            reader.readAsDataURL(file);
+        if (selectedFiles.length > 0) {
+            const newImagesForCrop = selectedFiles.map(file => ({
+                url: URL.createObjectURL(file),
+                name: file.name
+            }));
+
+            setCropModal({
+                isOpen: true,
+                images: newImagesForCrop
+            });
+        }
+        e.target.value = '';
+    };
+
+    const handleCropComplete = (croppedResults) => {
+        const newFiles = croppedResults.map((res, idx) => {
+            return new File([res.blob], `product_${Date.now()}_${idx}.jpg`, { type: 'image/jpeg' });
         });
+
+        setImageFiles(prev => [...prev, ...newFiles]);
+        setImagePreviews(prev => [...prev, ...croppedResults.map(res => res.url)]);
+        setCropModal({ isOpen: false, images: [] });
     };
 
     const removeImagePreview = (index) => {
@@ -332,18 +352,18 @@ export default function EventManagement() {
                 <div className="p-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {event?.products?.map((product) => (
-                            <div key={product._id} className="border border-[var(--color-border)] rounded-xl overflow-hidden group hover:shadow-md transition-all relative flex flex-col h-full">
-                                <div className="h-100 bg-[var(--color-bg)] relative overflow-hidden">
+                            <div key={product._id} className="border border-[var(--color-border)] rounded-[2px] overflow-hidden group hover:shadow-md transition-all relative flex flex-col h-full">
+                                <div className="aspect-square bg-[var(--color-bg)] relative overflow-hidden border-b">
                                     <Link href={`/products/${product._id}`} className="block h-full">
                                         <ProductImageSlider
                                             images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                             showFullscreen={false}
                                         />
                                     </Link>
-                                    <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute top-2 right-2 flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity z-30">
                                         <button
                                             onClick={() => handleOpenEditProduct(product)}
-                                            className="p-1.5 bg-[var(--color-surface)] text-[var(--color-text-muted)] rounded shadow-sm hover:bg-blue-500 hover:text-white transition-colors"
+                                            className="p-1.5 bg-[var(--color-surface)] text-[var(--color-text-muted)] rounded-[2px] shadow-sm hover:bg-slate-900 hover:text-white transition-colors border"
                                             title="Edit product"
                                         >
                                             <Edit size={13} />
@@ -351,7 +371,7 @@ export default function EventManagement() {
                                         {product.isGlobal ? (
                                             <button
                                                 onClick={() => handleRemoveProduct(product._id)}
-                                                className="p-1.5 bg-[var(--color-surface)] text-orange-500 rounded shadow-sm hover:bg-orange-500 hover:text-white transition-colors"
+                                                className="p-1.5 bg-[var(--color-surface)] text-orange-500 rounded-[2px] shadow-sm hover:bg-orange-500 hover:text-white transition-colors border"
                                                 title="Remove from event"
                                             >
                                                 <X size={14} />
@@ -359,7 +379,7 @@ export default function EventManagement() {
                                         ) : (
                                             <button
                                                 onClick={() => handleDeleteProduct(product._id)}
-                                                className="p-1.5 bg-[var(--color-surface)] text-red-500 rounded shadow-sm hover:bg-red-500 hover:text-white transition-colors"
+                                                className="p-1.5 bg-[var(--color-surface)] text-red-500 rounded-[2px] shadow-sm hover:bg-red-600 hover:text-white transition-colors border"
                                                 title="Delete product permanently"
                                             >
                                                 <Trash2 size={14} />
@@ -599,6 +619,14 @@ export default function EventManagement() {
                 </div>
             )}
 
+
+            <ImageCropModal
+                isOpen={cropModal.isOpen}
+                images={cropModal.images}
+                onClose={() => setCropModal({ isOpen: false, images: [] })}
+                onComplete={handleCropComplete}
+                fixedAspect={1}
+            />
 
             {/* Image Slider Modal */}
             <ImageSliderModal

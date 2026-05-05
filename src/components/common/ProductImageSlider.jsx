@@ -44,8 +44,8 @@ export default function ProductImageSlider({ images, onOpenModal, onImageClick, 
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 {images.map((img, idx) => (
-                    <div 
-                        key={idx} 
+                    <div
+                        key={idx}
                         onClick={(e) => {
                             if (onImageClick) {
                                 e.stopPropagation();
@@ -56,13 +56,22 @@ export default function ProductImageSlider({ images, onOpenModal, onImageClick, 
                             }
                             // Otherwise, let it bubble to parent Link
                         }}
-                        className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center p-4 cursor-pointer"
+                        className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center cursor-pointer"
                     >
-                        <img
-                            src={img}
-                            alt={`Product View ${idx + 1}`}
-                            className="w-full h-full object-contain select-none"
-                        />
+                        <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
+                            {/* Blurred Background for Premium "Full-Cover" Look */}
+                            <img
+                                src={img}
+                                alt=""
+                                className="absolute inset-0 w-full h-full object-cover blur-xl opacity-20 scale-125 select-none pointer-events-none"
+                            />
+                            {/* Main Subject - Uncropped */}
+                            <img
+                                src={img}
+                                alt={`Product View ${idx + 1}`}
+                                className="relative w-full h-full object-cover select-none"
+                            />
+                        </div>
                     </div>
                 ))}
             </div>
@@ -86,7 +95,7 @@ export default function ProductImageSlider({ images, onOpenModal, onImageClick, 
             {showFullscreen && (
                 <button
                     onClick={(e) => { e.stopPropagation(); onOpenModal && onOpenModal(currentIndex); }}
-                    className="absolute bottom-4 right-4 w-10 h-10 bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)] rounded-xl flex items-center justify-center text-[var(--color-text-muted)] shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100"
+                    className="absolute bottom-4 right-4 w-10 h-10 bg-[var(--color-surface)]/90 backdrop-blur-sm border border-[var(--color-border)] rounded-[2px] flex items-center justify-center text-[var(--color-text-muted)] shadow-sm hover:text-blue-600 transition-colors opacity-0 group-hover/slider:opacity-100 z-20"
                     title="View Full Screen"
                 >
                     <Maximize size={18} />

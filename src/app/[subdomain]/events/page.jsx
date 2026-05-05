@@ -45,7 +45,7 @@ export default function EmployeeEventsPage() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const activeEvents = events.filter(e => {
         const start = new Date(e.startDate);
         const end = new Date(e.endDate);
@@ -53,7 +53,7 @@ export default function EmployeeEventsPage() {
         end.setHours(23, 59, 59, 999);
         return today >= start && today <= end;
     });
-    
+
     const closedEvents = events.filter(e => {
         const end = new Date(e.endDate);
         end.setHours(23, 59, 59, 999);
@@ -106,7 +106,7 @@ export default function EmployeeEventsPage() {
             <div className="mb-16 pb-12 border-b border-[var(--color-border)]">
                 <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-6" style={{ color: 'var(--color-text)' }}>Milestone Programs</h1>
                 <p className="text-lg font-bold max-w-2xl opacity-70 leading-relaxed" style={{ color: 'var(--color-text-muted)' }}>
-                    Experience rewarding corporate traditions. Select your gift from the active programs curated by your organization.
+                    Experience rewarding corporate traditions. Select your gift from the active programs chosen by your organization.
                 </p>
             </div>
 

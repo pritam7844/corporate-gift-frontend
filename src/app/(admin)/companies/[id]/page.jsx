@@ -15,6 +15,7 @@ import { useProducts } from '../../../../hooks/useProducts';
 import { assignEventToCompanyAPI } from '../../../../services/event.service';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
 import Toast from '../../../../components/common/Toast';
+import ImageCropModal from '../../../../components/common/ImageCropModal';
 import {
   getCompanyByIdAPI,
   updateCompanyAPI,
@@ -65,6 +66,10 @@ export default function CompanyDetail() {
     message: '',
     onConfirm: () => { },
     type: 'warning'
+  });
+  const [cropModal, setCropModal] = useState({
+    isOpen: false,
+    image: null
   });
 
   const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
@@ -209,13 +214,24 @@ export default function CompanyDetail() {
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setLogoPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      setCropModal({
+        isOpen: true,
+        image: {
+          url: URL.createObjectURL(file),
+          name: file.name
+        }
+      });
     }
+    // Clear input
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedResults) => {
+    const { blob, url } = croppedResults[0];
+    const file = new File([blob], `logo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    setLogoFile(file);
+    setLogoPreview(url);
+    setCropModal({ isOpen: false, image: null });
   };
 
   const handleOpenEditUser = (user) => {
@@ -277,7 +293,7 @@ export default function CompanyDetail() {
             </p>
           </div>
         </div>
-        <div className="flex space-x-3">
+        {/* <div className="flex space-x-3">
           <button
             onClick={() => setShowEditModal(true)}
             className="flex items-center space-x-2 px-4 py-2 border rounded-lg hover:bg-[var(--color-bg)] text-[var(--color-text-muted)] transition-all font-medium"
@@ -290,13 +306,13 @@ export default function CompanyDetail() {
           >
             <Trash2 size={18} /> <span>Delete</span>
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Tabs Nav */}
       <div className="flex space-x-1 bg-[var(--color-bg)] p-1.5 rounded-xl w-fit">
         {[
-          { id: 'events', label: 'Events & Gifts', icon: Calendar },
+          { id: 'events', label: 'Event Cycles', icon: Calendar },
           { id: 'users', label: 'Employees', icon: Users },
           { id: 'settings', label: 'Settings', icon: Settings },
         ].map((tab) => (
@@ -319,7 +335,7 @@ export default function CompanyDetail() {
         {activeTab === 'events' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-[var(--color-text)]">Company Events</h2>
+              <h2 className="text-xl font-bold text-[var(--color-text)]">Event Cycles</h2>
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowAssignModal(true)}
@@ -377,7 +393,7 @@ export default function CompanyDetail() {
                   </p>
                   <div className="flex items-center text-sm text-[var(--color-text-muted)] mb-4 bg-[var(--color-bg)] p-2 rounded-lg">
                     <Tag size={14} className="mr-2 text-[var(--color-text-muted)]" />
-                    <span>{event.products?.length || 0} Ready Gifts</span>
+                    <span>{event.products?.length || 0} Selected Gifts</span>
                   </div>
                   <button
                     onClick={() => router.push(`/companies/${companyId}/events/${event._id}`)}
@@ -614,8 +630,8 @@ export default function CompanyDetail() {
             <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Full Name</label>
-                <input 
-                  type="text" required 
+                <input
+                  type="text" required
                   className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-[var(--color-text)]"
                   value={editUserForm.name}
                   onChange={(e) => setEditUserForm({ ...editUserForm, name: e.target.value })}
@@ -623,24 +639,24 @@ export default function CompanyDetail() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Work Email <span className="text-[var(--color-text-muted)] font-normal">(not editable)</span></label>
-                <input 
-                  type="email" readOnly 
+                <input
+                  type="email" readOnly
                   className="w-full border p-2.5 rounded-lg outline-none bg-[var(--color-bg)] text-[var(--color-text-muted)] cursor-not-allowed"
                   value={editUserForm.email}
                 />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-[var(--color-text)] mb-1">Update Password <span className="text-[var(--color-text-muted)] font-normal">(leave blank to keep current)</span></label>
-                <input 
-                  type="password" 
+                <input
+                  type="password"
                   className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-[var(--color-text)]"
                   value={editUserForm.password}
                   onChange={(e) => setEditUserForm({ ...editUserForm, password: e.target.value })}
                   placeholder="Enter new password..."
                 />
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSavingUser}
                 className={`w-full text-white py-3 rounded-xl font-bold transition-all shadow-lg ${isSavingUser ? 'bg-blue-300 cursor-not-allowed' : 'bg-[var(--color-text)] hover:bg-[var(--color-text)] '}`}
               >
@@ -807,15 +823,23 @@ export default function CompanyDetail() {
       {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={confirmState.isOpen}
-        onClose={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+        onClose={() => setConfirmState({ ...confirmState, isOpen: false })}
         onConfirm={confirmState.onConfirm}
         title={confirmState.title}
         message={confirmState.message}
         type={confirmState.type}
-        confirmText={confirmState.type === 'danger' ? 'Confirm Delete' : 'Yes, Proceed'}
+        confirmText="Confirm"
       />
 
-      <Toast 
+      <ImageCropModal
+        isOpen={cropModal.isOpen}
+        images={cropModal.image ? [cropModal.image] : []}
+        onClose={() => setCropModal({ isOpen: false, image: null })}
+        onComplete={handleCropComplete}
+        fixedAspect={1}
+      />
+
+      <Toast
         isVisible={toast.isVisible}
         message={toast.message}
         type={toast.type}

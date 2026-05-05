@@ -5,6 +5,7 @@ import { useCompanies } from '../../../hooks/useCompanies';
 import { uploadLogoAPI } from '../../../services/company.service';
 import Link from 'next/link';
 import { Image as ImageIcon, X as CloseIcon, Plus, Trash2, Building2, ExternalLink, Globe, Users } from 'lucide-react';
+import ImageCropModal from '../../../components/common/ImageCropModal';
 
 export default function CompaniesPage() {
   const { companies, loading, error, addCompany, fetchCompanies } = useCompanies();
@@ -13,6 +14,10 @@ export default function CompaniesPage() {
   const [logoFile, setLogoFile] = useState(null);
   const [logoPreview, setLogoPreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [cropModal, setCropModal] = useState({
+    isOpen: false,
+    image: null
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,11 +45,24 @@ export default function CompaniesPage() {
   const handleLogoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLogoFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => setLogoPreview(reader.result);
-      reader.readAsDataURL(file);
+      setCropModal({
+        isOpen: true,
+        image: {
+          url: URL.createObjectURL(file),
+          name: file.name
+        }
+      });
     }
+    // Clear input
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedResults) => {
+    const { blob, url } = croppedResults[0];
+    const file = new File([blob], `logo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+    setLogoFile(file);
+    setLogoPreview(url);
+    setCropModal({ isOpen: false, image: null });
   };
 
   return (
@@ -252,6 +270,14 @@ export default function CompaniesPage() {
           )}
         </div>
       )}
+
+      <ImageCropModal
+        isOpen={cropModal.isOpen}
+        images={cropModal.image ? [cropModal.image] : []}
+        onClose={() => setCropModal({ isOpen: false, image: null })}
+        onComplete={handleCropComplete}
+        fixedAspect={1}
+      />
     </div>
   );
 }

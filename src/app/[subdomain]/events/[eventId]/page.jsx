@@ -165,7 +165,7 @@ export default function EventProductsPage() {
 
                         <div className="flex flex-wrap items-center gap-4">
                             <span className="px-4 py-1.5 bg-[var(--color-accent)] text-[var(--color-text)] rounded-lg border border-[var(--color-border)] text-[10px] font-black uppercase tracking-[0.2em]">
-                                {products.length} Curated Options
+                                {products.length} Selected Options
                             </span>
                             {event.endDate && (
                                 <span className="flex items-center text-[var(--color-text-muted)] bg-[var(--color-bg)] px-4 py-1.5 rounded-lg border border-[var(--color-border)] text-[10px] font-black uppercase tracking-[0.2em]">
@@ -217,13 +217,13 @@ export default function EventProductsPage() {
 
                         return (
 
-                            <div 
-                                key={product._id} 
+                            <div
+                                key={product._id}
                                 onClick={() => router.push(`/events/${eventId}/products/${product._id}`)}
                                 className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-sm overflow-hidden group hover:shadow-2xl transition-all duration-500 flex flex-col cursor-pointer relative"
                             >
                                 {/* Image Box */}
-                                <div className="h-[24rem] bg-[var(--color-bg)] relative overflow-hidden flex items-center justify-center border-b border-[var(--color-border)]">
+                                <div className="aspect-square bg-[var(--color-bg)] relative overflow-hidden flex items-center justify-center border-b border-[var(--color-border)]">
                                     <ProductImageSlider
                                         images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                         showFullscreen={false}
@@ -236,7 +236,7 @@ export default function EventProductsPage() {
                                     {/* Discount Badge */}
                                     {hasDiscount && (
                                         <div className="absolute top-4 right-4 bg-emerald-600 text-white text-[9px] font-black px-3 py-1 rounded-lg shadow-md uppercase tracking-[0.2em] z-10">
-                                            {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% Advantage
+                                            {Math.round(((product.actualPrice - product.discountedPrice) / product.actualPrice) * 100)}% off
                                         </div>
                                     )}
                                 </div>

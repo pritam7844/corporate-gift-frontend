@@ -185,7 +185,7 @@ export default function CompanyLandingPage() {
                                 </span>
                             </h1>
                             <p className="text-base sm:text-lg max-w-lg leading-relaxed mb-10 mx-auto lg:mx-0" style={{ color: 'var(--color-text-muted)' }}>
-                                Discover curated corporate gift programs designed specifically for you. Select your preferred rewards below.
+                                Discover selected corporate gift programs designed specifically for you. Select your preferred rewards below.
                             </p>
 
                             {/* Summary Cards */}
@@ -289,14 +289,14 @@ export default function CompanyLandingPage() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
                                         {event.products?.slice(0, 3).map((product) => (
                                             <div key={product._id} className="group rounded-xl flex flex-col overflow-hidden transition-all duration-300 border hover:shadow-md" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
-                                                <div className="h-100 overflow-hidden relative" style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
+                                    <div className="aspect-square overflow-hidden relative" style={{ backgroundColor: 'var(--color-bg)', borderBottom: '1px solid var(--color-border)' }}>
                                                     <Link href={`/events/${event._id}/products/${product._id}`} className="block h-full">
                                                         <ProductImageSlider
                                                             images={product.images && product.images.length > 0 ? product.images : (product.image ? [product.image] : [])}
                                                             showFullscreen={false}
                                                         />
                                                     </Link>
-                                                    {product.category && <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>{product.category}</div>}
+                                                    {product.category && <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest z-10" style={{ backgroundColor: 'var(--color-surface)', color: 'var(--color-text)', border: '1px solid var(--color-border)' }}>{product.category}</div>}
                                                 </div>
 
                                                 <Link href={`/events/${event._id}/products/${product._id}`} className="p-5 flex-1 flex flex-col">
