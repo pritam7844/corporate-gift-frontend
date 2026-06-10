@@ -29,7 +29,7 @@ api.interceptors.request.use((config) => {
   }
 
   if (process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true') {
-    console.log(`\n[>>> FRONTEND REQUEST] ${config.method?.toUpperCase()} ${config.baseURL || ''}${config.url}`);
+    // console.log(`\n[>>> FRONTEND REQUEST] ${config.method?.toUpperCase()} ${config.baseURL || ''}${config.url}`);
     if (config.data) console.log('Data:', JSON.stringify(config.data, null, 2));
   }
 
@@ -55,7 +55,7 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.response.use((response) => {
   if (process.env.NEXT_PUBLIC_ENABLE_LOGGING === 'true') {
-    console.log(`[<<< FRONTEND RESPONSE] ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`);
+    // console.log(`[<<< FRONTEND RESPONSE] ${response.config.method?.toUpperCase()} ${response.config.url} - Status: ${response.status}`);
   }
   return response;
 }, async (error) => {

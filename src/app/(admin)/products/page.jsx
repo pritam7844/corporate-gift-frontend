@@ -9,6 +9,7 @@ import ProductImageSlider from '../../../components/common/ProductImageSlider';
 import Link from 'next/link';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
 import ImageCropModal from '../../../components/common/ImageCropModal';
+import Image from 'next/image';
 
 export default function ProductCatalog() {
   const { products, loading, error, addProduct, updateProduct, removeProduct } = useProducts(true);
@@ -309,7 +310,7 @@ export default function ProductCatalog() {
                   <div className="flex flex-wrap gap-2">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative w-20 h-20 bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg overflow-hidden group">
-                        <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                        <Image src={preview} alt={`Preview ${index}`} fill unoptimized={preview?.startsWith('data:') || preview?.startsWith('blob:')} className="object-cover" />
                         <button
                           type="button"
                           onClick={() => removeImagePreview(index)}

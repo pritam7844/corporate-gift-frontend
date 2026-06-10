@@ -1,16 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Sparkles, Package, Gift, ArrowRight, Maximize2, Calendar, ChevronRight } from 'lucide-react';
+import { Sparkles, Package, Gift, ArrowRight, Maximize2, Calendar, ChevronRight, Search, X } from 'lucide-react';
 import FormattedDate from '../../../components/common/FormattedDate';
 import { useNewArrivals } from '../../../hooks/useNewArrivals';
 import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
+import Fuse from 'fuse.js';
 
 export default function EmployeeNewArrivals() {
     const { subdomain } = useParams();
     const { arrivals, loading } = useNewArrivals();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     const [sliderModal, setSliderModal] = useState({
         isOpen: false,
@@ -22,9 +32,9 @@ export default function EmployeeNewArrivals() {
         <div className="min-h-screen bg-[var(--color-bg)] pb-32">
             {/* Minimalist Professional Hero */}
             <div className="bg-[var(--color-surface)] border-b border-[var(--color-border)] relative overflow-hidden">
-                <div className="max-w-5xl mx-auto px-6 py-20 md:py-28 text-center relative z-10">
+                <div className="max-w-5xl mx-auto px-6 py-10 md:py-12 text-center relative z-10">
                     <div className="inline-flex items-center space-x-2 bg-[var(--color-accent)] text-[var(--color-text)] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-[0.2em] mb-8 border border-[var(--color-border)]">
-                        <Sparkles size={12} />
+
                         <span>Exclusive Preview</span>
                     </div>
 
@@ -41,6 +51,30 @@ export default function EmployeeNewArrivals() {
             </div>
 
             <main className="max-w-7xl mx-auto px-6 mt-20">
+                {/* Search Bar */}
+                {arrivals.length > 0 && (
+                    <div className="mb-12 relative max-w-md mx-auto md:mx-0">
+                        <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                            <Search size={18} className="text-[var(--color-text-muted)] opacity-50" />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search new arrivals..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-14 pr-12 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-[var(--color-text)] font-bold text-sm outline-none focus:border-[var(--color-text)] transition-colors shadow-sm"
+                        />
+                        {searchQuery && (
+                            <button
+                                onClick={() => setSearchQuery('')}
+                                className="absolute inset-y-0 right-0 pr-5 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                            >
+                                <X size={18} />
+                            </button>
+                        )}
+                    </div>
+                )}
+
                 {loading && arrivals.length === 0 ? (
                     <div className="bg-[var(--color-surface)] rounded-2xl p-24 text-center border border-[var(--color-border)] shadow-sm">
                         <div className="w-12 h-12 border-2 border-[var(--color-border)] border-t-indigo-600 rounded-full animate-spin mx-auto mb-6"></div>
@@ -54,9 +88,41 @@ export default function EmployeeNewArrivals() {
                         <h3 className="text-2xl font-bold text-[var(--color-text)] mb-3 tracking-tight">Preparing Collection</h3>
                         <p className="text-[var(--color-text-muted)] max-w-sm font-medium">Our collection is currently being updated. Please check back soon for our latest professional items.</p>
                     </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        {arrivals.map((arrival) => (
+                ) : (() => {
+                    let filteredArrivals = arrivals;
+
+                    if (debouncedSearchQuery) {
+                        const fuse = new Fuse(arrivals, {
+                            keys: [
+                                { name: 'productName', weight: 0.7 },
+                                { name: 'description', weight: 0.3 }
+                            ],
+                            threshold: 0.3,
+                        });
+                        filteredArrivals = fuse.search(debouncedSearchQuery).map(result => result.item);
+                    }
+
+                    if (filteredArrivals.length === 0) {
+                        return (
+                            <div className="bg-[var(--color-surface)] rounded-2xl p-24 text-center border border-[var(--color-border)] shadow-sm flex flex-col items-center">
+                                <div className="w-20 h-20 bg-[var(--color-bg)] rounded-2xl flex items-center justify-center mb-8 border border-[var(--color-border)]">
+                                    <Search size={32} className="text-slate-200" />
+                                </div>
+                                <h3 className="text-2xl font-bold text-[var(--color-text)] mb-3 tracking-tight">No matching items</h3>
+                                <p className="text-[var(--color-text-muted)] max-w-sm font-medium">Try adjusting your search terms.</p>
+                                <button 
+                                    onClick={() => setSearchQuery('')}
+                                    className="mt-6 px-6 py-2 bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:border-[var(--color-text)] transition-colors inline-block"
+                                >
+                                    Clear Search
+                                </button>
+                            </div>
+                        );
+                    }
+
+                    return (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                            {filteredArrivals.map((arrival) => (
                             <div
                                 key={arrival._id}
                                 className="group flex flex-col bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] transition-all duration-300 hover:border-[var(--color-border)] hover:shadow-xl hover:shadow-indigo-900/5 overflow-hidden"
@@ -105,7 +171,8 @@ export default function EmployeeNewArrivals() {
                             </div>
                         ))}
                     </div>
-                )}
+                    );
+                })()}
             </main>
 
             {/* Talk to Selection Team Section */}

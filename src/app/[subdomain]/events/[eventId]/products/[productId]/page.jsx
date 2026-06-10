@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getProductByIdAPI } from '../../../../../../services/product.service';
 import { getEventByIdAPI } from '../../../../../../services/event.service';
 import { useAuthStore } from '../../../../../../store/authStore';
@@ -131,9 +132,9 @@ export default function EmployeeProductDetailPage() {
                                 <button
                                     key={idx}
                                     onClick={() => setSliderModal({ isOpen: true, images, index: idx })}
-                                    className="w-24 h-24 rounded-md overflow-hidden border-2 border-[var(--color-border)] hover:border-[var(--color-text)] transition-all flex-shrink-0 p-1 bg-[var(--color-surface)]"
+                                    className="relative w-24 h-24 rounded-md overflow-hidden border-2 border-[var(--color-border)] hover:border-[var(--color-text)] transition-all flex-shrink-0 p-1 bg-[var(--color-surface)]"
                                 >
-                                    <img src={img} className="w-full h-full object-cover rounded-md" alt="" />
+                                    <Image src={img} fill unoptimized={img?.startsWith('data:') || img?.startsWith('blob:')} className="object-cover rounded-md" alt="" />
                                 </button>
                             ))}
                         </div>

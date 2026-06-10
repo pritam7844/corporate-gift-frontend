@@ -8,6 +8,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
     const [baseQuantity, setBaseQuantity] = useState('');
     const [calculatedResults, setCalculatedResults] = useState(null);
     const modalContentRef = useRef(null);
+    const resultsRef = useRef(null);
 
     // Initialize quantities when modal opens or products change
     useEffect(() => {
@@ -81,10 +82,10 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
 
         // Scroll down to show results
         setTimeout(() => {
-            if (modalContentRef.current) {
-                modalContentRef.current.scrollTo({
-                    top: modalContentRef.current.scrollTop + 400,
-                    behavior: 'smooth'
+            if (resultsRef.current) {
+                resultsRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
                 });
             }
         }, 100);
@@ -163,7 +164,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                     </button>
                                     <input
                                         type="number"
-                                        value={quantities[product._id]}
+                                        value={quantities[product._id] || ''}
                                         onChange={(e) => updateIndividualQuantity(product._id, e.target.value)}
                                         className="w-10 sm:w-16 text-center font-black text-[var(--color-text)] outline-none text-xs sm:text-sm"
                                         placeholder="0"
@@ -181,7 +182,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
 
                     {/* Results Display */}
                     {calculatedResults && (
-                        <div className="mt-6 sm:mt-8 p-5 sm:p-8 bg-blue-600 rounded-[1.5rem] sm:rounded-[2rem] text-white shadow-xl shadow-blue-200 animate-in slide-in-from-bottom-4 duration-300">
+                        <div ref={resultsRef} className="mt-6 sm:mt-8 p-5 sm:p-8 bg-blue-600 rounded-[1.5rem] sm:rounded-[2rem] text-white shadow-xl shadow-blue-200 animate-in slide-in-from-bottom-4 duration-300">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 text-center sm:text-left">
                                 <div className="border-b sm:border-b-0 sm:border-r border-blue-400/30 pb-4 sm:pb-0 sm:pr-4">
                                     <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1">Total Units</p>
@@ -222,7 +223,7 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                                 <th className="p-3 font-black text-center">Qty</th>
                                                 <th className="p-3 font-black text-right">MRP</th>
                                                 <th className="p-3 font-black text-right">Disc %</th>
-                                                <th className="p-3 font-black text-right">Offer Price</th>
+                                                <th className="p-3 font-black text-right">Offer Price/Item</th>
                                                 <th className="p-3 font-black text-right">Subtotal</th>
                                             </tr>
                                         </thead>
@@ -238,6 +239,12 @@ export default function BulkEstimationModal({ isOpen, onClose, products }) {
                                                 </tr>
                                             ))}
                                         </tbody>
+                                        <tfoot>
+                                            <tr className="border-t border-white/20 font-black">
+                                                <td className="p-3 text-right" colSpan="5">Total Estimation</td>
+                                                <td className="p-3 text-right text-blue-200">₹{calculatedResults.totalAmount.toLocaleString('en-IN')}</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </div>
                             </div>

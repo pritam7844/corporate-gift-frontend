@@ -9,6 +9,7 @@ import ImageSliderModal from '../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../components/common/ProductImageSlider';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../lib/cloudinaryUpload';
 import ImageCropModal from '../../../components/common/ImageCropModal';
+import Image from 'next/image';
 
 export default function NewArrivalsAdmin() {
     const { arrivals, loading, error, addArrival, updateArrival, removeArrival } = useNewArrivals();
@@ -412,7 +413,7 @@ export default function NewArrivalsAdmin() {
                                     <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
                                         {imagePreviews.map((preview, index) => (
                                             <div key={index} className="relative aspect-square bg-[var(--color-bg)] rounded-[1.25rem] border border-[var(--color-border)] overflow-hidden group/thumb shadow-sm">
-                                                <img src={preview} alt={`Preview ${index}`} className="w-full h-full object-cover" />
+                                                <Image src={preview} alt={`Preview ${index}`} fill unoptimized={preview?.startsWith('data:') || preview?.startsWith('blob:')} className="object-cover" />
                                                 <button
                                                     type="button"
                                                     onClick={() => removeImagePreview(index)}

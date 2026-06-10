@@ -5,12 +5,13 @@ import { useParams, useRouter } from 'next/navigation';
 import { getEventByIdAPI } from '../../../../services/event.service';
 import { useAuthStore } from '../../../../store/authStore';
 import { useCartStore } from '../../../../store/cartStore';
-import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator, Maximize, Eye, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart, Plus, Minus, Tag, Clock, Maximize2, Gift, Calculator, Maximize, Eye, Loader2, Search, X } from 'lucide-react';
 import FormattedDate from '../../../../components/common/FormattedDate';
 import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../../../components/common/ProductImageSlider';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
 import BulkEstimationModal from '../../../../components/common/BulkEstimationModal';
+import Fuse from 'fuse.js';
 
 export default function EventProductsPage() {
     const { subdomain, eventId } = useParams();
@@ -22,6 +23,15 @@ export default function EventProductsPage() {
     const [isOrdered, setIsOrdered] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     const [sliderModal, setSliderModal] = useState({
         isOpen: false,
@@ -148,6 +158,19 @@ export default function EventProductsPage() {
 
     const { products } = event;
 
+    let filteredProducts = products;
+
+    if (debouncedSearchQuery) {
+        const fuse = new Fuse(products, {
+            keys: [
+                { name: 'name', weight: 0.7 },
+                { name: 'description', weight: 0.3 }
+            ],
+            threshold: 0.3,
+        });
+        filteredProducts = fuse.search(debouncedSearchQuery).map(result => result.item);
+    }
+
     return (
         <main className="max-w-7xl mx-auto px-6 py-12">
             {/* Header Content */}
@@ -200,6 +223,30 @@ export default function EventProductsPage() {
                 </div>
             </div>
 
+            {/* Search Bar */}
+            {products.length > 0 && (
+                <div className="mb-8 relative max-w-md">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <Search size={18} className="text-[var(--color-text-muted)] opacity-50" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search products by name or description..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-14 pr-12 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-[var(--color-text)] font-bold text-sm outline-none focus:border-[var(--color-text)] transition-colors shadow-sm"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-5 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
+            )}
+
             {/* Product Grid */}
             {products.length === 0 ? (
                 <div className="text-center py-32 bg-[var(--color-surface)] rounded-3xl border border-[var(--color-border)] shadow-xl">
@@ -209,9 +256,23 @@ export default function EventProductsPage() {
                     <h2 className="text-2xl font-black text-[var(--color-text)] mb-3">No Rewards Available</h2>
                     <p className="text-[var(--color-text-muted)] font-bold opacity-70">There are currently no items assigned to this program.</p>
                 </div>
+            ) : filteredProducts.length === 0 ? (
+                <div className="text-center py-32 bg-[var(--color-surface)] rounded-3xl border border-[var(--color-border)] shadow-sm">
+                    <div className="w-20 h-20 bg-[var(--color-bg)] text-[var(--color-text-muted)] rounded-2xl flex items-center justify-center mx-auto mb-8 border border-[var(--color-border)] opacity-30">
+                        <Search size={32} />
+                    </div>
+                    <h2 className="text-2xl font-black text-[var(--color-text)] mb-3">No matching products</h2>
+                    <p className="text-[var(--color-text-muted)] font-bold opacity-70">Try adjusting your search terms.</p>
+                    <button 
+                        onClick={() => setSearchQuery('')}
+                        className="mt-6 px-6 py-2 bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:border-[var(--color-text)] transition-colors inline-block"
+                    >
+                        Clear Search
+                    </button>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {products.map((product) => {
+                    {filteredProducts.map((product) => {
                         const quantity = getProductCartQuantity(product._id);
                         const hasDiscount = product.discountedPrice && product.discountedPrice < product.actualPrice;
 

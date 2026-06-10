@@ -9,6 +9,7 @@ import ImageSliderModal from '../../../../components/common/ImageSliderModal';
 import ConfirmModal from '../../../../components/common/ConfirmModal';
 import { uploadImagesToCloudinary, validateImageFiles } from '../../../../lib/cloudinaryUpload';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AdminProductDetailPage() {
     const { id } = useParams();
@@ -201,9 +202,9 @@ export default function AdminProductDetailPage() {
                             <div
                                 key={idx}
                                 onClick={() => setSliderModal({ isOpen: true, images, index: idx })}
-                                className="aspect-square rounded-xl overflow-hidden border border-[var(--color-border)] cursor-pointer hover:border-blue-500 transition-all"
+                                className="relative aspect-square rounded-xl overflow-hidden border border-[var(--color-border)] cursor-pointer hover:border-blue-500 transition-all"
                             >
-                                <img src={img} className="w-full h-full object-cover" alt={`Thumb ${idx}`} />
+                                <Image src={img} fill unoptimized={img?.startsWith('data:') || img?.startsWith('blob:')} className="object-cover" alt={`Thumb ${idx}`} />
                             </div>
                         ))}
                     </div>

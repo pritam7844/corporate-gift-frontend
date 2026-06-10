@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
     Calendar, Gift, Plus, Trash2, ArrowLeft, Package, CheckCircle2, X, Tag, Building2, Edit, Image as ImageIcon, Upload, Maximize2
 } from 'lucide-react';
@@ -682,7 +683,7 @@ function SelectionModal({ products, initialSelected, onClose, onSave, updating }
                                 : 'border-gray-50 hover:border-[var(--color-border)]'
                                 }`}
                         >
-                            <img src={product.images?.[0] || product.image} className="w-12 h-12 rounded-lg object-cover bg-[var(--color-bg)] mr-4" />
+                            <Image src={product.images?.[0] || product.image} width={48} height={48} alt={product.name} className="w-12 h-12 rounded-lg object-cover bg-[var(--color-bg)] mr-4" />
                             <div className="flex-1">
                                 <p className="font-bold text-[var(--color-text)] mb-1 leading-none">{product.name}</p>
                                 <div className="flex items-center space-x-3">

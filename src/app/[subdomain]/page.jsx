@@ -7,6 +7,7 @@ import { useCartStore } from '../../store/cartStore';
 import api from '../../lib/api';
 import { Gift, Calendar, ShoppingCart, Sparkles, ArrowRight, Plus, Minus, Maximize2, Tag, Eye } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import FormattedDate from '../../components/common/FormattedDate';
 import ImageSliderModal from '../../components/common/ImageSliderModal';
 import ProductImageSlider from '../../components/common/ProductImageSlider';
@@ -222,10 +223,12 @@ export default function CompanyLandingPage() {
                         {/* Image Right Side */}
                         <div className="relative z-10 w-full lg:w-5/12 hidden md:block">
                             <div className="relative w-full aspect-[4/3] rounded-xl overflow-hidden shadow-lg border-4 border-slate-50">
-                                <img
+                                <Image
                                     src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=1200&auto=format&fit=crop"
                                     alt="Premium Corporate Gift Box"
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    priority
+                                    className="object-cover"
                                 />
                                 <div className="absolute inset-0 bg-slate-900/10 transition-opacity group-hover:bg-slate-900/20 pointer-events-none"></div>
                             </div>

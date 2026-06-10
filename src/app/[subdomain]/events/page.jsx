@@ -2,10 +2,11 @@
 
 import { useEvents } from '../../../hooks/useEvents';
 import { useAuthStore } from '../../../store/authStore';
-import { Calendar, ChevronRight, Gift, Clock, Loader2 } from 'lucide-react';
+import { Calendar, ChevronRight, Gift, Clock, Loader2, Search, X } from 'lucide-react';
 import FormattedDate from '../../../components/common/FormattedDate';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Fuse from 'fuse.js';
 
 export default function EmployeeEventsPage() {
     const router = useRouter();
@@ -13,6 +14,15 @@ export default function EmployeeEventsPage() {
     const { events, loading, error } = useEvents(false, null, true);
 
     const [isHydrated, setIsHydrated] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 300);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     useEffect(() => {
         if (useAuthStore.persist.hasHydrated()) {
@@ -59,6 +69,21 @@ export default function EmployeeEventsPage() {
         end.setHours(23, 59, 59, 999);
         return today > end;
     });
+
+    let filteredActiveEvents = activeEvents;
+    let filteredClosedEvents = closedEvents;
+
+    if (debouncedSearchQuery) {
+        const fuseOptions = {
+            keys: ['name'],
+            threshold: 0.3,
+        };
+        const activeFuse = new Fuse(activeEvents, fuseOptions);
+        filteredActiveEvents = activeFuse.search(debouncedSearchQuery).map(result => result.item);
+
+        const closedFuse = new Fuse(closedEvents, fuseOptions);
+        filteredClosedEvents = closedFuse.search(debouncedSearchQuery).map(result => result.item);
+    }
 
     const EventCard = ({ event, isActive }) => (
         <div
@@ -110,7 +135,31 @@ export default function EmployeeEventsPage() {
                 </p>
             </div>
 
-            {activeEvents.length === 0 && closedEvents.length === 0 && (
+            {/* Search Bar */}
+            {events.length > 0 && (
+                <div className="mb-12 relative max-w-md">
+                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                        <Search size={18} className="text-[var(--color-text-muted)] opacity-50" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search programs by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-14 pr-12 py-4 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl text-[var(--color-text)] font-bold text-sm outline-none focus:border-[var(--color-text)] transition-colors shadow-sm"
+                    />
+                    {searchQuery && (
+                        <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute inset-y-0 right-0 pr-5 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                        >
+                            <X size={18} />
+                        </button>
+                    )}
+                </div>
+            )}
+
+            {events.length === 0 ? (
                 <div className="text-center py-32 rounded-[2.5rem] border shadow-xl" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
                     <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-8 bg-[var(--color-bg)] border border-[var(--color-border)]">
                         <Calendar size={32} className="opacity-20" style={{ color: 'var(--color-text)' }} />
@@ -120,30 +169,46 @@ export default function EmployeeEventsPage() {
                         Your account currently has no gifting programs. Please check back during the next quarterly cycle.
                     </p>
                 </div>
+            ) : filteredActiveEvents.length === 0 && filteredClosedEvents.length === 0 && debouncedSearchQuery && (
+                <div className="text-center py-32 rounded-[2.5rem] border shadow-sm flex flex-col items-center" style={{ backgroundColor: 'var(--color-surface)', borderColor: 'var(--color-border)' }}>
+                    <div className="w-20 h-20 rounded-[2rem] flex items-center justify-center mx-auto mb-8 bg-[var(--color-bg)] border border-[var(--color-border)]">
+                        <Search size={32} className="opacity-20" style={{ color: 'var(--color-text)' }} />
+                    </div>
+                    <h2 className="text-2xl font-black mb-3" style={{ color: 'var(--color-text)' }}>No matching programs</h2>
+                    <p className="text-base font-bold max-w-xs mx-auto opacity-60" style={{ color: 'var(--color-text-muted)' }}>
+                        Try adjusting your search terms.
+                    </p>
+                    <button 
+                        onClick={() => setSearchQuery('')}
+                        className="mt-6 px-6 py-2 bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text)] rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:border-[var(--color-text)] transition-colors inline-block"
+                    >
+                        Clear Search
+                    </button>
+                </div>
             )}
 
-            {activeEvents.length > 0 && (
+            {filteredActiveEvents.length > 0 && (
                 <div className="mb-24">
                     <h2 className="text-[10px] font-black mb-10 flex items-center uppercase tracking-[0.3em]" style={{ color: 'var(--color-text-muted)' }}>
                         <span className="w-2 h-2 rounded-full mr-4 bg-[var(--color-text)]"></span>
                         Active Cycles
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {activeEvents.map(event => (
+                        {filteredActiveEvents.map(event => (
                             <EventCard key={event._id} event={event} isActive={true} />
                         ))}
                     </div>
                 </div>
             )}
 
-            {closedEvents.length > 0 && (
+            {filteredClosedEvents.length > 0 && (
                 <div>
                     <h2 className="text-[10px] font-black mb-10 flex items-center uppercase tracking-[0.3em] opacity-40" style={{ color: 'var(--color-text-muted)' }}>
                         <span className="w-2 h-2 rounded-full mr-4 bg-[var(--color-border)]"></span>
                         Previous Cycles
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {closedEvents.map(event => (
+                        {filteredClosedEvents.map(event => (
                             <EventCard key={event._id} event={event} isActive={false} />
                         ))}
                     </div>

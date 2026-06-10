@@ -2,6 +2,7 @@
 
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 
 export default function ImageSliderModal({ isOpen, onClose, images, initialIndex = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -88,11 +89,14 @@ export default function ImageSliderModal({ isOpen, onClose, images, initialIndex
             className="w-full h-full flex overflow-x-hidden snap-x snap-mandatory no-scrollbar"
         >
           {images.map((img, idx) => (
-            <div key={idx} className="flex-shrink-0 w-full h-full flex items-center justify-center snap-center">
-              <img 
+            <div key={idx} className="relative flex-shrink-0 w-full h-full flex items-center justify-center snap-center">
+              <Image 
                 src={img} 
                 alt={`Product Image ${idx + 1}`}
-                className="w-full h-full object-contain shadow-2xl rounded-[2px]"
+                fill
+                priority={idx === 0}
+                unoptimized={img?.startsWith('data:') || img?.startsWith('blob:')}
+                className="object-contain shadow-2xl rounded-[2px]"
               />
             </div>
           ))}

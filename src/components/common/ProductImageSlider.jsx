@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { Maximize2, Fullscreen, Maximize } from 'lucide-react';
 
 export default function ProductImageSlider({ images, onOpenModal, onImageClick, showFullscreen = true, className = "" }) {
@@ -60,16 +61,22 @@ export default function ProductImageSlider({ images, onOpenModal, onImageClick, 
                     >
                         <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
                             {/* Blurred Background for Premium "Full-Cover" Look */}
-                            <img
+                            <Image
                                 src={img}
                                 alt=""
-                                className="absolute inset-0 w-full h-full object-cover blur-xl opacity-20 scale-125 select-none pointer-events-none"
+                                fill
+                                priority={idx === 0}
+                                unoptimized={img?.startsWith('data:') || img?.startsWith('blob:')}
+                                className="object-cover blur-xl opacity-20 scale-125 select-none pointer-events-none"
                             />
                             {/* Main Subject - Uncropped */}
-                            <img
+                            <Image
                                 src={img}
                                 alt={`Product View ${idx + 1}`}
-                                className="relative w-full h-full object-cover select-none"
+                                fill
+                                priority={idx === 0}
+                                unoptimized={img?.startsWith('data:') || img?.startsWith('blob:')}
+                                className="object-cover select-none"
                             />
                         </div>
                     </div>
